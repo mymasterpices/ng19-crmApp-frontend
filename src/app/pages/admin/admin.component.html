@@ -1,0 +1,108 @@
+<div class="container mx-auto">
+    <div class="w-full pb-20 dark:bg-surface-100 h-full min-h-screen">
+        <div class="flex justify-between h-full">
+            <p-drawer [(visible)]="visible">
+                <ng-template #header>
+                    <div class="flex items-center gap-2">
+                        <p-avatar label="{{userName.charAt(0) || 'G' | titlecase}}" shape="circle" />
+                        <span class="inline-flex flex-col">
+                            <span class="font-bold">Howdy!</span>
+                            <span class="text-sm">{{userName | titlecase}}</span>
+                        </span>
+                    </div>
+                </ng-template>
+                <div class="overflow-y-auto">
+                    <ul class="list-none p-1 m-0">
+                        <li>
+                            <ul class="list-none p-0 m-0 overflow-hidden">
+                                <li class="hover:bg-blue-50 transition-all transition-delay-500 rounded-lg"
+                                    (click)="closeDrawer()">
+                                    <a routerLink="/dashboard" routerLinkActive="bg-blue-50 rounded-lg"
+                                        class="flex items-center cursor-pointer p-3 rounded-border  dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                        <i class="pi pi-home mr-2"></i>
+                                        <span class="font-normal">Dashboard</span>
+                                    </a>
+                                </li>
+                                <li class="hover:bg-blue-50 transition-all transition-delay-500 rounded-lg dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700"
+                                    (click)="closeDrawer()">
+                                    <a routerLink="add-new" routerLinkActive="bg-blue-50 rounded-lg"
+                                        class="flex items-center cursor-pointer p-3 rounded-border  dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                        <i class="pi pi-plus mr-2"></i>
+                                        <span class="font-normal">Add new</span>
+                                    </a>
+                                </li>
+                                <li class="hover:bg-blue-50 transition-all transition-delay-500 rounded-lg"
+                                    (click)="closeDrawer()">
+                                    <a routerLink="today" routerLinkActive="bg-blue-50 rounded-lg"
+                                        class="flex items-center cursor-pointer p-3 rounded-border  dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                        <i class="pi pi-calendar mr-2"></i>
+                                        <span class="font-normal">Today</span>
+                                    </a>
+                                </li>
+                                <li class="hover:bg-blue-50 transition-all transition-delay-500 rounded-lg"
+                                    (click)="closeDrawer()">
+                                    <a routerLink="missed" routerLinkActive="bg-blue-50 rounded-lg"
+                                        class="flex items-center cursor-pointer p-3 rounded-border  dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                        <i class="pi pi-exclamation-triangle mr-2"></i>
+                                        <span class="font-normal">Missed</span>
+                                    </a>
+                                </li>
+                                @if(userName === 'admin'){
+                                <li class="hover:bg-blue-50 transition-all transition-delay-500 rounded-lg"
+                                    (click)="closeDrawer()">
+                                    <a routerLink="all-users" routerLinkActive="bg-blue-50 rounded-lg"
+                                        class="flex items-center cursor-pointer p-3 rounded-border  dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple">
+                                        <i class="pi pi-users mr-2"></i>
+                                        <span class="font-normal">Users</span>
+                                    </a>
+                                </li>
+                                }
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <ng-template #footer>
+                    <div class="flex items-center gap-2">
+
+                        <button pButton label="Password" icon="pi pi-lock" class="w-full" outlined
+                            (click)="closeDrawer()" routerLink="change-password"></button>
+                        <button pButton label="Logout" icon="pi pi-sign-out" class="w-full" severity="danger" text
+                            (click)="logOut()"></button>
+                    </div>
+                </ng-template>
+            </p-drawer>
+            <div class="content w-full px-4 py-3">
+                <p-menubar class="">
+                    <ng-template #start>
+                        <p-button icon="pi pi-bars" [rounded]="true" [text]="true" severity="secondary"
+                            (click)="visible = true" />
+                        <form class="mx-4" [formGroup]="searchForm">
+                            <p-iconfield>
+                                <p-inputicon styleClass="pi pi-search" />
+                                <input type="text" pInputText placeholder="Search customer" class="w-full"
+                                    formControlName="searchTerm" name="searchTerm" autocomplete="off"
+                                    (change)="searchCustomer()" />
+                            </p-iconfield>
+                        </form>
+                    </ng-template>
+                    cd
+                    <ng-template #end>
+                        <div class="flex">
+                            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="contrast" [outlined]="true"
+                                (click)="goBack()" class="mr-2 max-sm:hidden" size="small"></p-button>
+                            <div class="flex items-center gap-2">
+                                <p-avatar label="{{userName.charAt(0) || 'G' | titlecase}}" shape="circle"
+                                    (click)="model.toggle($event)" />
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-menubar>
+                <p-menu #model [model]="items" [popup]="true" position="left"></p-menu>
+                <div id="main">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+        <app-mobile-footer class="fixed bottom-0 w-full z-40"></app-mobile-footer>
+    </div>
+</div>

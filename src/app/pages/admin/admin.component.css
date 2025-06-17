@@ -1,0 +1,5 @@
+.siderbarMenu {
+    height: 100%;
+    position: sticky;
+    top: 12px;
+}

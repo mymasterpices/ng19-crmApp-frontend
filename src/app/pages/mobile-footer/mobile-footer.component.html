@@ -1,0 +1,20 @@
+<div class="card hidden max-sm:block">
+    <p-toolbar class="p-0">
+        <div class="flex items-center justify-between w-full">
+            <p-button icon="pi pi-plus" class="mr-2" text severity="contrast" [rounded]="true" routerLink="add-new"
+                routerLinkActive="bg-blue-50 rounded-full" />
+
+            <p-button icon="pi pi-exclamation-triangle" class="mr-2" text severity="contrast" [rounded]="true"
+                routerLink="missed" routerLinkActive="bg-blue-50 rounded-full" />
+
+            <p-button icon="pi pi-home" text severity="contrast" [rounded]="true" routerLink="dashboard"
+                routerLinkActive="bg-blue-50 rounded-full" />
+
+            <p-button icon="pi pi-calendar" text severity="contrast" [rounded]="true" routerLink="today"
+                routerLinkActive="bg-blue-50 rounded-full" />
+
+            <p-button icon="pi pi-sign-out" text severity="contrast" [rounded]="true" (click)="logOut()"
+                routerLinkActive="bg-blue-50 rounded-full" />
+        </div>
+    </p-toolbar>
+</div>
