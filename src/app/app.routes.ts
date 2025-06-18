@@ -14,8 +14,8 @@ import { SearchComponent } from './pages/search/search.component';
 import { roleGuard } from './guard/role.guard';
 
 export const routes: Routes = [
-    { path: 'login', component: LoginComponent },
     { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: 'login', component: LoginComponent },
     {
         path: '',
         component: AdminComponent,
