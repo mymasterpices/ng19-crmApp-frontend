@@ -14,37 +14,34 @@ import { SearchComponent } from './pages/search/search.component';
 import { roleGuard } from './guard/role.guard';
 
 export const routes: Routes = [
-    {
-        path: 'login', component: LoginComponent
-    },
-    {
-        path: '', redirectTo: 'login', pathMatch: 'full'
-    },
+    { path: 'login', component: LoginComponent },
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
     {
         path: '',
-        component: AdminComponent, // Use DashboardComponent as the main layout
+        component: AdminComponent,
         canActivate: [authGuard],
         children: [
             { path: 'dashboard', component: DashboardComponent },
             { path: 'add-new', component: AddNewComponent },
             { path: 'today', component: TodayComponent },
             { path: 'missed', component: MissedComponent },
+            { path: 'change-password', component: ChangePasswordComponent },
             {
-                path: 'change-password', component: ChangePasswordComponent
+                path: 'all-users',
+                component: AllUsersComponent,
+                canActivate: [roleGuard],
+                data: { expectedRole: 'admin' }
             },
             {
-                path: 'all-users', component: AllUsersComponent,
+                path: 'add-new-user',
+                component: AddNewUserComponent,
                 canActivate: [roleGuard],
                 data: { expectedRole: 'admin' }
             },
             { path: 'view-customer/:id', component: ViewCustomerComponent },
-            {
-                path: 'add-new-user', component: AddNewUserComponent,
-                canActivate: [roleGuard],
-                data: { expectedRole: 'admin' }
-            },
-            { path: 'search/:customer_name', component: SearchComponent },
+            { path: 'search/:customer_name', component: SearchComponent }
         ]
     },
-    { path: '**', redirectTo: '/login' }
+    { path: '**', redirectTo: 'login' }
 ];
+
