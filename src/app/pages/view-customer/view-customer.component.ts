@@ -16,6 +16,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { FileUpload } from 'primeng/fileupload';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
+import { environment } from '../../../environments/environment.development';
 
 
 
@@ -52,8 +53,7 @@ export class ViewCustomerComponent implements OnInit {
   visible: boolean = false;
   visibleProductImage: boolean = false;
   isOpen = false;
-
-  backedAppUrl = 'http://localhost:5200';
+  backedAppUrl = environment.apiUrl;
 
   toggle(event: any) {
     this.op.toggle(event);

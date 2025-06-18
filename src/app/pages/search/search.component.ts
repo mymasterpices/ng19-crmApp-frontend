@@ -5,6 +5,7 @@ import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-search',
@@ -32,7 +33,7 @@ export class SearchComponent implements OnInit {
   searchCustomer: string = '';
   // searchResults: any[] = [];
   searchResults = signal<any[]>([]);
-  backedAppUrl = 'http://localhost:5200';
+  backedAppUrl = environment.apiUrl;
 
   ngOnInit(): void {
     this._activatedRoute.params.subscribe(params => {
@@ -59,7 +60,7 @@ export class SearchComponent implements OnInit {
   }
 
   deleteCustomer(event: string) {
-    //console.log(event); 
+    //console.log(event);
     this.confirmationService.confirm({
       message: 'Are you sure that you want to delete?',
       header: 'Delete a customer',
