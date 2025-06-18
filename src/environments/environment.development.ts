@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5200',
+  production: true,
+  apiUrl: 'https://crm.jools.in',
 };
