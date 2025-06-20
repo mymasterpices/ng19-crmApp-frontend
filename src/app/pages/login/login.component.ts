@@ -10,9 +10,6 @@ import { Router } from '@angular/router';
 import { FloatLabel } from 'primeng/floatlabel';
 import { MessageService } from 'primeng/api';
 
-
-
-
 @Component({
   selector: 'app-login',
   imports: [
@@ -62,8 +59,5 @@ export class LoginComponent {
     });
 
   }
-
-
-
 
 }

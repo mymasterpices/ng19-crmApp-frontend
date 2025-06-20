@@ -29,13 +29,13 @@ export const routes: Routes = [
             {
                 path: 'all-users',
                 component: AllUsersComponent,
-                canActivate: [roleGuard],
+                canActivate: [authGuard, roleGuard],
                 data: { expectedRole: 'admin' }
             },
             {
                 path: 'add-new-user',
                 component: AddNewUserComponent,
-                canActivate: [roleGuard],
+                canActivate: [authGuard, roleGuard],
                 data: { expectedRole: 'admin' }
             },
             { path: 'view-customer/:id', component: ViewCustomerComponent },
