@@ -16,7 +16,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { FileUpload } from 'primeng/fileupload';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../environments/environment.development';
 
 
 

@@ -1,36 +1,46 @@
-<div class="pt-4 grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
+<div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-4 pt-4">
     @for (customer of customers(); track $index) {
-    <div class="bg-white rounded-xl shadow-md overflow-hidden p-4 relative cursor-pointer">
+    <p-card class="rounded-xl shadow-md overflow-hidden relative cursor-pointer bg-white dark:bg-gray-800">
         <div class="flex items-start justify-start space-x-5" (click)="viewCustomer(customer._id)">
             <div class="product-image">
-                <img src="{{backedAppUrl}}/{{ customer.productImage }}" alt="{{ customer.productName }}"
-                    class="w-16 h-full object-cover rounded " />
+                <img [src]="backedAppUrl + '/' + customer.productImage" [alt]="customer.productName"
+                    class="w-16 h-full object-cover rounded" />
             </div>
-            <div class=" text-sm text-gray-700 space-y-1">
-                <div class="flex justify-start pb-2">
-                    <h4 class="font-bold text-gray-700">{{ customer.name | titlecase }}</h4>
-                    <p class=" text-gray-500">📞 {{ customer.mobile }}</p>
+
+            <div class="text-sm">
+                <div class="flex justify-between gap-4 ">
+                    <p class="font-bold">{{ customer.name | titlecase }}</p>
+                    <p>🎧 {{ customer.mobile }}</p>
                 </div>
-                <p><small>Product:</small> {{ customer.productName }}</p>
-                <p><small>Follow-Up:</small> {{ customer.nextFollowUpDate | date: 'MMM dd, yyyy' }}</p>
-                <p><small>Status:</small>
+
+                <p class="text-zinc-500 dark:text-gray-300">Product: {{ customer.productName }}</p>
+                <p class=" text-zinc-500 dark:text-gray-300">Follow-Up: {{ customer.nextFollowUpDate |
+                    date: 'MMM dd, yyyy' }}</p>
+                <p class=" text-zinc-500 dark:text-gray-300">Sales Staff: {{ customer.salesperson |
+                    titlecase }}</p>
+
+                <p class=" text-zinc-500 dark:text-gray-300">Status:
                     <span class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs" [ngClass]="{
-                'bg-green-500': customer.status === 'Open',
-                'bg-yellow-500': customer.status === 'Cold',
-                'bg-red-500': customer.status === 'Close'
-              }">{{ customer.status }}</span>
+                            'bg-green-500': customer.status === 'Open',
+                            'bg-yellow-500': customer.status === 'Cold',
+                            'bg-red-500': customer.status === 'Close'
+                        }">
+                        {{ customer.status }}
+                    </span>
                 </p>
             </div>
         </div>
+
         <div class="absolute bottom-2 right-2 z-10 flex space-x-2">
             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
                 (click)="deleteCustomer(customer._id)"></p-button>
         </div>
-    </div>
+    </p-card>
+
     }
     @empty {
-    <div class="bg-white rounded-xl shadow-md overflow-hidden p-4 text-center">
-        <p class="text-gray-500">No customers Follow-Up for today.</p>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
+        <p class="text-gray-500">No customers Follow-Up for missed.</p>
     </div>
     }
     <p-confirmdialog />

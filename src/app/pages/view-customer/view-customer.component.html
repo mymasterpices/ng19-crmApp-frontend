@@ -1,5 +1,4 @@
 <div class="mb-[5rem] mt-2 h-full">
-
     <!-- Customer Chat History Card -->
     <p-card class="">
         <ng-template pTemplate="header">
@@ -91,31 +90,32 @@
         </ng-template>
 
         @for (chat of customerData?.messages; track chat._id) {
-        <div class="bg-blue-50 mb-2 p-2 rounded-xl border-radius-lg">
+        <div class="bg-gray-700 text-emerald-50 dark:bg-gray-800 mb-2 p-3 rounded-xl shadow-sm dark:border-none">
             <div class="flex gap-1 items-center justify-between">
-                <span class="text-sm font-normal pb-1">
+                <span class="text-sm font-normal text-gray-100 dark:text-gray-100">
                     {{ chat.message | titlecase }}
                 </span>
                 <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="primary" class="pr-0 mr-0"
-                    (click)="popover.toggle($event)">
-                </p-button>
+                    (click)="popover.toggle($event)"></p-button>
             </div>
+
             <p-popover #popover>
                 <div class="flex flex-col gap-2">
-                    <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="primary"
-                        (click)="showDialog(chat._id)" class="w-full">
-                    </p-button>
-                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" (click)="deleteChat(chat._id)"
-                        class="w-full" severity="danger">
-                    </p-button>
+                    <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="primary" class="w-full"
+                        (click)="showDialog(chat._id)"></p-button>
+                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" class="w-full" severity="danger"
+                        (click)="deleteChat(chat._id)"></p-button>
                 </div>
             </p-popover>
 
-            <div class="flex items-start gap-1">
-                <span class=" text-[0.6rem] opacity-70">{{ chat.timestamp | date }}</span>
-                <span class=" text-[0.6rem] opacity-80"><em>{{ chat.edited? 'Edited' : ''}}</em></span>
+            <div class="flex items-start gap-2 mt-1">
+                <span class="text-[0.7rem] text-gray-500 dark:text-gray-400">{{ chat.timestamp | date }}</span>
+                <span class="text-[0.7rem] text-gray-500 dark:text-gray-400"><em>{{ chat.edited ? 'Edited' : ''
+                        }}</em></span>
             </div>
         </div>
+
+
         }
         @empty{
         <div class="bg-blue-50 mb-2 p-2 rounded-xl border-radius-lg">

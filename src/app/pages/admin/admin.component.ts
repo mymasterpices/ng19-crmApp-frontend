@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, } from '@angular/core';
+import { Component, inject, OnInit, signal, } from '@angular/core';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
@@ -38,10 +38,9 @@ import { LoginedUserService } from '../../services/logined-user.service';
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
-
+  isDark = signal<boolean>(false);
   userName: string = '';
 
-  private activatedRoute = inject(ActivatedRoute);
   private loginedUserService = inject(LoginedUserService);
   private router = inject(Router);
   private location = inject(Location);
@@ -50,20 +49,36 @@ export class AdminComponent implements OnInit {
   visible: boolean = false;
 
   ngOnInit() {
-    this.items = [
-      {
-        label: 'Password',
-        icon: 'pi pi-lock-open',
-        routerLink: 'change-password',
-      },
-      {
-        label: 'Sign Out',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.logOut();
-        }
-      }
-    ];
+    const savedTheme = localStorage.getItem('theme') === 'dark';
+    this.isDark.set(savedTheme);
+    this.applyTheme(savedTheme);
+    this.setMenuItems();
+    // this.items = [
+    //   {
+    //     label: this.isDark() ? 'Light' : 'Dark',
+    //     icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon',
+    //     command: () => {
+    //       this.isDark.set(!this.isDark);
+    //       localStorage.setItem('theme', this.isDark() ? 'dark' : 'light');
+    //       document.documentElement.classList.toggle('my-app-dark', this.isDark());
+    //       // Update label/icon dynamically
+    //       label: this.isDark() ? 'Light' : 'Dark';
+    //       icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon';
+    //     }
+    //   },
+    //   {
+    //     label: 'Password',
+    //     icon: 'pi pi-lock-open',
+    //     routerLink: 'change-password',
+    //   },
+    //   {
+    //     label: 'Sign Out',
+    //     icon: 'pi pi-sign-out',
+    //     command: () => {
+    //       this.logOut();
+    //     }
+    //   }
+    // ];
 
     const token = sessionStorage.getItem('RkJewellersUser');
     if (token) {
@@ -73,6 +88,37 @@ export class AdminComponent implements OnInit {
 
     // Load username on component initialization
     this.userName = this.loginedUserService.getLoginedUser();
+  }
+
+  toggleDarkMode() {
+    const newValue = !this.isDark();
+    this.isDark.set(newValue);
+    localStorage.setItem('theme', newValue ? 'dark' : 'light');
+    this.applyTheme(newValue);
+    this.setMenuItems(); // Update menu label/icon
+  }
+  applyTheme(isDark: boolean) {
+    document.documentElement.classList.toggle('my-app-dark', isDark);
+  }
+
+  setMenuItems() {
+    this.items = [
+      {
+        label: this.isDark() ? 'Light' : 'Dark',
+        icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon',
+        command: () => this.toggleDarkMode()
+      },
+      {
+        label: 'Password',
+        icon: 'pi pi-lock-open',
+        routerLink: 'change-password',
+      },
+      {
+        label: 'Sign Out',
+        icon: 'pi pi-sign-out',
+        command: () => this.logOut(),
+      }
+    ];
   }
 
   closeDrawer() {

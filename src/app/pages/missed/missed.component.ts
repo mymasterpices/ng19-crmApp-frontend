@@ -5,7 +5,8 @@ import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { ConfirmDialog } from 'primeng/confirmdialog';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-missed',
@@ -13,7 +14,7 @@ import { environment } from '../../../environments/environment';
     DatePipe,
     ButtonModule,
     TitleCasePipe,
-    ConfirmDialog, NgClass
+    ConfirmDialog, NgClass, CardModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './missed.component.html',
