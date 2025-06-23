@@ -10,8 +10,8 @@ import { HttpParams } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { LoginedUserService } from '../../services/logined-user.service';
-import { environment } from '../../../environments/environment.development';
 import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment.development';
 
 
 @Component({
