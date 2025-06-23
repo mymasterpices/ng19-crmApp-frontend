@@ -11,7 +11,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { authGuard } from './guard/auth.guard';
 import { ViewCustomerComponent } from './pages/view-customer/view-customer.component';
 import { SearchComponent } from './pages/search/search.component';
-import { roleGuard } from './guard/role.guard';
+import { rolecheckGuard } from './guard/rolecheck.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -29,13 +29,13 @@ export const routes: Routes = [
             {
                 path: 'all-users',
                 component: AllUsersComponent,
-                canActivate: [authGuard, roleGuard],
+                canActivate: [authGuard, rolecheckGuard],
                 data: { expectedRole: 'admin' }
             },
             {
                 path: 'add-new-user',
                 component: AddNewUserComponent,
-                canActivate: [authGuard, roleGuard],
+                canActivate: [authGuard, rolecheckGuard],
                 data: { expectedRole: 'admin' }
             },
             { path: 'view-customer/:id', component: ViewCustomerComponent },

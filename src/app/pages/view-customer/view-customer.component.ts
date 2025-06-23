@@ -1,6 +1,5 @@
-import { Component, inject, OnInit, signal, Signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { CardModule } from 'primeng/card';
 import { CommonModule, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -16,7 +15,8 @@ import { AvatarModule } from 'primeng/avatar';
 import { FileUpload } from 'primeng/fileupload';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../../environments/environment.development';
+import { ApiService } from '../../services/api.service';
 
 
 
@@ -67,7 +67,7 @@ export class ViewCustomerComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private loginService: LoginserviceService,
+    private loginService: ApiService,
     private _activatedRoute: ActivatedRoute
   ) { }
 

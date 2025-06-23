@@ -6,10 +6,10 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { Location } from '@angular/common';
+import { ApiService } from '../../services/api.service';
 @Component({
   selector: 'app-add-new-user',
   imports: [
@@ -25,7 +25,7 @@ import { Location } from '@angular/common';
 })
 export class AddNewUserComponent implements OnInit {
 
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
   private messageService = inject(MessageService);
   private location = inject(Location);
 

@@ -11,8 +11,8 @@ import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { MessageService } from 'primeng/api';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-change-password',
@@ -29,7 +29,7 @@ import { MessageService } from 'primeng/api';
 })
 export class ChangePasswordComponent {
 
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
   private mesageService = inject(MessageService);
   changePasswordForm = new FormGroup(
     {

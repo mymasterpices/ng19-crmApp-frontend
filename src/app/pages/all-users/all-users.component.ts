@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { PopoverModule } from 'primeng/popover';
@@ -14,6 +13,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { jwtDecode } from "jwt-decode";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ApiService } from '../../services/api.service';
 
 
 
@@ -34,7 +34,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 })
 export class AllUsersComponent implements OnInit {
 
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 

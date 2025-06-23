@@ -1,12 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../environments/environment.development';
-
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LoginserviceService {
+export class ApiService {
+
   private http = inject(HttpClient);
   private appUrl = environment.apiUrl;
 
@@ -14,10 +14,6 @@ export class LoginserviceService {
 
   private baseUrl = this.appUrl;
 
-  //login a user to the system
-  login(loginInput: any) {
-    return this.http.post(this.baseUrl + '/api/auth/login', loginInput);
-  }
   //get all customers on dashboard
   getAllcustomers(params?: HttpParams) {
     return this.http.get(this.baseUrl + '/api/customers/get', {
@@ -100,6 +96,4 @@ export class LoginserviceService {
   addSalesstaff(newSalesstaff: any) {
     return this.http.post(`${this.baseUrl}/api/auth/register`, newSalesstaff);
   }
-
-
 }

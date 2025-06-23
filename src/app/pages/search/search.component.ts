@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../../environments/environment.development';
+import { CardModule } from 'primeng/card';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-search',
@@ -15,7 +16,7 @@ import { environment } from '../../environments/environment.development';
     ButtonModule,
     DatePipe,
     ConfirmDialog,
-    NgClass
+    NgClass, CardModule
 
   ],
   providers: [ConfirmationService],
@@ -25,7 +26,7 @@ import { environment } from '../../environments/environment.development';
 export class SearchComponent implements OnInit {
 
   private _activatedRoute = inject(ActivatedRoute);
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
   private router = inject(Router);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);

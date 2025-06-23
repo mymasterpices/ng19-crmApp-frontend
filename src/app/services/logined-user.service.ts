@@ -9,7 +9,7 @@ export class LoginedUserService {
 
   // Get logged-in user's username
   getLoginedUser(): string {
-    const token = sessionStorage.getItem('RkJewellersUser');
+    const token = localStorage.getItem('RkJewellersUser');
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);

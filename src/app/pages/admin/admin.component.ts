@@ -3,7 +3,7 @@ import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
@@ -15,6 +15,7 @@ import { jwtDecode } from "jwt-decode";
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginedUserService } from '../../services/logined-user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin',
@@ -43,7 +44,8 @@ export class AdminComponent implements OnInit {
 
   private loginedUserService = inject(LoginedUserService);
   private router = inject(Router);
-  private location = inject(Location);
+
+  private authService = inject(AuthService);
 
   items: MenuItem[] | undefined;
   visible: boolean = false;
@@ -53,38 +55,6 @@ export class AdminComponent implements OnInit {
     this.isDark.set(savedTheme);
     this.applyTheme(savedTheme);
     this.setMenuItems();
-    // this.items = [
-    //   {
-    //     label: this.isDark() ? 'Light' : 'Dark',
-    //     icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon',
-    //     command: () => {
-    //       this.isDark.set(!this.isDark);
-    //       localStorage.setItem('theme', this.isDark() ? 'dark' : 'light');
-    //       document.documentElement.classList.toggle('my-app-dark', this.isDark());
-    //       // Update label/icon dynamically
-    //       label: this.isDark() ? 'Light' : 'Dark';
-    //       icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon';
-    //     }
-    //   },
-    //   {
-    //     label: 'Password',
-    //     icon: 'pi pi-lock-open',
-    //     routerLink: 'change-password',
-    //   },
-    //   {
-    //     label: 'Sign Out',
-    //     icon: 'pi pi-sign-out',
-    //     command: () => {
-    //       this.logOut();
-    //     }
-    //   }
-    // ];
-
-    const token = sessionStorage.getItem('RkJewellersUser');
-    if (token) {
-      const decodedToken: any = jwtDecode(token);
-      this.userName = decodedToken?.name || decodedToken?.username || 'Guest';
-    }
 
     // Load username on component initialization
     this.userName = this.loginedUserService.getLoginedUser();
@@ -125,17 +95,12 @@ export class AdminComponent implements OnInit {
     this.visible = false;
   }
 
-
   logOut() {
-    const user = sessionStorage.getItem('RkJewellersUser');
-    if (user) {
-      sessionStorage.removeItem('RkJewellersUser');
-      this.router.navigate(['/login']);
-    }
+    this.authService.logout();
   }
 
   goBack() {
-    this.location.back();
+    this.authService.goBack();
   }
 
   searchForm = new FormGroup({

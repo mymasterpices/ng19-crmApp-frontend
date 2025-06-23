@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { CardModule } from 'primeng/card';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -13,6 +12,7 @@ import { SelectModule } from 'primeng/select';
 import { FileUpload } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { jwtDecode } from "jwt-decode";
+import { ApiService } from '../../services/api.service';
 
 interface FileWithPreview {
   files: File[];
@@ -38,7 +38,7 @@ interface FileWithPreview {
 })
 export class AddNewComponent implements OnInit {
   private messageService = inject(MessageService);
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
 
   status = [{ name: 'Open' }, { name: 'Cold' }, { name: 'Close' }];
   seriousness = [{ name: 'High' }, { name: 'Low' }, { name: 'Neutral' }];
@@ -70,7 +70,7 @@ export class AddNewComponent implements OnInit {
   userName = '';
 
   getUserName() {
-    const token = sessionStorage.getItem('RkJewellersUser');
+    const token = localStorage.getItem('RkJewellersUser');
     if (token) {
       const decodedToken: any = jwtDecode(token);
       this.userName = decodedToken?.name || decodedToken?.username || 'Guest';

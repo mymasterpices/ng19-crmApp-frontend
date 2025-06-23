@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { LoginserviceService } from '../../services/loginservice.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
@@ -11,7 +10,8 @@ import { HttpParams } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { LoginedUserService } from '../../services/logined-user.service';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../../environments/environment.development';
+import { ApiService } from '../../services/api.service';
 
 
 @Component({
@@ -28,7 +28,7 @@ import { environment } from '../../environments/environment.development';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  private loginService = inject(LoginserviceService);
+  private loginService = inject(ApiService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private loginedUserService = inject(LoginedUserService);
@@ -185,16 +185,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-
-
-
   onPageChange(event: any) {
     this.first.set(event.first);
     this.rows.set(event.rows);
   }
 
   viewCustomer(customer_id: string) {
-    // console.log(customer_id);
     this.router.navigate(['view-customer', customer_id]);
   }
 

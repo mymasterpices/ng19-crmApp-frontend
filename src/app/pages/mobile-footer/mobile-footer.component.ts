@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Toolbar } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 
 
@@ -16,22 +17,12 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class MobileFooterComponent {
 
-
   private router = inject(Router);
-
-  ngOnInit() {
-
-  }
+  private authService = inject(AuthService);
 
   logOut() {
-    const token = sessionStorage.getItem('RkJewellersUser');
-    if (token) {
-      sessionStorage.removeItem('RkJewellersUser');
-      this.router.navigate(['/login']);
-      return;
-    }
-    // Implement logout logic here
-    console.log('User logged out');
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
 }
