@@ -3,9 +3,9 @@
     <h6 class="text-xs font-semibold">Filters</h6>
     <form action="" [formGroup]="searchForm" (ngSubmit)="searchCustomer()">
         <div class="card flex justify-center gap-3">
-            <p-select [options]="salespersonOptions" placeholder="Sales Person" class="w-full"
+            <p-select [options]="salespersonOptions()" placeholder="Sales Person" class="w-full"
                 formControlName="salesperson" [showClear]="true" />
-            <p-select [options]="statusOptions" placeholder="Status" class="w-full" formControlName="status"
+            <p-select [options]="statusOptions()" placeholder="Status" class="w-full" formControlName="status"
                 [showClear]="true" />
             <p-button icon="pi pi-search" type="submit" [rounded]="true" severity="secondary" [text]="true"
                 [outlined]="true" [disabled]="!searchForm.valid"></p-button>

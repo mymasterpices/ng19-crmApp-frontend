@@ -8,26 +8,27 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SelectModule } from 'primeng/select';
 import { HttpParams } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { PaginatorModule } from 'primeng/paginator';
 import { LoginedUserService } from '../../services/logined-user.service';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 
-
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
     FormsModule, NgClass, DatePipe,
     ButtonModule, TitleCasePipe,
-    ConfirmDialog,
-    SelectModule, CardModule, ReactiveFormsModule,
+    ConfirmDialog, SelectModule,
+    CardModule, ReactiveFormsModule,
     PaginatorModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+
   private loginService = inject(ApiService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -35,154 +36,103 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
 
   customers = signal<any[]>([]);
+  salespersonOptions = signal<any[]>([]);
+  statusOptions = signal<any[]>([
+    { label: 'Cold', value: 'Cold' },
+    { label: 'Open', value: 'Open' },
+    { label: 'Close', value: 'Close' }
+  ]);
+
   private appUrl = environment.apiUrl;
   backedAppUrl = this.appUrl;
-  statusOptions: any[] | undefined;
-  salespersonOptions: any[] | undefined;
 
   loginUser: string = '';
 
+  // Pagination signals
+  totalRecords = signal<number>(0);
+  rows = signal<number>(10);
+  first = signal<number>(0);
 
   ngOnInit(): void {
+    this.loginUser = this.loginedUserService.getLoginedUser();
     this.getAllcustomers();
     this.getSalespersonOptions();
-    this.salespersonOptions = [];
-
-    // Initialize status options
-    this.statusOptions = [
-      { label: 'Cold', value: 'Cold' },
-      { label: 'Open', value: 'Open' },
-      { label: 'Close', value: 'Close' }
-    ];
-
-    this.loginUser = this.loginedUserService.getLoginedUser();
   }
 
-
-  selectedStatus(arg0: string, selectedStatus: any): HttpParams {
-    throw new Error('Method not implemented.');
-  }
-  selectedSalesperson(arg0: string, selectedSalesperson: any): HttpParams {
-    throw new Error('Method not implemented.');
-  }
-
-  getSalespersonOptions() {
-    this.loginService.getAllSalespersons().subscribe(
-      (res: any) => {
-        // console.log(res);
-        this.salespersonOptions = res.map((customer: any) => ({
-          label: customer.salesPerson,
-          value: customer.salesPerson
-        }));
-      },
-      (error: any) => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
-      }
-    );
-  }
-
-
-  //filter form value
+  // Filter form
   searchForm = new FormGroup({
     salesperson: new FormControl(null),
     status: new FormControl(null)
   });
 
-  searchCustomer(): void {
-    const { salesperson, status } = this.searchForm.value;
-    let params = new HttpParams();
-
-    if (salesperson) {
-      params = params.set('salesperson', salesperson);
-    }
-
-    if (status) {
-      params = params.set('status', status);
-    }
-
-    this.loginService.getAllcustomers(params).subscribe(
+  getSalespersonOptions() {
+    this.loginService.getAllSalespersons().subscribe(
       (res: any) => {
-        console.log(res);
-        this.customers.set(res);
-        this.getSalespersonOptions();
-
-        // Update salesperson options from result
-        this.salespersonOptions = res.map((customer: any) => ({
-          label: customer.salesperson,
-          value: customer.salesperson
+        const options = res.map((customer: any) => ({
+          label: customer.username,
+          value: customer.username
         }));
+        this.salespersonOptions.set(options);
       },
       (error: any) => {
-        this.customers.set([]);
-        console.log(error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error.message
-        });
+        console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
       }
     );
   }
 
+  searchCustomer(): void {
+    const { salesperson, status } = this.searchForm.value;
+    let params = new HttpParams();
 
-  // Pagination signals
-  totalRecords = signal<number>(0);
-  rows = signal<number>(10); // Items per page
-  first = signal<number>(0); // Starting index
+    if (salesperson) params = params.set('salesperson', salesperson);
+    if (status) params = params.set('status', status);
 
-  // Computed signal for paginated data
-  paginatedCustomers = computed(() => {
-    const allCustomers = this.customers();
-    const startIndex = this.first();
-    const endIndex = startIndex + this.rows();
-    return allCustomers.slice(startIndex, endIndex);
-  });
+    this.loginService.getAllcustomers(params).subscribe(
+      (res: any) => {
+        this.customers.set(res);
+        this.totalRecords.set(res.length);
 
-  //initial customers list
+        const options = res.map((customer: any) => ({
+          label: customer.salesperson,
+          value: customer.salesperson
+        }));
+        // this.salespersonOptions.set(options);
+        this.getSalespersonOptions();
+      },
+      (error: any) => {
+        this.customers.set([]);
+        console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+      }
+    );
+  }
+
   getAllcustomers(): void {
-    const salesperson = this.loginedUserService.getLoginedUser(); // Get username from token
+    const salesperson = this.loginedUserService.getLoginedUser();
     let params = new HttpParams();
 
     if (salesperson && salesperson !== 'admin') {
       params = params.set('salesperson', salesperson);
-      this.loginService.getAllcustomers(params).subscribe(
-        (res: any) => {
-          // console.log(res);
-          this.customers.set(res);
-          this.totalRecords.set(res.length);
-          // Update salesperson options
-          this.salespersonOptions = res.map((customer: any) => ({
-            label: customer.salesperson,
-            value: customer.salesperson
-          }));
-        },
-        (error: any) => {
-          this.customers.set([]);
-          console.log(error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error.message
-          });
-        }
-      );
     }
 
-    else {
-      this.loginService.getAllcustomers().subscribe(
-        (res: any) => {
-          // console.log(res);
-          this.customers.set(res);
-          this.totalRecords.set(res.length);
-          // Update salesperson options
-          this.salespersonOptions = res.map((customer: any) => ({
-            label: customer.salesperson,
-            value: customer.salesperson
-          }));
-        }
-      );
-    }
+    this.loginService.getAllcustomers(params).subscribe(
+      (res: any) => {
+        this.customers.set(res);
+        this.totalRecords.set(res.length);
+
+        const options = res.map((customer: any) => ({
+          label: customer.salesperson,
+          value: customer.salesperson
+        }));
+        this.salespersonOptions.set(options);
+      },
+      (error: any) => {
+        this.customers.set([]);
+        console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+      }
+    );
   }
 
   onPageChange(event: any) {
@@ -194,14 +144,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['view-customer', customer_id]);
   }
 
-  // deleteCustomer(customer_id: string) {
   deleteCustomer(event: string) {
-    //console.log(event);
     this.confirmationService.confirm({
       message: 'Are you sure that you want to delete?',
       header: 'Delete a customer',
-      closable: true,
-      closeOnEscape: true,
       icon: 'pi pi-exclamation-triangle',
       rejectButtonProps: {
         label: 'Cancel',
@@ -214,18 +160,23 @@ export class DashboardComponent implements OnInit {
       accept: () => {
         this.loginService.deleteCustomer(event).subscribe(
           (res: any) => {
-            // console.log(res);
             this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
             this.getAllcustomers();
           },
           (error: any) => {
-            console.log(error);
+            console.error(error);
             this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
           }
-        )
+        );
       },
     });
-  };
+  }
 
-
+  // Computed pagination
+  paginatedCustomers = computed(() => {
+    const allCustomers = this.customers();
+    const startIndex = this.first();
+    const endIndex = startIndex + this.rows();
+    return allCustomers.slice(startIndex, endIndex);
+  });
 }
