@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
 
 @Component({
