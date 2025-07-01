@@ -56,7 +56,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loginUser = this.loginedUserService.getLoginedUser();
     this.getAllcustomers();
-    this.getSalespersonOptions();
+    this.getSalespersonOptions();  // ✅ Only called once
   }
 
   // Filter form
@@ -65,22 +65,30 @@ export class DashboardComponent implements OnInit {
     status: new FormControl(null)
   });
 
+  // ✅ Fetch unique salesperson list
   getSalespersonOptions() {
     this.loginService.getAllSalespersons().subscribe(
       (res: any) => {
-        const options = res.map((customer: any) => ({
-          label: customer.username,
-          value: customer.username
+        const usernames = res.map((user: any) => user.username);
+        const uniqueUsernames = Array.from(new Set(usernames));
+        const options = uniqueUsernames.map(username => ({
+          label: username,
+          value: username
         }));
         this.salespersonOptions.set(options);
       },
       (error: any) => {
         console.error(error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.message
+        });
       }
     );
   }
 
+  // ✅ Search with filters
   searchCustomer(): void {
     const { salesperson, status } = this.searchForm.value;
     let params = new HttpParams();
@@ -92,22 +100,20 @@ export class DashboardComponent implements OnInit {
       (res: any) => {
         this.customers.set(res);
         this.totalRecords.set(res.length);
-
-        const options = res.map((customer: any) => ({
-          label: customer.salesperson,
-          value: customer.salesperson
-        }));
-        // this.salespersonOptions.set(options);
-        this.getSalespersonOptions();
       },
       (error: any) => {
         this.customers.set([]);
         console.error(error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.message
+        });
       }
     );
   }
 
+  // ✅ Load customers (with salesperson restriction if not admin)
   getAllcustomers(): void {
     const salesperson = this.loginedUserService.getLoginedUser();
     let params = new HttpParams();
@@ -120,31 +126,32 @@ export class DashboardComponent implements OnInit {
       (res: any) => {
         this.customers.set(res);
         this.totalRecords.set(res.length);
-
-        const options = res.map((customer: any) => ({
-          label: customer.salesperson,
-          value: customer.salesperson
-        }));
-        this.salespersonOptions.set(options);
       },
       (error: any) => {
         this.customers.set([]);
         console.error(error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.message
+        });
       }
     );
   }
 
+  // ✅ Handle pagination
   onPageChange(event: any) {
     this.first.set(event.first);
     this.rows.set(event.rows);
   }
 
+  // ✅ View customer details
   viewCustomer(customer_id: string) {
     this.router.navigate(['view-customer', customer_id]);
   }
 
-  deleteCustomer(event: string) {
+  // ✅ Delete customer with confirmation
+  deleteCustomer(customerId: string) {
     this.confirmationService.confirm({
       message: 'Are you sure that you want to delete?',
       header: 'Delete a customer',
@@ -158,21 +165,29 @@ export class DashboardComponent implements OnInit {
         label: 'Delete',
       },
       accept: () => {
-        this.loginService.deleteCustomer(event).subscribe(
+        this.loginService.deleteCustomer(customerId).subscribe(
           (res: any) => {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
-            this.getAllcustomers();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: res.message
+            });
+            this.getAllcustomers(); // Refresh list
           },
           (error: any) => {
             console.error(error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error.message
+            });
           }
         );
       },
     });
   }
 
-  // Computed pagination
+  // ✅ Computed customer list for pagination
   paginatedCustomers = computed(() => {
     const allCustomers = this.customers();
     const startIndex = this.first();
