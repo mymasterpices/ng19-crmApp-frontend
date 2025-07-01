@@ -6,6 +6,9 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ApiService {
+  getLoginedUser() {
+    throw new Error('Method not implemented.');
+  }
 
   private http = inject(HttpClient);
   private appUrl = environment.apiUrl;
@@ -62,11 +65,15 @@ export class ApiService {
   }
 
   //today's followup customers
-  todayFollowupCustomers() {
-    return this.http.get(`${this.baseUrl}/api/customers/followup/today`);
+  todayFollowupCustomers(params?: HttpParams) {
+    return this.http.get(`${this.baseUrl}/api/customers/followup/today`, {
+      params: params || {}
+    });
   }
-  missedFollowupCustomers() {
-    return this.http.get(`${this.baseUrl}/api/customers/followup/missed`);
+  missedFollowupCustomers(params?: HttpParams) {
+    return this.http.get(`${this.baseUrl}/api/customers/followup/missed`, {
+      params: params || {}
+    });
   }
 
   //update a customer

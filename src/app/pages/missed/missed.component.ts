@@ -7,6 +7,8 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
+import { HttpParams } from '@angular/common/http';
+import { LoginedUserService } from '../../services/logined-user.service';
 
 @Component({
   selector: 'app-missed',
@@ -25,6 +27,8 @@ export class MissedComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
+  private loginedUserService = inject(LoginedUserService);
+  
   customers = signal<any[]>([]);
   private appUrl = environment.apiUrl;
   backedAppUrl = this.appUrl;
@@ -33,7 +37,13 @@ export class MissedComponent implements OnInit {
     this.getAllcustomers();
   }
   getAllcustomers() {
-    this.loginService.missedFollowupCustomers().subscribe(
+    const salesperson = this.loginedUserService.getLoginedUser();
+    let params = new HttpParams();
+
+    if (salesperson && salesperson !== 'admin') {
+      params = params.set('salesperson', salesperson);
+    }
+    this.loginService.missedFollowupCustomers(params).subscribe(
       (res: any) => {
         console.log(res);
         this.customers.set(res);
