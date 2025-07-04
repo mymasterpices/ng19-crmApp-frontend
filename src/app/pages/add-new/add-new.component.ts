@@ -47,7 +47,7 @@ export class AddNewComponent implements OnInit {
 
   customerForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    mobile: new FormControl(null, [Validators.required, Validators.pattern(/^\d{10}$/)]),
+    mobile: new FormControl(null, [Validators.required, Validators.pattern(/^\d{0,15}$/)]),
     productName: new FormControl('', Validators.required),
     price: new FormControl(null, Validators.required),
     nextFollowUpDate: new FormControl<Date | null>(null, Validators.required),
