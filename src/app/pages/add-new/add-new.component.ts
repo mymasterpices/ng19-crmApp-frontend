@@ -1,5 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -11,7 +16,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { FileUpload } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import { ApiService } from '../../services/api.service';
 
 interface FileWithPreview {
@@ -33,8 +38,8 @@ interface FileWithPreview {
     InputNumberModule,
     SelectModule,
     FileUpload,
-    ButtonModule
-  ]
+    ButtonModule,
+  ],
 })
 export class AddNewComponent implements OnInit {
   private messageService = inject(MessageService);
@@ -47,7 +52,7 @@ export class AddNewComponent implements OnInit {
 
   customerForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    mobile: new FormControl(null, [Validators.required, Validators.pattern(/^\d{0,15}$/)]),
+    mobile: new FormControl(null, [Validators.required]),
     productName: new FormControl('', Validators.required),
     price: new FormControl(null, Validators.required),
     nextFollowUpDate: new FormControl<Date | null>(null, Validators.required),
@@ -55,15 +60,19 @@ export class AddNewComponent implements OnInit {
     seriousness: new FormControl(null, Validators.required),
     conversation: new FormControl('', Validators.required),
     productImage: new FormControl<File | null>(null, Validators.required),
-    salesperson: new FormControl<string | null>(null, Validators.required)
+    salesperson: new FormControl<string | null>(null, Validators.required),
   });
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onFileSelected(event: FileWithPreview) {
     this.selectedFile = event.files[0];
     this.customerForm.patchValue({ productImage: this.selectedFile });
-    this.messageService.add({ severity: 'info', summary: 'File Selected', detail: this.selectedFile.name });
+    this.messageService.add({
+      severity: 'info',
+      summary: 'File Selected',
+      detail: this.selectedFile.name,
+    });
   }
 
   isSaving = signal(<boolean>false);
@@ -77,37 +86,43 @@ export class AddNewComponent implements OnInit {
       //patch the username to the form
       this.customerForm.patchValue({ salesperson: this.userName });
     }
-
   }
   onSubmit() {
     this.getUserName();
     const userName = this.userName;
 
-
     if (!userName) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'User not found' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'User not found',
+      });
       return;
     }
 
     if (this.customerForm.invalid || !this.selectedFile) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'All fields are required including image.' });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'All fields are required including image.',
+      });
       return;
     }
     this.isSaving.set(true);
-
 
     const formValue = this.customerForm.value;
 
     const formData = new FormData();
     console.log('Form Value:', formValue);
 
-
-
     formData.append('name', formValue.name as string);
     formData.append('mobile', String(formValue.mobile));
     formData.append('productName', formValue.productName as string);
     formData.append('price', String(formValue.price));
-    formData.append('nextFollowUpDate', new Date(formValue.nextFollowUpDate!).toISOString());
+    formData.append(
+      'nextFollowUpDate',
+      new Date(formValue.nextFollowUpDate!).toISOString()
+    );
 
     // Convert status and seriousness to string
     formData.append('status', (formValue.status as any).name);
@@ -116,20 +131,32 @@ export class AddNewComponent implements OnInit {
     formData.append('salesperson', userName);
 
     if (this.selectedFile) {
-      formData.append('productImage', this.selectedFile, this.selectedFile.name);
+      formData.append(
+        'productImage',
+        this.selectedFile,
+        this.selectedFile.name
+      );
     }
 
     this.loginService.saveCustomer(formData).subscribe({
       next: (res) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Customer Added' });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Customer Added',
+        });
         this.customerForm.reset();
         this.isSaving.set(true);
       },
       error: (err) => {
         console.error(err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add customer' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to add customer',
+        });
         this.isSaving.set(true);
-      }
+      },
     });
   }
 }

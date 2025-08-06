@@ -1,112 +1,199 @@
 <div class="container mx-auto">
-    <div class="w-full pb-20 dark:bg-surface-100 h-full min-h-screen">
-        <div class="flex justify-between h-full">
-            <p-drawer [(visible)]="visible">
-                <ng-template #header>
-                    <div class="flex items-center gap-2">
-                        <p-avatar label="{{userName.charAt(0) || 'G' | titlecase}}" shape="circle" />
-                        <span class="inline-flex flex-col">
-                            <span class="font-bold">Howdy!</span>
-                            <span class="text-sm">{{userName | titlecase}}</span>
-                        </span>
-                    </div>
-                </ng-template>
-                <div class="overflow-y-auto">
-                    <ul class="list-none p-1 m-0">
-                        <li>
-                            <ul class="list-none p-0 m-0 overflow-hidden space-y-1">
-                                <li class="transition-all rounded-lg" (click)="closeDrawer()">
-                                    <a routerLink="/dashboard"
-                                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-                                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150">
-                                        <i class="pi pi-home mr-2"></i>
-                                        <span class="font-normal">Dashboard</span>
-                                    </a>
-                                </li>
+  <div class="w-full pb-20 dark:bg-surface-100 h-full min-h-screen">
+    <div class="flex justify-between h-full">
+      <p-drawer [(visible)]="visible">
+        <ng-template #header>
+          <div class="flex items-center gap-2">
+            <p-avatar
+              label="{{ userName.charAt(0) || 'G' | titlecase }}"
+              shape="circle"
+            />
+            <span class="inline-flex flex-col">
+              <span class="font-bold">Howdy!</span>
+              <span class="text-sm">{{ userName | titlecase }}</span>
+            </span>
+          </div>
+        </ng-template>
+        <div class="overflow-y-auto">
+          <ul class="list-none p-1 m-0">
+            <li>
+              <ul class="list-none p-0 m-0 overflow-hidden space-y-1">
+                <li class="transition-all rounded-lg" (click)="closeDrawer()">
+                  <a
+                    routerLink="/dashboard"
+                    routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                  >
+                    <i class="pi pi-home mr-2"></i>
+                    <span class="font-normal">Dashboard</span>
+                  </a>
+                </li>
 
-                                <li class="transition-all rounded-lg" (click)="closeDrawer()">
-                                    <a routerLink="add-new"
-                                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-                                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150">
-                                        <i class="pi pi-plus mr-2"></i>
-                                        <span class="font-normal">Add new</span>
-                                    </a>
-                                </li>
+                <li class="transition-all rounded-lg" (click)="closeDrawer()">
+                  <a
+                    routerLink="add-new"
+                    routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                  >
+                    <i class="pi pi-plus mr-2"></i>
+                    <span class="font-normal">Add new</span>
+                  </a>
+                </li>
 
-                                <li class="transition-all rounded-lg" (click)="closeDrawer()">
-                                    <a routerLink="today"
-                                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-                                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150">
-                                        <i class="pi pi-calendar mr-2"></i>
-                                        <span class="font-normal">Today</span>
-                                    </a>
-                                </li>
+                <li class="transition-all rounded-lg" (click)="closeDrawer()">
+                  <a
+                    routerLink="today"
+                    routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                  >
+                    <i class="pi pi-calendar mr-2"></i>
+                    <span class="font-normal">Today</span>
+                  </a>
+                </li>
 
-                                <li class="transition-all rounded-lg" (click)="closeDrawer()">
-                                    <a routerLink="missed"
-                                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-                                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150">
-                                        <i class="pi pi-exclamation-triangle mr-2"></i>
-                                        <span class="font-normal">Missed</span>
-                                    </a>
-                                </li>
+                <li class="transition-all rounded-lg" (click)="closeDrawer()">
+                  <a
+                    routerLink="missed"
+                    routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                  >
+                    <i class="pi pi-exclamation-triangle mr-2"></i>
+                    <span class="font-normal">Missed</span>
+                  </a>
+                </li>
 
-                                @if(userName === 'admin'){
-                                <li class="transition-all rounded-lg" (click)="closeDrawer()">
-                                    <a routerLink="all-users"
-                                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-                                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150">
-                                        <i class="pi pi-users mr-2"></i>
-                                        <span class="font-normal">Users</span>
-                                    </a>
-                                </li>
-                                }
-                            </ul>
-                        </li>
-                    </ul>
+                <li>
+                  <a
+                    (click)="submenu.hidden = !submenu.hidden"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150 transition-all duration-[400ms] ease-in-out"
+                  >
+                    <i class="pi pi-chart-line mr-2"></i>
+                    <span class="font-normal">Sold Items</span>
+                    <i class="pi pi-chevron-down ml-auto"></i>
+                  </a>
+                  <ul
+                    #submenu
+                    hidden
+                    class="list-none py-0 pl-4 pr-0 m-0 transition-all duration-[400ms] ease-in-out"
+                  >
+                    <li>
+                      <a
+                        routerLink="sold-items"
+                        (click)="closeDrawer()"
+                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                      >
+                        <i class="pi pi-table mr-2"></i>
+                        <span class="font-normal">View All</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        routerLink="sold-entry"
+                        (click)="closeDrawer()"
+                        routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                        class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                      >
+                        <i class="pi pi-list mr-2"></i>
+                        <span class="font-normal">Sold Entry</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
 
-                </div>
-                <ng-template #footer>
-                    <div class="flex items-center gap-2">
-                        <button pButton label="Password" icon="pi pi-lock" class="w-full" outlined
-                            (click)="closeDrawer()" routerLink="change-password"></button>
-                        <button pButton label="Logout" icon="pi pi-sign-out" class="w-full" severity="danger" text
-                            (click)="logOut()"></button>
-                    </div>
-                </ng-template>
-            </p-drawer>
-            <div class="content w-full px-4 py-3">
-                <p-menubar class="">
-                    <ng-template #start>
-                        <p-button icon="pi pi-bars" [rounded]="true" [text]="true" severity="secondary"
-                            (click)="visible = true" />
-                        <form class="mx-4" [formGroup]="searchForm">
-                            <p-iconfield>
-                                <p-inputicon styleClass="pi pi-search" />
-                                <input type="text" pInputText placeholder="Search customer" class="w-full"
-                                    formControlName="searchTerm" name="searchTerm" autocomplete="off"
-                                    (change)="searchCustomer()" />
-                            </p-iconfield>
-                        </form>
-                    </ng-template>
-                    cd
-                    <ng-template #end>
-                        <div class="flex">
-                            <p-button icon="pi pi-arrow-left" [rounded]="true" severity="contrast" [outlined]="true"
-                                (click)="goBack()" class="mr-2 max-sm:hidden" size="small"></p-button>
-                            <div class="flex items-center gap-2">
-                                <p-avatar label="{{userName.charAt(0) || 'G' | titlecase}}" shape="circle"
-                                    (click)="model.toggle($event)" />
-                            </div>
-                        </div>
-                    </ng-template>
-                </p-menubar>
-                <p-menu #model [model]="items" [popup]="true" position="left"></p-menu>
-                <div id="main">
-                    <router-outlet></router-outlet>
-                </div>
-            </div>
+                @if(userName === 'admin'){
+                <li class="transition-all rounded-lg" (click)="closeDrawer()">
+                  <a
+                    routerLink="all-users"
+                    routerLinkActive="bg-gray-800 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                    class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 transition-colors duration-150"
+                  >
+                    <i class="pi pi-users mr-2"></i>
+                    <span class="font-normal">Users</span>
+                  </a>
+                </li>
+                }
+              </ul>
+            </li>
+          </ul>
         </div>
-        <app-mobile-footer class="fixed bottom-0 w-full z-40"></app-mobile-footer>
+        <ng-template #footer>
+          <div class="flex items-center gap-2">
+            <button
+              pButton
+              label="Password"
+              icon="pi pi-lock"
+              class="w-full"
+              outlined
+              (click)="closeDrawer()"
+              routerLink="change-password"
+            ></button>
+            <button
+              pButton
+              label="Logout"
+              icon="pi pi-sign-out"
+              class="w-full"
+              severity="danger"
+              text
+              (click)="logOut()"
+            ></button>
+          </div>
+        </ng-template>
+      </p-drawer>
+      <div class="content w-full px-4 py-3">
+        <p-menubar class="">
+          <ng-template #start>
+            <p-button
+              icon="pi pi-bars"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              (click)="visible = true"
+            />
+            <form class="mx-4" [formGroup]="searchForm">
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input
+                  type="text"
+                  pInputText
+                  placeholder="Search customer"
+                  class="w-full"
+                  formControlName="searchTerm"
+                  name="searchTerm"
+                  autocomplete="off"
+                  (change)="searchCustomer()"
+                />
+              </p-iconfield>
+            </form>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="flex">
+              <p-button
+                icon="pi pi-arrow-left"
+                [rounded]="true"
+                severity="contrast"
+                [outlined]="true"
+                (click)="goBack()"
+                class="mr-2 max-sm:hidden"
+                size="small"
+              ></p-button>
+              <div class="flex items-center gap-2">
+                <p-avatar
+                  label="{{ userName.charAt(0) || 'G' | titlecase }}"
+                  shape="circle"
+                  (click)="model.toggle($event)"
+                />
+              </div>
+            </div>
+          </ng-template>
+        </p-menubar>
+        <p-menu #model [model]="items" [popup]="true" position="left"></p-menu>
+        <div id="main">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
     </div>
+    <app-mobile-footer class="fixed bottom-0 w-full z-40"></app-mobile-footer>
+  </div>
 </div>

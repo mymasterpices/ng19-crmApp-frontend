@@ -1,0 +1,300 @@
+<div class="card flex justify-center pt-3 px-4">
+  <p-stepper [(value)]="activeStep" class="w-full max-w-[40rem]">
+    <p-step-list>
+      <p-step [value]="1" class="flex flex-row flex-auto gap-2">
+        <ng-template
+          pTemplate="content"
+          let-activateCallback="activateCallback"
+          let-value="value"
+        >
+          <button
+            class="bg-transparent border-0 inline-flex flex-col gap-2"
+            (click)="activateCallback()"
+          >
+            <span
+              class="rounded-full border-2 w-8 h-8 inline-flex items-center justify-center"
+              [ngClass]="{
+                'bg-primary text-primary-contrast border-primary':
+                  value <= activeStep,
+                'border-surface': value > activeStep
+              }"
+            >
+              <i class="pi pi-user"></i>
+            </span>
+          </button>
+        </ng-template>
+      </p-step>
+
+      <p-step [value]="2" class="flex flex-row flex-auto gap-2">
+        <ng-template
+          pTemplate="content"
+          let-activateCallback="activateCallback"
+          let-value="value"
+        >
+          <button
+            class="bg-transparent border-0 inline-flex flex-col gap-2"
+            (click)="activateCallback()"
+          >
+            <span
+              class="rounded-full border-2 w-8 h-8 inline-flex items-center justify-center"
+              [ngClass]="{
+                'bg-primary text-primary-contrast border-primary':
+                  value <= activeStep,
+                'border-surface': value > activeStep
+              }"
+            >
+              <i class="pi pi-id-card"></i>
+            </span>
+          </button>
+        </ng-template>
+      </p-step>
+    </p-step-list>
+
+    <p-step-panels>
+      <form
+        enctype="multipart/form-data"
+        [formGroup]="soldEntryFrom"
+        (ngSubmit)="onSubmit()"
+      >
+        <!-- Step 1 -->
+        <p-step-panel [value]="1">
+          <ng-template
+            pTemplate="content"
+            let-activateCallback="activateCallback"
+          >
+            <div
+              class="flex flex-col gap-2 w-full max-w-[40rem] mx-auto min-h-[16rem]"
+            >
+              <div class="text-center mt-1 mb-1 text-lg font-normal">
+                Customer Information
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <input
+                    pInputText
+                    formControlName="full_name"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="full_name">Full Name</label>
+                </p-floatlabel>
+                @if(soldEntryFrom.controls['full_name'].errors?.['required'] &&
+                soldEntryFrom.controls['full_name'].touched) {
+                <small class="text-red-500 text-xs"
+                  >Full name is required</small
+                >
+                } @if(soldEntryFrom.controls['full_name'].errors?.['minlength'])
+                {
+                <small class="text-red-500 text-xs"
+                  >Minimum 3 characters required</small
+                >
+                }
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <input
+                    pInputText
+                    formControlName="mobile"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="mobile">Mobile*</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <input
+                    pInputText
+                    formControlName="email"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="email">Email</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <p-datepicker
+                    inputId="birthday"
+                    formControlName="birthday"
+                    styleClass="w-full"
+                  />
+                  <label for="birthday">Birthday</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <p-datepicker
+                    inputId="anniversary"
+                    formControlName="anniversary"
+                    styleClass="w-full"
+                  />
+                  <label for="anniversary">Anniversary</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <textarea
+                    pTextarea
+                    id="address"
+                    rows="3"
+                    cols="30"
+                    class="w-full"
+                    formControlName="address"
+                  ></textarea>
+                  <label for="address">Address</label>
+                </p-floatlabel>
+              </div>
+            </div>
+
+            <div class="flex pt-6 justify-end w-full max-w-[40rem] mx-auto">
+              <p-button
+                (onClick)="activateCallback(2)"
+                label="Next"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+              ></p-button>
+            </div>
+          </ng-template>
+        </p-step-panel>
+
+        <!-- Step 2 -->
+        <p-step-panel [value]="2">
+          <ng-template
+            pTemplate="content"
+            let-activateCallback="activateCallback"
+          >
+            <div
+              class="flex flex-col gap-2 w-full max-w-[40rem] mx-auto min-h-[16rem]"
+            >
+              <div class="text-center mt-1 mb-1 text-lg font-normal">
+                Sold Product Entry
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <input
+                    pInputText
+                    id="tag"
+                    autocomplete="off"
+                    class="w-full"
+                    formControlName="tag"
+                  />
+                  <label for="tag">Tag number</label>
+                </p-floatlabel>
+                @if (soldEntryFrom.controls['tag'].touched &&
+                soldEntryFrom.controls['tag'].errors?.['required']) {
+                <small class="text-red-500 text-xs"
+                  >Tag number is required</small
+                >
+                } @if(soldEntryFrom.controls['tag'].errors?.['minlength']) {
+                <small class="text-red-500 text-xs"
+                  >Minimum 4 characters required</small
+                >
+                }
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <input
+                    pInputText
+                    formControlName="purity"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="purity">Purity</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="flex gap-2 justify-between">
+                <div class="mb-2 w-full">
+                  <p-floatlabel variant="on">
+                    <input
+                      pInputText
+                      formControlName="gold_wt"
+                      autocomplete="off"
+                      class="w-full"
+                    />
+                    <label for="gold_wt">Gold wt.</label>
+                  </p-floatlabel>
+                </div>
+
+                <div class="mb-2 w-full">
+                  <p-floatlabel variant="on">
+                    <input
+                      pInputText
+                      formControlName="dia_wt"
+                      autocomplete="off"
+                      class="w-full"
+                    />
+                    <label for="dia_wt">Dia wt.</label>
+                  </p-floatlabel>
+                </div>
+
+                <div class="mb-2 w-full">
+                  <p-floatlabel variant="on">
+                    <input
+                      pInputText
+                      formControlName="stn_wt"
+                      autocomplete="off"
+                      class="w-full"
+                    />
+                    <label for="stn_wt">Stn wt.</label>
+                  </p-floatlabel>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <p-floatlabel variant="on">
+                  <p-inputnumber
+                    inputId="amount"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    class="w-full"
+                    formControlName="amount"
+                  ></p-inputnumber>
+                  <label for="amount">Amount</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="mb-2">
+                <p-fileupload
+                  mode="basic"
+                  name="file"
+                  chooseIcon="pi pi-upload"
+                  [customUpload]="true"
+                  accept="image/*"
+                  styleClass="w-full"
+                  [auto]="true"
+                  chooseLabel="Browse image"
+                  (onSelect)="onBasicUploadAuto($event)"
+                ></p-fileupload>
+              </div>
+            </div>
+
+            <div class="flex pt-6 justify-between w-full max-w-[40rem] mx-auto">
+              <p-button
+                (onClick)="activateCallback(1)"
+                label="Back"
+                severity="secondary"
+                variant="text"
+                icon="pi pi-arrow-left"
+              ></p-button>
+              <p-button
+                type="submit"
+                label="Submit"
+                icon="pi pi-save"
+              ></p-button>
+            </div>
+          </ng-template>
+        </p-step-panel>
+      </form>
+    </p-step-panels>
+  </p-stepper>
+</div>

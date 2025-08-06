@@ -1,0 +1,247 @@
+@if (viewSoldItem) {
+<div class="mt-4">
+  <p-card class="mt-3 text-normal">
+    <ng-template #header class="flex justify-between items-center w-full">
+      <img
+        alt="Card"
+        class="w-40 mx-auto rounded-md w-full object-cover h-50"
+        [src]="appUrl + '/' + viewSoldItem.soldupload"
+      />
+    </ng-template>
+    <div class="flex justify-between items-center gap-3">
+      <h5 class="flex-none text-xs">Personal Details</h5>
+      <p class="italic">{{viewSoldItem.createdAt | date }}</p>
+    </div>
+    <div class="flex gap-3">
+      <div class="flex-1">
+        <div class="flex justify-between gap-4">
+          <strong>{{ viewSoldItem.full_name | titlecase }}</strong>
+          <strong>{{ viewSoldItem.mobile | titlecase }}</strong>
+        </div>
+
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Birthday</span>
+          <span>{{ viewSoldItem.birthday | date }}</span>
+        </div>
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Anniversary</span>
+          <span>{{ viewSoldItem.anniversary | date }}</span>
+        </div>
+
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Email:</span>
+          <span>{{ viewSoldItem.email }}</span>
+        </div>
+      </div>
+    </div>
+    <p-divider></p-divider>
+    <h5 class="flex-none text-xs">Product Info</h5>
+    <div class="flex gap-3">
+      <div class="flex-1">
+        
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Tag:</span>
+          <span>{{ viewSoldItem.tag | uppercase }}</span>
+        </div>
+
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Gold wt.:</span>
+          <span>{{ viewSoldItem.gold_wt }} Gms</span>
+        </div>
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Dia wt.:</span>
+          <span> {{ viewSoldItem.dia_wt }} Cts</span>
+        </div>
+
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Stn wt.: </span>
+          <span>{{ viewSoldItem.stn_wt }} Cts</span>
+        </div>
+
+        <div class="flex justify-between gap-4 text-sm">
+          <span>Price:</span>
+          <span>{{ viewSoldItem.amount | currency : "INR" : "symbol" }}</span>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
+}
+
+<!-- Floating Add Button -->
+<p-button
+  icon="pi pi-pencil"
+  class="mt-3 fixed bottom-[6rem] right-3"
+  routerLink="/sold-entry"
+  severity="success"
+  [rounded]="true"
+  (click)="showDialog()"
+></p-button>
+
+<p-dialog
+  header="Update Sold Item"
+  [(visible)]="visible"
+  [modal]="true"
+  class="w-96"
+>
+  <form
+    enctype="multipart/form-data"
+    [formGroup]="soldEntryFrom"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <input
+          pInputText
+          autocomplete="off"
+          class="w-full"
+          formControlName="full_name"
+        />
+        <label for="full_name">Full Name</label>
+      </p-floatlabel>
+      @if(soldEntryFrom.controls['full_name'].errors?.['required'] &&
+      soldEntryFrom.controls['full_name'].touched) {
+      <small class="text-red-500 text-xs">Full name is required</small>
+      } @if(soldEntryFrom.controls['full_name'].errors?.['minlength']) {
+      <small class="text-red-500 text-xs">Minimum 3 characters required</small>
+      }
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <input pInputText formControlName="mobile" class="w-full" />
+        <label for="mobile">Mobile</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <input
+          pInputText
+          formControlName="email"
+          autocomplete="off"
+          class="w-full"
+        />
+        <label for="email">Email</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <p-datepicker
+          inputId="birthday"
+          formControlName="birthday"
+          styleClass="w-full"
+        />
+        <label for="birthday">Birthday</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <p-datepicker
+          inputId="anniversary"
+          formControlName="anniversary"
+          styleClass="w-full"
+        />
+        <label for="anniversary">Anniversary</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <textarea
+          pTextarea
+          id="address"
+          rows="3"
+          cols="30"
+          class="w-full"
+          formControlName="address"
+        ></textarea>
+        <label for="address">Address</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <input
+          pInputText
+          formControlName="purity"
+          autocomplete="off"
+          class="w-full"
+          [value]="viewSoldItem?.purity"
+        />
+        <label for="purity">Purity</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="flex gap-2 justify-between">
+      <div class="mt-2 w-full">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            formControlName="gold_wt"
+            autocomplete="off"
+            class="w-full"
+          />
+          <label for="gold_wt">Gold wt.</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="mt-2 w-full">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            formControlName="dia_wt"
+            autocomplete="off"
+            class="w-full"
+          />
+          <label for="dia_wt">Dia wt.</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="mt-2 w-full">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            formControlName="stn_wt"
+            autocomplete="off"
+            class="w-full"
+          />
+          <label for="stn_wt">Stn wt.</label>
+        </p-floatlabel>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <p-floatlabel variant="on">
+        <p-inputnumber
+          inputId="amount"
+          mode="decimal"
+          [minFractionDigits]="2"
+          class="w-full"
+          formControlName="amount"
+        ></p-inputnumber>
+        <label for="amount">Amount</label>
+      </p-floatlabel>
+    </div>
+
+    <div class="mt-2">
+      <p-fileupload
+        mode="basic"
+        name="file"
+        chooseIcon="pi pi-upload"
+        [customUpload]="true"
+        accept="image/*"
+        styleClass="w-full"
+        [auto]="true"
+        chooseLabel="Browse image"
+        (onSelect)="onBasicUploadAuto($event)"
+      ></p-fileupload>
+    </div>
+
+    <div class="flex pt-6 justify-between w-full max-w-[40rem] mx-auto">
+      <p-button type="submit" label="Update" icon="pi pi-save"></p-button>
+    </div>
+  </form>
+</p-dialog>

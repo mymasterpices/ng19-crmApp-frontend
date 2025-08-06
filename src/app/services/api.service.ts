@@ -3,9 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
+  backendUrl: any;
   getLoginedUser() {
     throw new Error('Method not implemented.');
   }
@@ -13,14 +14,14 @@ export class ApiService {
   private http = inject(HttpClient);
   private appUrl = environment.apiUrl;
 
-  constructor() { }
+  constructor() {}
 
   private baseUrl = this.appUrl;
 
   //get all customers on dashboard
   getAllcustomers(params?: HttpParams) {
     return this.http.get(this.baseUrl + '/api/customers/get', {
-      params: params || {}
+      params: params || {},
     });
   }
   // get a customer by id
@@ -38,12 +39,17 @@ export class ApiService {
   }
   //delete a customer
   deleteCustomer(customer_id: string) {
-    return this.http.delete(this.baseUrl + '/api/customers/delete/' + customer_id);
+    return this.http.delete(
+      this.baseUrl + '/api/customers/delete/' + customer_id
+    );
   }
 
   //change password
   changePassword(confirmPasswordInput: any) {
-    return this.http.patch(this.baseUrl + '/api/auth/update-password/', confirmPasswordInput);
+    return this.http.patch(
+      this.baseUrl + '/api/auth/update-password/',
+      confirmPasswordInput
+    );
   }
 
   //update a customer chat
@@ -53,32 +59,42 @@ export class ApiService {
 
   //search for a customer by name
   searchCustomer(customer_name: string) {
-    return this.http.get(`${this.baseUrl}/api/customers/search/${customer_name}`);
+    return this.http.get(
+      `${this.baseUrl}/api/customers/search/${customer_name}`
+    );
   }
 
   editChat(customer_id: string, chat_id: string, chat: any) {
-    return this.http.put(`${this.baseUrl}/api/chat/update/${customer_id}/${chat_id}`, chat);
+    return this.http.put(
+      `${this.baseUrl}/api/chat/update/${customer_id}/${chat_id}`,
+      chat
+    );
   }
   //delete a chat
   deleteChat(customer_id: string, chat_id: string) {
-    return this.http.delete(`${this.baseUrl}/api/chat/delete/${customer_id}/${chat_id}`);
+    return this.http.delete(
+      `${this.baseUrl}/api/chat/delete/${customer_id}/${chat_id}`
+    );
   }
 
   //today's followup customers
   todayFollowupCustomers(params?: HttpParams) {
     return this.http.get(`${this.baseUrl}/api/customers/followup/today`, {
-      params: params || {}
+      params: params || {},
     });
   }
   missedFollowupCustomers(params?: HttpParams) {
     return this.http.get(`${this.baseUrl}/api/customers/followup/missed`, {
-      params: params || {}
+      params: params || {},
     });
   }
 
   //update a customer
   updateCustomer(customer_id: string, update: any) {
-    return this.http.put(`${this.baseUrl}/api/customers/update/${customer_id}`, update);
+    return this.http.put(
+      `${this.baseUrl}/api/customers/update/${customer_id}`,
+      update
+    );
   }
 
   //get all salespersons
@@ -96,11 +112,34 @@ export class ApiService {
   }
   //change a staff password by admin
   updatePassword(userID: string, updatedPassword: any) {
-    return this.http.patch(`${this.baseUrl}/api/auth/password/${userID}`, updatedPassword);
+    return this.http.patch(
+      `${this.baseUrl}/api/auth/password/${userID}`,
+      updatedPassword
+    );
   }
 
   //new sales staff
   addSalesstaff(newSalesstaff: any) {
     return this.http.post(`${this.baseUrl}/api/auth/register`, newSalesstaff);
   }
+
+  addSoldEntry(soldEntry: any) {
+    return this.http.post(`${this.baseUrl}/api/sold/save`, soldEntry);
+  }
+  //get all the sold items
+  getAllSoldItems(params?: HttpParams) {
+    return this.http.get(`${this.baseUrl}/api/sold/get`, {
+      params: params || {},
+    });
+  }
+
+  //get a sold item by id
+  getSoldItemById(item_id: string, ) {
+    return this.http.get(`${this.baseUrl}/api/sold/view/${item_id}`);
+  }
+  //update a sold item
+  updateSoldItem(item_id: string, soldEntry: any) {
+    return this.http.put(`${this.baseUrl}/api/sold/update/${item_id}`, soldEntry);
+  }
+
 }

@@ -1,9 +1,14 @@
-import { Component, inject, OnInit, signal, } from '@angular/core';
-import { DrawerModule } from 'primeng/drawer';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Drawer, DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
@@ -11,11 +16,17 @@ import { BadgeModule } from 'primeng/badge';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { TitleCasePipe, Location } from '@angular/common';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { LoginedUserService } from '../../services/logined-user.service';
 import { AuthService } from '../../services/auth.service';
+import { Ripple } from 'primeng/ripple';
 
 @Component({
   selector: 'app-admin',
@@ -23,8 +34,10 @@ import { AuthService } from '../../services/auth.service';
     DrawerModule,
     ButtonModule,
     AvatarModule,
-    MenubarModule, AvatarModule,
-    InputTextModule, MenuModule,
+    MenubarModule,
+    AvatarModule,
+    InputTextModule,
+    MenuModule,
     BadgeModule,
     RouterOutlet,
     RouterLink,
@@ -33,12 +46,15 @@ import { AuthService } from '../../services/auth.service';
     RouterLinkActive,
     DrawerModule,
     TitleCasePipe,
-    MobileFooterComponent, ReactiveFormsModule
+    MobileFooterComponent,
+    ReactiveFormsModule
   ],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.css'
+  styleUrl: './admin.component.css',
 })
 export class AdminComponent implements OnInit {
+  @ViewChild('drawerRef') drawerRef!: Drawer;
+
   isDark = signal<boolean>(false);
   userName: string = '';
 
@@ -76,7 +92,7 @@ export class AdminComponent implements OnInit {
       {
         label: this.isDark() ? 'Light' : 'Dark',
         icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon',
-        command: () => this.toggleDarkMode()
+        command: () => this.toggleDarkMode(),
       },
       {
         label: 'Password',
@@ -87,7 +103,7 @@ export class AdminComponent implements OnInit {
         label: 'Sign Out',
         icon: 'pi pi-sign-out',
         command: () => this.logOut(),
-      }
+      },
     ];
   }
 
@@ -104,7 +120,10 @@ export class AdminComponent implements OnInit {
   }
 
   searchForm = new FormGroup({
-    searchTerm: new FormControl('', [Validators.required, Validators.minLength(3)])
+    searchTerm: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+    ]),
   });
 
   searchCustomer() {
