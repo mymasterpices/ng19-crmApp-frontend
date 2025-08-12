@@ -4,7 +4,8 @@ import { StepperModule } from 'primeng/stepper';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import {
-  FormControl,
+  FormArray,
+  FormBuilder,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -17,6 +18,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { FileUpload } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { ApiService } from '../../services/api.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 interface UploadEvent {
   files: File[];
@@ -28,7 +30,6 @@ interface UploadEvent {
     StepperModule,
     ButtonModule,
     InputTextModule,
-
     CommonModule,
     FormsModule,
     FloatLabel,
@@ -37,6 +38,7 @@ interface UploadEvent {
     InputNumberModule,
     FileUpload,
     ReactiveFormsModule,
+    TooltipModule,
   ],
   templateUrl: './sold-entry.component.html',
   styleUrl: './sold-entry.component.css',
@@ -46,38 +48,52 @@ export class SoldEntryComponent implements OnInit {
 
   private messageService = inject(MessageService);
   private apiService = inject(ApiService);
+  private fb = inject(FormBuilder);
 
   activeStep: number = 1;
 
-  soldEntryFrom = new FormGroup({
-    full_name: new FormControl(null, [
-      Validators.required,
-      Validators.minLength(3),
-    ]),
-    mobile: new FormControl(null),
-    email: new FormControl(null),
-    birthday: new FormControl(null),
-    anniversary: new FormControl(null),
-    address: new FormControl(null),
-    //Product Details
-    tag: new FormControl(null, [Validators.required, Validators.minLength(4)]),
-    purity: new FormControl(null),
-    gold_wt: new FormControl(null),
-    dia_wt: new FormControl(null),
-    stn_wt: new FormControl(null),
-    amount: new FormControl(null),
-    soldupload: new FormControl<File | null>(null),
+  soldEntryFrom = this.fb.group({
+    full_name: ['', [Validators.required, Validators.minLength(3)]],
+    mobile: [''],
+    email: [''],
+    birthday: [''],
+    anniversary: [''],
+    address: [''],
+    products: this.fb.array([]),
   });
 
-  selectedFile: File | null = null;
+  get products(): FormArray {
+    return this.soldEntryFrom.get('products') as FormArray;
+  }
 
-  onBasicUploadAuto(event: UploadEvent) {
+  ngOnInit(): void {
+    this.addProduct();
+  }
+
+  createProductForm(): FormGroup {
+    return this.fb.group({
+      tag: ['', [Validators.required, Validators.minLength(4)]],
+      purity: [''],
+      gold_wt: [''],
+      dia_wt: [''],
+      stn_wt: [''],
+      amount: [''],
+      soldupload: <File | null>null,
+    });
+  }
+
+  addProduct() {
+    this.products.push(this.createProductForm());
+  }
+
+  removeProduct(index: number) {
+    this.products.removeAt(index);
+  }
+
+  onBasicUploadAuto(event: UploadEvent, index: number) {
     const file = event.files?.[0];
-
     if (file) {
-      this.soldEntryFrom.patchValue({ soldupload: file });
-      console.log('File patched to form:', file);
-
+      this.products.at(index).patchValue({ soldupload: file });
       this.messageService.add({
         severity: 'info',
         summary: 'File Selected',
@@ -88,29 +104,46 @@ export class SoldEntryComponent implements OnInit {
 
   onSubmit() {
     if (this.soldEntryFrom.valid) {
-      const formData = new FormData();
+      const formValue = this.soldEntryFrom.value;
 
-      // Loop over form controls
-      Object.entries(this.soldEntryFrom.value).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          if (key === 'soldupload' && value instanceof File) {
-            // Append the file with the correct key
-            formData.append('soldupload', value);
-          } else {
-            formData.append(key, value);
-          }
+      const formData = new FormData();
+      formData.append('full_name', formValue.full_name ?? '');
+      formData.append('mobile', formValue.mobile ?? '');
+      formData.append('email', formValue.email ?? '');
+      formData.append('birthday', formValue.birthday ?? '');
+      formData.append('anniversary', formValue.anniversary ?? '');
+      formData.append('address', formValue.address ?? '');
+
+      // Add products without file data
+      const productsData = (formValue.products ?? []).map((p: any) => {
+        const { soldupload, ...rest } = p;
+        return rest;
+      });
+      formData.append('products', JSON.stringify(productsData));
+
+      // Append each file using the correct key so backend matches it
+      (formValue.products ?? []).forEach((product: any, idx: number) => {
+        if (product.soldupload instanceof File) {
+          formData.append(`products[${idx}][soldupload]`, product.soldupload);
         }
       });
 
-      // Use FormData in the HTTP request
+      // Debugging: show FormData contents
+      console.log('📦 FormData entries:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       this.apiService.addSoldEntry(formData).subscribe(
-        (res: any) => {
+        () => {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Sold entry added successfully!',
           });
           this.soldEntryFrom.reset();
+          this.products.clear();
+          this.addProduct();
         },
         (error) => {
           this.messageService.add({
@@ -121,10 +154,12 @@ export class SoldEntryComponent implements OnInit {
           console.error('Error adding sold entry:', error);
         }
       );
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation',
+        detail: 'Please fill all required fields.',
+      });
     }
-  }
-
-  ngOnInit(): void {
-    // Initialize form or any other setup if needed
   }
 }

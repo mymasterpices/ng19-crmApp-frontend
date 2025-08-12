@@ -1,6 +1,7 @@
 @if(soldItems && soldItems.length > 0) { @for(item of pagedItems; track
 item._id) {
 <div class="mt-3">
+  @for(product of item.products; track product._id) {
   <p-card
     class="mt-3 text-xs"
     routerLink="/view-sold-items/{{ item._id }}"
@@ -8,29 +9,34 @@ item._id) {
   >
     <div class="flex gap-3">
       <div class="flex-none">
-        <img
-          [src]="backendUrl + '/' + item.soldupload"
-          alt="Item Image"
-          class="w-16 h-auto object-cover rounded-md"
-        />
+        <p-avatar-group>
+          @for(image of item.products; track image) {
+          <p-avatar
+            [image]="backendUrl + '/' + image.soldupload"
+            size="large"
+            shape="circle"
+          ></p-avatar>
+          }
+        </p-avatar-group>
       </div>
       <div class="flex-1">
         <strong>{{ item.full_name | titlecase }}</strong>
         <div class="flex justify-between gap-4 text-xs">
           <span>Tag:</span>
-          <span>{{ item.tag | uppercase }}</span>
+          <span>{{ product.tag | uppercase }}</span>
         </div>
         <div class="flex justify-between gap-4 text-xs">
           <span>Gold wt | Dia wt.:</span>
-          <span>{{ item.gold_wt }} Gms | {{ item.dia_wt }} Cts</span>
+          <span>{{ product.gold_wt }} Gms | {{ product.dia_wt }} Cts</span>
         </div>
         <div class="flex justify-between gap-4 text-xs">
           <span>Price:</span>
-          <span>{{ item.amount | currency : "INR" : "symbol" }}</span>
+          <span>{{ product.amount | currency : "INR" : "symbol" }}</span>
         </div>
       </div>
     </div>
   </p-card>
+  }
 </div>
 }
 

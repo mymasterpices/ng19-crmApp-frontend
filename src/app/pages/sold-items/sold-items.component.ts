@@ -7,6 +7,8 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { DialogModule } from 'primeng/dialog';
 import { PaginatorModule } from 'primeng/paginator';
+import { Avatar } from 'primeng/avatar';
+import { AvatarGroup } from 'primeng/avatargroup';
 
 @Component({
   selector: 'app-sold-items',
@@ -20,6 +22,8 @@ import { PaginatorModule } from 'primeng/paginator';
     RouterLink,
     DialogModule,
     PaginatorModule,
+    Avatar,
+    AvatarGroup,
   ],
   templateUrl: './sold-items.component.html',
   styleUrl: './sold-items.component.css',

@@ -2,6 +2,14 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
+import { Avatar } from 'primeng/avatar';
+import { AvatarGroup } from 'primeng/avatargroup';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 import {
   CurrencyPipe,
@@ -10,13 +18,6 @@ import {
   UpperCasePipe,
 } from '@angular/common';
 import { MessageService } from 'primeng/api';
-
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -52,6 +53,9 @@ interface UploadEvent {
     InputTextModule,
     TextareaModule,
     DividerModule,
+    Avatar,
+    AvatarGroup,
+    DividerModule
   ],
   templateUrl: './view-sold-items.component.html',
   styleUrl: './view-sold-items.component.css',
