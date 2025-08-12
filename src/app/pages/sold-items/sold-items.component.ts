@@ -9,6 +9,8 @@ import { DialogModule } from 'primeng/dialog';
 import { PaginatorModule } from 'primeng/paginator';
 import { Avatar } from 'primeng/avatar';
 import { AvatarGroup } from 'primeng/avatargroup';
+import { LoginedUserService } from '../../services/logined-user.service';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-sold-items',
@@ -34,6 +36,10 @@ export class SoldItemsComponent implements OnInit {
   public router = inject(Router);
   backendUrl = this.appUrl;
 
+  private loginedUserService = inject(LoginedUserService);
+
+  loginUser: string = '';
+
   // Data
   soldItems: any[] = []; // All items
   pagedItems: any[] = []; // Current page items
@@ -43,11 +49,17 @@ export class SoldItemsComponent implements OnInit {
   rows: number = 10;
 
   ngOnInit(): void {
+    this.loginUser = this.loginedUserService.getLoginedUser();
+
     this.getAllSoldItems();
   }
 
   getAllSoldItems() {
-    this.apiService.getAllSoldItems().subscribe({
+    let params = new HttpParams();
+
+    if (this.loginUser) params = params.set('sales_staff', this.loginUser);
+
+    this.apiService.getAllSoldItems(params).subscribe({
       next: (response: any) => {
         this.soldItems = response;
         this.updatePagedItems();
