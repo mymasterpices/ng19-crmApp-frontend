@@ -57,8 +57,9 @@ export class SoldItemsComponent implements OnInit {
   getAllSoldItems() {
     let params = new HttpParams();
 
-    if (this.loginUser) params = params.set('sales_staff', this.loginUser);
-
+    if (this.loginUser !== 'admin') {
+      if (this.loginUser) params = params.set('sales_staff', this.loginUser);
+    }
     this.apiService.getAllSoldItems(params).subscribe({
       next: (response: any) => {
         this.soldItems = response;
