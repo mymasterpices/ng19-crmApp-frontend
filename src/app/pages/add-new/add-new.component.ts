@@ -143,7 +143,7 @@ export class AddNewComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Customer Added',
+          detail: 'Customer added successfully',
         });
         this.customerForm.reset();
         this.isSaving.set(true);

@@ -2,15 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
-import { Avatar } from 'primeng/avatar';
-import { AvatarGroup } from 'primeng/avatargroup';
+import { ImageModule } from 'primeng/image';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-
 import {
   CurrencyPipe,
   DatePipe,
@@ -18,7 +16,6 @@ import {
   UpperCasePipe,
 } from '@angular/common';
 import { MessageService } from 'primeng/api';
-
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
@@ -29,6 +26,9 @@ import { DatePicker } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
+import { CarouselModule } from 'primeng/carousel';
+import { LoginedUserService } from '../../services/logined-user.service';
+import { AccordionModule } from 'primeng/accordion';
 
 interface UploadEvent {
   files: File[];
@@ -53,9 +53,10 @@ interface UploadEvent {
     InputTextModule,
     TextareaModule,
     DividerModule,
-    Avatar,
-    AvatarGroup,
-    DividerModule
+    DividerModule,
+    ImageModule,
+    CarouselModule,
+    AccordionModule,
   ],
   templateUrl: './view-sold-items.component.html',
   styleUrl: './view-sold-items.component.css',
@@ -64,10 +65,13 @@ export class ViewSoldItemsComponent implements OnInit {
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
+  private loginedUser = inject(LoginedUserService);
 
   appUrl = environment.apiUrl;
   visible: boolean = false;
   viewSoldItem: any = '';
+
+  user: string = '';
 
   showDialog() {
     this.visible = true;
@@ -101,6 +105,9 @@ export class ViewSoldItemsComponent implements OnInit {
         this.id = id;
       }
     });
+
+    // Get the logged-in user's name
+    this.user = this.loginedUser.getLoginedUser();
   }
 
   getSoldItemId(id: string) {

@@ -5,7 +5,13 @@ import { CommonModule, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabel } from 'primeng/floatlabel';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
@@ -18,29 +24,33 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 
-
-
 @Component({
   selector: 'app-view-customer',
-  imports: [CardModule, TitleCasePipe,
-    ButtonModule, InputTextModule, FloatLabel,
+  imports: [
+    CardModule,
+    TitleCasePipe,
+    ButtonModule,
+    InputTextModule,
+    FloatLabel,
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
     PopoverModule,
     CommonModule,
     ConfirmDialog,
-    AvatarModule, TitleCasePipe,
-    FileUpload, TooltipModule,
+    AvatarModule,
+    TitleCasePipe,
+    FileUpload,
+    TooltipModule,
     NgClass,
-    DatePickerModule, FormsModule
+    DatePickerModule,
+    FormsModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './view-customer.component.html',
-  styleUrl: './view-customer.component.css'
+  styleUrl: './view-customer.component.css',
 })
 export class ViewCustomerComponent implements OnInit {
-
   @ViewChild('op') op!: Popover;
   @ViewChild('deleteMsg') opDelete!: Popover;
 
@@ -63,23 +73,19 @@ export class ViewCustomerComponent implements OnInit {
     this.visibleProductImage = true;
   }
 
-
-
   constructor(
     private route: ActivatedRoute,
     private loginService: ApiService,
     private _activatedRoute: ActivatedRoute
-  ) { }
+  ) {}
 
   // add new chat comment
   chatForm = new FormGroup({
     message: new FormControl('', [Validators.required]),
   });
 
-
-
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.customerId = id;
@@ -88,7 +94,6 @@ export class ViewCustomerComponent implements OnInit {
       }
     });
     // Initialize menu items
-
   }
   getChatHistory(customer_id: string) {
     return this.loginService.getChatHistory(customer_id).subscribe(
@@ -96,8 +101,7 @@ export class ViewCustomerComponent implements OnInit {
         console.log('Customer:', customer_id);
         console.log(res);
         this.customerData = res;
-      }
-      ,
+      },
       (error: any) => {
         console.log(error);
       }
@@ -105,15 +109,14 @@ export class ViewCustomerComponent implements OnInit {
   }
 
   getCustomerData() {
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       this.loginService.viewCustomer(this.customerId).subscribe(
         (res: any) => {
           console.log('Customer:', this.customerId);
           console.log(res);
           this.customerContactInfo = res;
-        }
-        ,
+        },
         (error: any) => {
           console.log(error);
         }
@@ -122,7 +125,7 @@ export class ViewCustomerComponent implements OnInit {
   }
 
   submitChat() {
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       // console.log(this.customerId);
 
@@ -137,9 +140,8 @@ export class ViewCustomerComponent implements OnInit {
           },
           (error: any) => {
             console.error('Error updating chat:', error);
-          });
-
-
+          }
+        );
       } else {
         console.error('Chat form is invalid');
       }
@@ -160,7 +162,7 @@ export class ViewCustomerComponent implements OnInit {
   });
 
   submitEditChat() {
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       const chat_id = this.editChatId; // Assuming chat_id is part of the form
 
@@ -175,7 +177,8 @@ export class ViewCustomerComponent implements OnInit {
           },
           (error: any) => {
             console.error('Error updating chat:', error);
-          });
+          }
+        );
       } else {
         console.error('Edit chat form is invalid');
       }
@@ -204,15 +207,23 @@ export class ViewCustomerComponent implements OnInit {
         this.loginService.deleteChat(this.customerId, deleteChat_id).subscribe(
           (res: any) => {
             console.log(res);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: res.message,
+            });
             this.getChatHistory(this.customerId);
           },
           (error: any) => {
             console.log(error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error.message,
+            });
           }
-        )
-      }
+        );
+      },
     });
   }
 
@@ -221,7 +232,7 @@ export class ViewCustomerComponent implements OnInit {
 
   updateFollowUpDate(newDate: Date) {
     console.log(newDate);
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       const customer_id = this.customerId;
       const nextFollowUp = { nextFollowUpDate: newDate };
@@ -230,20 +241,26 @@ export class ViewCustomerComponent implements OnInit {
       this.loginService.updateCustomer(customer_id, nextFollowUp).subscribe(
         (res: any) => {
           // console.log(res);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: res.message,
+          });
           this.getCustomerData();
         },
         (error: any) => {
           console.log(error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.message,
+          });
         }
       );
     });
-
-
   }
   updateStatus(status: string) {
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       const customer_id = this.customerId;
       const changeStatus = { status: status };
@@ -252,18 +269,24 @@ export class ViewCustomerComponent implements OnInit {
       this.loginService.updateCustomer(customer_id, changeStatus).subscribe(
         (res: any) => {
           // console.log(res);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: res.message,
+          });
           this.getCustomerData();
         },
         (error: any) => {
           console.log(error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.message,
+          });
         }
       );
     });
-
   }
-
 
   selectedFile: File | null = null;
   uploadButtonlabel = signal('Upload Image');
@@ -273,10 +296,14 @@ export class ViewCustomerComponent implements OnInit {
     const formData = new FormData();
 
     if (this.selectedFile) {
-      formData.append('productImage', this.selectedFile, this.selectedFile.name);
+      formData.append(
+        'productImage',
+        this.selectedFile,
+        this.selectedFile.name
+      );
     }
 
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       this.customerId = params['id'];
       const customer_id = this.customerId;
       formData.append('customer_id', customer_id);
@@ -285,20 +312,26 @@ export class ViewCustomerComponent implements OnInit {
       this.loginService.updateCustomer(customer_id, formData).subscribe(
         (res: any) => {
           // console.log(res);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: res.message,
+          });
           this.getCustomerData();
           this.uploadButtonlabel.set('Upload Image');
           this.selectedFile = null; // Reset the selected file after upload
         },
         (error: any) => {
           console.log(error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.message,
+          });
           this.uploadButtonlabel.set('Upload Image');
           this.selectedFile = null; // Reset the selected file after upload
         }
       );
     });
-
   }
-
 }

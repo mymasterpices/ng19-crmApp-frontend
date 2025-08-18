@@ -1,44 +1,87 @@
 @if(soldItems && soldItems.length > 0) { @for(item of pagedItems; track
 item._id) {
 <div class="mt-3">
-  @for(product of item.products; track product._id) {
   <p-card
-    class="mt-3 text-xs"
+    class="mt-3 relative"
     routerLink="/view-sold-items/{{ item._id }}"
     [style]="{ cursor: 'pointer' }"
   >
-    <div class="flex gap-3">
-      <div class="flex-none">
-        <p-avatar-group>
-          @for(image of item.products; track image) {
-          <p-avatar
-            [image]="backendUrl + '/' + image.soldupload"
-            size="large"
-            shape="circle"
-          ></p-avatar>
-          }
-        </p-avatar-group>
+    <div class="flex gap-4 justify-between items-center">
+      <!-- Thumbnail -->
+      <div class="flex-none relative">
+        <img
+          [src]="backendUrl + '/' + item.products[0]?.soldupload"
+          class="w-16 h-auto object-cover rounded"
+        />
+        @if(item.products.length > 1) {
+        <p-badge
+          [value]="'+' + (item.products.length - 1)"
+          class="absolute top-0 left-0"
+        />
+        }
       </div>
+
+      <!-- Details -->
       <div class="flex-1">
         <strong>{{ item.full_name | titlecase }}</strong>
-        <div class="flex justify-between gap-4 text-xs">
+
+        <div class="flex justify-between gap-4">
           <span>Tag:</span>
-          <span>{{ product.tag | uppercase }}</span>
+          <span>
+            <!-- Show first 4 tags only -->
+            @for(product of item.products.slice(0, 2); track product._id) {
+            <span class="mr-1">{{
+              (product.tag | uppercase) + (item.products?.length > 2 ? "|" : "")
+            }}</span>
+            }
+
+            <!-- Show +N if more than 4 -->
+            @if(item.products.length > 2) {
+            <span class="bg-lime-100 text-lime-900 p-1 text-xs rounded-full"
+              >+{{ item.products.length - 2 }}</span
+            >
+            }
+          </span>
         </div>
-        <div class="flex justify-between gap-4 text-xs">
-          <span>Gold wt | Dia wt.:</span>
-          <span>{{ product.gold_wt }} Gms | {{ product.dia_wt }} Cts</span>
+
+        @if(item.products[0]?.gold_wt || item.products[0]?.dia_wt) {
+        <div class="flex justify-between gap-4">
+          <span
+            >@if(item.products[0].gold_wt){ Gold wt }
+            @if(item.products[0].dia_wt) { | Dia wt }
+          </span>
+          <span>
+            {{ item.products[0]?.gold_wt + "Gms" }}
+            {{
+              item.products[0]?.dia_wt
+                ? item.products[0]?.dia_wt + "|  Cts"
+                : " "
+            }}
+          </span>
         </div>
-        <div class="flex justify-between gap-4 text-xs">
+        }
+        <div class="flex justify-between gap-4">
+          @if(item.products.length > 2) {
+          <span>Total items:</span>
+          <span
+            class="bg-lime-100 text-lime-900 p-1 pl-2 pr-2 text-xs rounded"
+            >{{ item.products.length }}</span
+          >
+          }
+        </div>
+        @if(item.products[0]?.amount) {
+        <div class="flex justify-between gap-4">
           <span>Price:</span>
-          <span>{{ product.amount | currency : "INR" : "symbol" }}</span>
+          <span>{{
+            item.products[0]?.amount | currency : "INR" : "symbol"
+          }}</span>
         </div>
+        }
       </div>
     </div>
   </p-card>
-  }
 </div>
-}
+} }
 
 <!-- Paginator -->
 <div class="card flex justify-center mt-4">
@@ -54,9 +97,6 @@ item._id) {
   >
   </p-paginator>
 </div>
-} @else {
-<div class="text-center mt-10 text-gray-500">No sold items available.</div>
-}
 
 <!-- Floating Add Button -->
 <p-button

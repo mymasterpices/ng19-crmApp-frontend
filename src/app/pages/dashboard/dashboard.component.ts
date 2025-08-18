@@ -1,6 +1,11 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormGroup,
+  FormControl,
+} from '@angular/forms';
 import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
@@ -17,18 +22,22 @@ import { environment } from '../../../environments/environment';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    FormsModule, NgClass, DatePipe,
-    ButtonModule, TitleCasePipe,
-    ConfirmDialog, SelectModule,
-    CardModule, ReactiveFormsModule,
+    FormsModule,
+    NgClass,
+    DatePipe,
+    ButtonModule,
+    TitleCasePipe,
+    ConfirmDialog,
+    SelectModule,
+    CardModule,
+    ReactiveFormsModule,
     PaginatorModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-
   private loginService = inject(ApiService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -40,7 +49,8 @@ export class DashboardComponent implements OnInit {
   statusOptions = signal<any[]>([
     { label: 'Cold', value: 'Cold' },
     { label: 'Open', value: 'Open' },
-    { label: 'Close', value: 'Close' }
+    { label: 'Close', value: 'Close' },
+    { label: 'Failed', value: 'Failed' },
   ]);
 
   private appUrl = environment.apiUrl;
@@ -56,13 +66,13 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loginUser = this.loginedUserService.getLoginedUser();
     this.getAllcustomers();
-    this.getSalespersonOptions();  // ✅ Only called once
+    this.getSalespersonOptions(); // ✅ Only called once
   }
 
   // Filter form
   searchForm = new FormGroup({
     salesperson: new FormControl(null),
-    status: new FormControl(null)
+    status: new FormControl(null),
   });
 
   // ✅ Fetch unique salesperson list
@@ -71,9 +81,9 @@ export class DashboardComponent implements OnInit {
       (res: any) => {
         const usernames = res.map((user: any) => user.username);
         const uniqueUsernames = Array.from(new Set(usernames));
-        const options = uniqueUsernames.map(username => ({
+        const options = uniqueUsernames.map((username) => ({
           label: username,
-          value: username
+          value: username,
         }));
         this.salespersonOptions.set(options);
       },
@@ -82,7 +92,7 @@ export class DashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.error.message
+          detail: error.error.message,
         });
       }
     );
@@ -107,7 +117,7 @@ export class DashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.error.message
+          detail: error.error.message,
         });
       }
     );
@@ -133,7 +143,7 @@ export class DashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.error.message
+          detail: error.error.message,
         });
       }
     );
@@ -170,7 +180,7 @@ export class DashboardComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: res.message
+              detail: res.message,
             });
             this.getAllcustomers(); // Refresh list
           },
@@ -179,7 +189,7 @@ export class DashboardComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: error.error.message
+              detail: error.error.message,
             });
           }
         );

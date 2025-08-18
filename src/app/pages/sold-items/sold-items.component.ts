@@ -7,10 +7,10 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { DialogModule } from 'primeng/dialog';
 import { PaginatorModule } from 'primeng/paginator';
-import { Avatar } from 'primeng/avatar';
-import { AvatarGroup } from 'primeng/avatargroup';
 import { LoginedUserService } from '../../services/logined-user.service';
 import { HttpParams } from '@angular/common/http';
+import { ImageModule } from 'primeng/image';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'app-sold-items',
@@ -24,8 +24,8 @@ import { HttpParams } from '@angular/common/http';
     RouterLink,
     DialogModule,
     PaginatorModule,
-    Avatar,
-    AvatarGroup,
+    ImageModule,
+    BadgeModule,
   ],
   templateUrl: './sold-items.component.html',
   styleUrl: './sold-items.component.css',
