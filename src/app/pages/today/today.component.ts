@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
 import { HttpParams } from '@angular/common/http';
 import { LoginedUserService } from '../../services/logined-user.service';
@@ -16,12 +16,13 @@ import { LoginedUserService } from '../../services/logined-user.service';
     DatePipe,
     ButtonModule,
     TitleCasePipe,
-    ConfirmDialog, NgClass,
-    CardModule
+    ConfirmDialog,
+    NgClass,
+    CardModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './today.component.html',
-  styleUrl: './today.component.css'
+  styleUrl: './today.component.css',
 })
 export class TodayComponent implements OnInit {
   private loginService = inject(ApiService);
@@ -52,9 +53,13 @@ export class TodayComponent implements OnInit {
       },
       (error: any) => {
         console.log(error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.message,
+        });
       }
-    )
+    );
   }
   viewCustomer(customer_id: string) {
     console.log(customer_id);
@@ -82,15 +87,23 @@ export class TodayComponent implements OnInit {
         this.loginService.deleteCustomer(event).subscribe(
           (res: any) => {
             console.log(res);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: res.message,
+            });
             this.getAllcustomers();
           },
           (error: any) => {
             console.log(error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error.message,
+            });
           }
-        )
+        );
       },
     });
-  };
+  }
 }
