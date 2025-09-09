@@ -27,7 +27,7 @@
           Product: {{ customer.productName }}
         </p>
         <p class="text-zinc-500 dark:text-gray-300">
-          Follow-Up: {{ customer.nextFollowUpDate | date : "MMM dd, yyyy" }}
+          Follow-Up: {{ customer.nextFollowUpDate | date : "d MMM, y" }}
         </p>
         <p class="text-zinc-500 dark:text-gray-300">
           Sales Staff: {{ customer.salesperson | titlecase }}

@@ -57,7 +57,8 @@
 
         <p>Product: {{ customer.productName }}</p>
         <p>
-          Follow-Up: {{ customer.nextFollowUpDate | date : "MMM dd, yyyy" }}
+          Follow-Up:
+          {{ customer.nextFollowUpDate | date : "d MMM, y" }}
         </p>
         <p>Sales Staff: {{ customer.salesperson | titlecase }}</p>
 
