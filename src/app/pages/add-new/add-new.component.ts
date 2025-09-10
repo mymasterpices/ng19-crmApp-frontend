@@ -153,7 +153,7 @@ export class AddNewComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to add customer',
+          detail: err.error?.message,
         });
         this.isSaving.set(true);
       },
