@@ -1,20 +1,54 @@
 <div class="card hidden max-sm:block">
-    <p-toolbar class="p-0">
-        <div class="flex items-center justify-between w-full">
-            <p-button icon="pi pi-plus" text [rounded]="true" routerLink="add-new"
-                routerLinkActive="bg-gray-800 rounded-full text-gray-300" />
+  <p-toolbar
+    [style]="{
+      'border-radius': '3rem',
+      padding: '0.8rem',
+      backdropFilter: 'blur(12px)',
+      background: 'rgba(0,0,0,0.2)'
+    }"
+    class="fixed bottom-3 left-1/2 -translate-x-1/2 w-11/12"
+  >
+    <div class="flex items-center justify-between w-full">
+      <p-button
+        icon="pi pi-plus"
+        text
+        [rounded]="true"
+        routerLink="add-new"
+        routerLinkActive=""
+      />
 
-            <p-button icon="pi pi-exclamation-triangle" text [rounded]="true" routerLink="missed"
-                routerLinkActive="bg-gray-800 rounded-full text-gray-300" />
+      <p-button
+        icon="pi pi-exclamation-triangle"
+        text
+        [rounded]="true"
+        routerLink="missed"
+        routerLinkActive=""
+        iconPos="top"
+      />
 
-            <p-button icon="pi pi-home" text [rounded]="true" routerLink="dashboard"
-                routerLinkActive="bg-gray-800 rounded-full text-gray-300" />
+      <p-button
+        icon="pi pi-home"
+        text
+        [rounded]="true"
+        routerLink="dashboard"
+        routerLinkActive=""
+      />
 
-            <p-button icon="pi pi-calendar" text [rounded]="true" routerLink="today"
-                routerLinkActive="bg-gray-800 rounded-full text-gray-300" />
+      <p-button
+        icon="pi pi-calendar"
+        text
+        [rounded]="true"
+        routerLink="today"
+        routerLinkActive=""
+      />
 
-            <p-button icon="pi pi-sign-out" text [rounded]="true" (click)="logOut()"
-                routerLinkActive="bg-gray-800 rounded-full text-gray-300" />
-        </div>
-    </p-toolbar>
+      <p-button
+        icon="pi pi-sign-out"
+        text
+        [rounded]="true"
+        (click)="logOut()"
+        routerLinkActive=""
+      />
+    </div>
+  </p-toolbar>
 </div>
