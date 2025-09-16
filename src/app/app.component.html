@@ -1,8 +1,9 @@
 @if(loader.loading()){
-<div class="card flex justify-center items-center bg-surface-900">
-    <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s"
-        [style]="{ width: '50px', height: '50px' }" class="fixed top-1/2 left-1/2 z-50" ariaLabel="Loading..." />
-</div>
+<p-progressbar
+  mode="indeterminate"
+  [style]="{ height: '6px' }"
+  class="w-full absolute top-0 left-0 z-50"
+/>
 }
 <router-outlet></router-outlet>
 <p-toast position="top-center"></p-toast>

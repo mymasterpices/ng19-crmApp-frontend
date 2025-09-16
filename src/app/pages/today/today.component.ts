@@ -35,9 +35,11 @@ export class TodayComponent implements OnInit {
 
   private appUrl = environment.apiUrl;
   backedAppUrl = this.appUrl;
+  loginUser: string = '';
 
   ngOnInit(): void {
     this.getAllcustomers();
+    this.loginUser = this.loginedUserService.getLoginedUser();
   }
   getAllcustomers() {
     const salesperson = this.loginedUserService.getLoginedUser();

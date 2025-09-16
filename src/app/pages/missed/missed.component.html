@@ -23,15 +23,11 @@
           <p>🎧 {{ customer.mobile }}</p>
         </div>
 
-        <p class="">
-          Product: {{ customer.productName }}
-        </p>
+        <p class="">Product: {{ customer.productName }}</p>
         <p class="">
           Follow-Up: {{ customer.nextFollowUpDate | date : "d MMM, y" }}
         </p>
-        <p class="">
-          Sales Staff: {{ customer.salesperson | titlecase }}
-        </p>
+        <p class="">Sales Staff: {{ customer.salesperson | titlecase }}</p>
 
         <p>
           Status:
@@ -50,6 +46,7 @@
       </div>
     </div>
 
+    @if (loginUser == 'admin') {
     <div class="absolute bottom-2 right-2 z-10 flex space-x-2">
       <p-button
         icon="pi pi-trash"
@@ -59,6 +56,7 @@
         (click)="deleteCustomer(customer._id)"
       ></p-button>
     </div>
+    }
   </p-card>
 
   } @empty {

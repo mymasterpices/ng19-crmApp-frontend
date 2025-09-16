@@ -7,6 +7,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
+import { LoginedUserService } from '../../services/logined-user.service';
 
 @Component({
   selector: 'app-search',
@@ -16,43 +17,48 @@ import { environment } from '../../../environments/environment';
     ButtonModule,
     DatePipe,
     ConfirmDialog,
-    NgClass, CardModule
-
+    NgClass,
+    CardModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './search.component.html',
-  styleUrl: './search.component.css'
+  styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnInit {
-
   private _activatedRoute = inject(ActivatedRoute);
   private loginService = inject(ApiService);
   private router = inject(Router);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private loginedUserService = inject(LoginedUserService);
 
   searchCustomer: string = '';
   // searchResults: any[] = [];
   searchResults = signal<any[]>([]);
   backedAppUrl = environment.apiUrl;
 
+  loginUser = '';
+
   ngOnInit(): void {
-    this._activatedRoute.params.subscribe(params => {
+    this._activatedRoute.params.subscribe((params) => {
       const customerName = params['customer_name'];
       if (customerName) {
         console.log(customerName);
         this.loginService.searchCustomer(customerName).subscribe({
           next: (res: any) => {
             console.log(res);
-            this.searchCustomer
+            this.searchCustomer;
             this.searchResults.set(res);
           },
           error: (error: any) => {
             console.error('Error fetching search results:', error);
-          }
+          },
         });
       }
     });
+
+    //set logged-in user
+    this.loginUser = this.loginedUserService.getLoginedUser();
   }
 
   viewCustomer(customer_id: string) {
@@ -80,16 +86,23 @@ export class SearchComponent implements OnInit {
         this.loginService.deleteCustomer(event).subscribe(
           (res: any) => {
             console.log(res);
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: res.message });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: res.message,
+            });
             // this.getAllcustomers();
           },
           (error: any) => {
             console.log(error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error.message,
+            });
           }
-        )
+        );
       },
     });
-  };
-
+  }
 }
