@@ -1,12 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Toolbar } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-} from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({

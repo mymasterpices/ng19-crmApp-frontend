@@ -2,20 +2,22 @@
   <p-toolbar
     [style]="{
       'border-radius': '3rem',
-      padding: '0.8rem',
+      padding: '1rem',
       backdropFilter: 'blur(12px)',
       background: 'rgba(0,0,0,0.2)'
     }"
     class="fixed bottom-3 left-1/2 -translate-x-1/2 w-11/12"
   >
-    <div class="flex items-center justify-between w-full">
-      <p-button
-        icon="pi pi-plus"
-        text
-        [rounded]="true"
-        routerLink="add-new"
-        routerLinkActive=""
-      />
+    <div class="flex items-center justify-between w-full gap-0">
+      <div class="link flex flex-col items-center justify-center gap-0">
+        <p-button
+          icon="pi pi-plus"
+          text
+          [rounded]="true"
+          routerLink="add-new"
+          routerLinkActive="active"
+        />
+      </div>
 
       <p-button
         icon="pi pi-exclamation-triangle"
