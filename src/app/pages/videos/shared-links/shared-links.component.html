@@ -1,0 +1,75 @@
+<div class="flex justify-between items-center">
+  <h2 class="text-xl font-semibold">Shared Links</h2>
+  <div class="flex justify-center gap-4">
+    <!-- <p-button
+      icon="pi pi-list-check"
+      class="mt-3 right-3"
+      (onClick)="visible = true"
+      severity="secondary"
+      label="Pendding"
+      size="small"
+    ></p-button> -->
+    <p-button
+      icon="pi pi-play"
+      class="mt-3 right-3"
+      routerLink="/videos/view-all"
+      severity="contrast"
+      label="All Videos"
+      size="small"
+    ></p-button>
+  </div>
+</div>
+
+@if (sharedLinks.length !== 0) {
+<div class="grid grid-cols-1 md:grid-cols-1 gap-4 my-3">
+  <p-card>
+    <p-table
+      [value]="sharedLinks"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 30]"
+      responsiveLayout="scroll"
+    >
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Customer Name</th>
+          <th>Shared On</th>
+          <th>Total Videos</th>
+          <th>Expiry Date</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-item let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.customerName | titlecase }}</td>
+          <td>{{ item.createdAt | date : "d, MMM, y" }}</td>
+          <td>
+            <i class="pi pi-video opacity-40"></i> {{ item.videoIds?.length }}
+          </td>
+          <td>{{ item.expiryDate | date : "d, MMM, y" }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+} @else {
+<p-card>
+  <div class="grid justify-center">
+    <h3 class="text-2xl text-gray-500">No Shared Links Found</h3>
+  </div>
+</p-card>
+}
+
+<p-drawer
+  header="Pendding Selection"
+  [(visible)]="visible"
+  position="bottom"
+  [style]="{ height: '100%', width: '25%',  }"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+>
+  <app-link-status (close)="visible = false; getLinkStatus()"></app-link-status>
+</p-drawer>

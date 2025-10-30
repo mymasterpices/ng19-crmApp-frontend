@@ -1,0 +1,169 @@
+<h2 class="text-xl font-semibold">Overview</h2>
+<div
+  class="rounded-xl md:h-40 h-40 bg-cover w-full bg-fixed my-4 bg-center"
+  style="
+    background-image: url('https://images.unsplash.com/photo-1692045155710-b26bcf5efe5a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170');
+  "
+>
+  <div
+    class="backdrop-blur-lg w-full h-[100%] rounded-xl md:p-5 p-0 flex justify-start items-center"
+  >
+    <div class="flex justify-between md:flex-row flex-col gap-4 w-full">
+      <div class="greetings flex justify-start items-center gap-4">
+        <div class="text-5xl">👋</div>
+        <div class="flex flex-col gap-0">
+          <h1 class="font-bold md:text-4xl text-3xl text-stone-50">
+            Welcome <span class="text-2xl font-light">{{ userName }}</span>
+          </h1>
+          <p class="md:text-lg md:font-medium font-light text-stone-100">
+            Hope! you have amazing day a head.
+          </p>
+        </div>
+      </div>
+      <div class="flex md:justify-between justify-end gap-2 items-center pr-4">
+        <h1 class="icon font-bold md:text-4xl">📆</h1>
+        <h1 class="font-bold md:text-4xl text-stone-50">
+          <div class="flex justify-between items-center md:gap-3 gap-1">
+            <!-- Day of week -->
+            <div class="md:text-4xl">
+              {{ today | date : "EEE" }}
+            </div>
+
+            <!-- Day number -->
+            <div class="md:text-4xl">{{ today | date : "d" }},</div>
+
+            <!-- Month and Year -->
+            <div
+              class="text-lg font-light flex md:flex-col text-right md:gap-0 gap-2"
+            >
+              <span class="md:leading-4">{{ today | date : "MMM" }}</span>
+              <span class="md:leading-4md:">{{ today | date : "yyyy" }}</span>
+            </div>
+          </div>
+        </h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="my-6">
+  <h3 class="text-lg font-semibold my-2">Customer & Follow-ups</h3>
+
+  <div class="customerOverviews grid md:grid-cols-4 gap-4 my-5">
+    <p-card>
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Total</p>
+          <h1 class="text-3xl font-bold">
+            {{ customers.length }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-users text-blue-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+    <p-card routerLink="/followup/missed" class="cursor-pointer">
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Missed</p>
+          <h1 class="text-3xl font-bold">
+            {{ missedFollow.length }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-exclamation-triangle text-yellow-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+    <p-card routerLink="/followup/todays" class="cursor-pointer">
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Up-coming</p>
+          <h1 class="text-3xl font-bold">
+            {{ todaysFollow.length }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-clipboard text-green-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+    <p-card>
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Failed</p>
+          <h1 class="text-3xl font-bold">
+            {{ failedCount }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-user-minus text-red-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <p-card class="md:col-span-2" header="Status">
+      <p-chart type="bar" [data]="chartData" [options]="chartOptions"></p-chart>
+    </p-card>
+    <p-card class="col-span-1" header="Seriousness">
+      <p-chart type="doughnut" [data]="seriousnessChartData"></p-chart>
+    </p-card>
+  </div>
+</section>
+
+<section class="my-6">
+  <h3 class="text-lg font-semibold my-2">Shared Videos</h3>
+
+  <div class="flex justify-between md:flex-row flex-col gap-4">
+    <p-card class="md:flex-1/4 cursor-pointer" routerLink="/videos/view-all">
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Total Videos</p>
+          <h1 class="text-3xl font-bold">
+            {{ sharedCount }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-video text-rose-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+
+    <p-card class="md:flex-1/4">
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Shared Links</p>
+          <h1 class="text-3xl font-bold">
+            {{ sharedLinks }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-share-alt text-indigo-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+    <p-card class="md:flex-1/4">
+      <div class="flex justify-between items-center gap-4">
+        <div class="text">
+          <p>Selections</p>
+          <h1 class="text-3xl font-bold">
+            {{ selectionCount }}
+          </h1>
+        </div>
+
+        <span class="text-4xl">
+          <i class="pi pi-list-check text-indigo-500 !text-4xl"></i>
+        </span>
+      </div>
+    </p-card>
+  </div>
+</section>

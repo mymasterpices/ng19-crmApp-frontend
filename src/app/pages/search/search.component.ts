@@ -35,7 +35,7 @@ export class SearchComponent implements OnInit {
   searchCustomer: string = '';
   // searchResults: any[] = [];
   searchResults = signal<any[]>([]);
-  backedAppUrl = environment.apiUrl;
+  backedAppUrl = environment.API_URL;
 
   loginUser = '';
 

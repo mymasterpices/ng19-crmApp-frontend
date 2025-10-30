@@ -1,4 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'https://crm.jools.in',
+  API_URL: 'https://crm.jools.in',
+  app: 'https://crm.jools.in',
+  SYNC_IMAGE_URL: 'https://syncdrive.jools.in/images',
 };

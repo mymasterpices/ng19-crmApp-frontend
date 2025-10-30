@@ -1,0 +1,200 @@
+<h2 class="text-xl font-semibold">All Video</h2>
+<div class="flex justify-between md:items-center py-3 flex-col md:flex-row">
+  <div class="flex-1">
+    <p-iconfield class="md:w-full">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Search video"
+        class="md:w-80 w-full"
+        (change)="searchVideo()"
+        [(ngModel)]="searchText"
+      />
+    </p-iconfield>
+  </div>
+  <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center w-full md:w-80">
+      <p-button
+        icon="pi pi-link"
+        class="mt-3 right-3"
+        routerLink="/videos/view-all"
+        severity="contrast"
+        label="Generate"
+        size="small"
+        (click)="displayBasic = true"
+      >
+      </p-button>
+
+      @if(loginUser == 'admin'){
+      <p-button
+        icon="pi pi-upload"
+        class="mt-3 right-3"
+        severity="contrast"
+        label="Upload"
+        size="small"
+        outlined="true"
+        (click)="visible = true"
+      >
+      </p-button>
+      }
+      <p-button
+        icon="pi pi-share-alt"
+        class="mt-3 right-3"
+        routerLink="/videos/shared-links"
+        severity="secondary"
+        label="Shared"
+        size="small"
+        (click)="visible = true"
+      >
+      </p-button>
+    </div>
+    <!-- add/upload new video model -->
+
+    <p-drawer
+      header="Upload"
+      [(visible)]="visible"
+      position="bottom"
+      [style]="{ height: '100%', width: '25%' }"
+      styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+    >
+      <app-upload-new-video
+        (close)="getAllVideoData(); visible = false"
+      ></app-upload-new-video>
+    </p-drawer>
+  </div>
+</div>
+
+<!-- show video list
+ -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-4">
+  @if(videoList().length !== 0){ @for(video of videoList(); track
+  video.tagNumber ){
+  <p-card styleClass="w-full">
+    <div class="flex justify-between items-center py-2">
+      <span class="header text-xs"> {{ video.tagNumber | uppercase }}</span>
+      <p-checkbox
+        inputId="ingredient1"
+        name="pizza"
+        checkboxIcon="pi pi-check"
+        value="{{ video._id }}"
+        pTooltip="Select"
+        tooltipPosition="top"
+        (click)="getSeletedVideOID(video._id)"
+      />
+    </div>
+    <media-controller>
+      <video
+        slot="media"
+        #mainVideo
+        id="my-video"
+        loop
+        [src]="siteURL + '/' + video.videoUpload"
+        (mouseenter)="autoplayOnHover(mainVideo)"
+        (mouseleave)="pauseOnLeave(mainVideo)"
+      ></video>
+      <media-control-bar>
+        <media-play-button></media-play-button>
+        <media-mute-button></media-mute-button>
+        <media-fullscreen-button></media-fullscreen-button>
+      </media-control-bar>
+    </media-controller>
+    <span class="flex justify-between py-2">
+      @if(loginUser == 'admin'){
+      <p-button
+        pTooltip="Delete"
+        tooltipPosition="top"
+        variant="text"
+        severity="contrast"
+        (click)="deleteVideoItem(video._id)"
+        icon="pi pi-trash"
+      >
+      </p-button>
+      }
+      <p-button
+        (click)="getTheLink(video._id)"
+        variant="text"
+        severity="success"
+        pTooltip="Share"
+        tooltipPosition="top"
+        icon="pi pi-share-alt"
+      >
+      </p-button>
+    </span>
+  </p-card>
+  } } @else {
+  <p-card class="w-full">
+    <div class="flex flex-col justify-center align-items-center">
+      <img src="imagenotfound.jpg" alt="" class="w-[30rem]" />
+      <h4 class="text-center my-3">
+        😕 No data found for
+        <span class="font-semibold">{{ searchText | uppercase }}</span>
+      </h4>
+    </div>
+  </p-card>
+  }
+</div>
+
+<p-drawer
+  header="Set Link Expaire On"
+  [(visible)]="displayBasic"
+  position="bottom"
+  [style]="{ height: '100%', width: '25%',  }"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+>
+  <p-card>
+    <form action="" [formGroup]="shareLinkForm">
+      <div class="flex flex-col flex-column gap-4 w-25rem">
+        <div>
+          <span
+            class="font-medium text-surface-900 dark:text-surface-0 block mb-2"
+            >Customer Name</span
+          >
+          <input
+            type="text"
+            pInputText
+            formControlName="customerName"
+            class="w-full"
+          />
+
+          @if(shareLinkForm.controls['customerName'].hasError('required') &&
+          shareLinkForm.controls['customerName'].touched){
+          <small class="text-red-500">Name is required</small>
+          } @if(shareLinkForm.controls['customerName'].errors?.['minlength']){
+          <small class="text-red-500"
+            >Name must be at least 3 characters long</small
+          >
+          }
+        </div>
+        <div>
+          <span
+            class="font-medium text-surface-900 dark:text-surface-0 block mb-2"
+            >Date</span
+          >
+          <p-datepicker
+            class="w-full"
+            showIcon
+            iconDisplay="input"
+            styleClass="w-full"
+            [showButtonBar]="true"
+            formControlName="LinkExpireOnDate"
+          />
+          @if(shareLinkForm.controls['LinkExpireOnDate'].invalid &&
+          (shareLinkForm.controls['LinkExpireOnDate'].dirty ||
+          shareLinkForm.controls['LinkExpireOnDate'].touched)){
+          <small class="text-red-500">Date is required</small>
+          }
+        </div>
+        <div>
+          <p-button
+            label="Save & Get link"
+            icon="pi pi-link"
+            severity="contrast"
+            [disabled]="shareLinkForm.invalid"
+            (click)="generateShareableLink()"
+          />
+        </div>
+      </div>
+    </form>
+  </p-card>
+</p-drawer>

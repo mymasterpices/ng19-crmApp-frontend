@@ -1,0 +1,184 @@
+@if (SavedItems().length > 0) {
+<div class="overflow-x-auto shadow-md rounded-md bg-white dark:bg-gray-900">
+  <div class="min-w-max">
+    <table class="w-full table-auto border border-gray-200">
+      <!-- Header -->
+      <thead class="bg-gray-100 dark:bg-gray-800 text-center">
+        <tr>
+          <!-- Sticky left column -->
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 z-10 w-40 bg-gray-100 dark:bg-gray-800"
+          >
+            Details
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <th class="p-3 border border-gray-200 align-top">
+            <div class="flex flex-col items-center relative">
+              <img
+                [src]="item.product_image_url || placeholder"
+                alt="Product Image"
+                class="w-24 h-24 object-cover rounded mb-2"
+              />
+              <span class="font-semibold text-sm text-center">
+                {{ item.product_category | titlecase }} <br />
+                {{ item.sub_category | titlecase }}
+              </span>
+              <span class="text-xs text-gray-500 mt-1">{{
+                item.jewel_code
+              }}</span>
+
+              <button
+                type="button"
+                class="absolute top-0 right-0 text-gray-400 hover:text-red-500 cursor-pointer"
+                (click)="removeItemfromfavList(item._id)"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </th>
+          }
+        </tr>
+      </thead>
+
+      <!-- Body -->
+      <tbody class="text-sm">
+        <!-- Gross Wt -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Gross wt.
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            {{ item.gross_wt }} gms
+          </td>
+          }
+        </tr>
+
+        <!-- Net Wt -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Net wt.
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            {{ item.net_wt }} gms
+          </td>
+          }
+        </tr>
+
+        <!-- Diamond Weight and Details -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Diamonds
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            @if (item.diamonds?.length > 0) {
+            <ul class="text-xs">
+              @for (d of item.diamonds; track d._id) {
+              <li>
+                {{ d.weight }} ct ({{ d.diamond_colour || d.quality_code }}) –
+                ₹{{ d.amount }}
+              </li>
+              }
+            </ul>
+            } @else { — }
+          </td>
+          }
+        </tr>
+
+        <!-- Stones -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Stones
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            @if (item.stones?.length > 0) {
+            <ul class="text-xs">
+              @for (s of item.stones; track s._id) {
+              <li>{{ s.colour_stone_wt }} ct – ₹{{ s.colour_stone_amt }}</li>
+              }
+            </ul>
+            } @else { — }
+          </td>
+          }
+        </tr>
+
+        <!-- Collection -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Collection
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            {{ item.collection || "—" }}
+          </td>
+          }
+        </tr>
+
+        <!-- MRP -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            MRP
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            ₹{{ item.mrp }}
+          </td>
+          }
+        </tr>
+
+        <!-- Discount -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
+          >
+            Discount
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            @if (item.discount_amount && item.discount_amount !== "0") { ₹{{
+              item.discount_amount
+            }}
+            } @else { — }
+          </td>
+          }
+        </tr>
+
+        <!-- Final Price -->
+        <tr>
+          <th
+            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-100 font-semibold"
+          >
+            Final Price
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td
+            class="text-center p-3 border border-gray-200 font-semibold text-green-700"
+          >
+            ₹{{ item.final_price }}
+          </td>
+          }
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+} @else {
+<p class="text-center py-10 text-gray-500">
+  Please select at least 2 or more products to compare.
+</p>
+}

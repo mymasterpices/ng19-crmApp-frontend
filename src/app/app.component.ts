@@ -1,14 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { LoaderService } from './services/loader.service';
 import { ProgressBar } from 'primeng/progressbar';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Toast, ProgressBar],
-  providers: [MessageService],
+  imports: [RouterOutlet, Toast, ProgressBar, ConfirmDialog],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })

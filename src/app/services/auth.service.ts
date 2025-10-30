@@ -5,21 +5,20 @@ import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
   private router = inject(Router);
-  private appUrl = environment.apiUrl;
+  private appUrl = environment.API_URL;
   private baseUrl = this.appUrl;
   private http = inject(HttpClient);
   private location = inject(Location);
 
-  constructor() { }
+  constructor() {}
 
   setToken(token: string): void {
     localStorage.setItem('RkJewellersUser', token);
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/overview']);
   }
 
   getToken() {
@@ -43,6 +42,4 @@ export class AuthService {
   login(loginInput: any) {
     return this.http.post(this.baseUrl + '/api/auth/login', loginInput);
   }
-
-
 }

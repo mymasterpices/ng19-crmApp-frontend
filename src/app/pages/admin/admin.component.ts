@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { Drawer, DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
@@ -13,20 +20,21 @@ import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
-import { TitleCasePipe, Location } from '@angular/common';
-import { jwtDecode } from 'jwt-decode';
-import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
+import { CommonModule, NgClass, TitleCasePipe } from '@angular/common';
+
 import {
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { LoginedUserService } from '../../services/logined-user.service';
 import { AuthService } from '../../services/auth.service';
-import { Ripple } from 'primeng/ripple';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { Popover, PopoverModule } from 'primeng/popover';
+import { CardModule } from 'primeng/card';
+import { MobileFooterComponent } from "../mobile-footer/mobile-footer.component";
 
 @Component({
   selector: 'app-admin',
@@ -41,14 +49,18 @@ import { Ripple } from 'primeng/ripple';
     BadgeModule,
     RouterOutlet,
     RouterLink,
-    InputIcon,
-    IconField,
     RouterLinkActive,
     DrawerModule,
     TitleCasePipe,
-    MobileFooterComponent,
-    ReactiveFormsModule
-  ],
+    CardModule,
+    ReactiveFormsModule,
+    ToggleSwitchModule,
+    PopoverModule,
+    CommonModule,
+    NgClass,
+    FormsModule,
+    MobileFooterComponent
+],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })
@@ -58,6 +70,16 @@ export class AdminComponent implements OnInit {
   isDark = signal<boolean>(false);
   userName: string = '';
 
+  menuStates: Record<string, boolean> = {};
+
+  toggleMenu(menu: string) {
+    this.menuStates[menu] = !this.menuStates[menu];
+  }
+
+  isOpen(menu: string): boolean {
+    return !!this.menuStates[menu];
+  }
+
   private loginedUserService = inject(LoginedUserService);
   private router = inject(Router);
 
@@ -65,46 +87,28 @@ export class AdminComponent implements OnInit {
 
   items: MenuItem[] | undefined;
   visible: boolean = false;
+  drawerNavigation: boolean = false;
 
-  ngOnInit() {
+  constructor() {
+    // Initialize from localStorage
+    console.log('darkMode value', this.isDark());
     const savedTheme = localStorage.getItem('theme') === 'dark';
     this.isDark.set(savedTheme);
-    this.applyTheme(savedTheme);
-    this.setMenuItems();
+    console.log('Initial theme:', savedTheme ? 'dark' : 'light');
+    // Effect: whenever isDark changes, apply theme + save
+    effect(() => {
+      const dark = this.isDark();
+      document.documentElement.classList.toggle('my-app-dark', dark);
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    });
+  }
 
-    // Load username on component initialization
+  ngOnInit() {
     this.userName = this.loginedUserService.getLoginedUser();
   }
 
   toggleDarkMode() {
-    const newValue = !this.isDark();
-    this.isDark.set(newValue);
-    localStorage.setItem('theme', newValue ? 'dark' : 'light');
-    this.applyTheme(newValue);
-    this.setMenuItems(); // Update menu label/icon
-  }
-  applyTheme(isDark: boolean) {
-    document.documentElement.classList.toggle('my-app-dark', isDark);
-  }
-
-  setMenuItems() {
-    this.items = [
-      {
-        label: this.isDark() ? 'Light' : 'Dark',
-        icon: this.isDark() ? 'pi pi-sun' : 'pi pi-moon',
-        command: () => this.toggleDarkMode(),
-      },
-      {
-        label: 'Password',
-        icon: 'pi pi-lock-open',
-        routerLink: 'change-password',
-      },
-      {
-        label: 'Sign Out',
-        icon: 'pi pi-sign-out',
-        command: () => this.logOut(),
-      },
-    ];
+    this.isDark.update((v) => !v);
   }
 
   closeDrawer() {
@@ -136,5 +140,4 @@ export class AdminComponent implements OnInit {
       console.error('Search form is invalid');
     }
   }
-
 }

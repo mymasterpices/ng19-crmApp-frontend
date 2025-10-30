@@ -1,0 +1,307 @@
+<div class="mb-[5rem] mt-2 h-screen">
+  <!-- Customer Chat History Card -->
+  <p-card class="">
+    <ng-template pTemplate="header">
+      <div class="flex justify-between items-center w-full px-4 pt-2]">
+        <span class="text-lg font-semibold">
+          {{ customerData?.customerId?.name | titlecase }}
+        </span>
+
+        <div class="flex items-center gap-2">
+          <p-avatar
+            [image]=" backedAppUrl + `/${customerContactInfo?.productImage}`"
+            [shape]="'circle'"
+            class="mr-1"
+            (click)="viewLargeProductImage()"
+          ></p-avatar>
+          <button
+            type="button"
+            pButton
+            icon="pi pi-ellipsis-h"
+            class="p-button-text p-button-plain"
+            rounded="true"
+            (click)="toggle($event)"
+          ></button>
+        </div>
+      </div>
+      <p-popover #op>
+        <div class="flex flex-col gap-4">
+          <div>
+            <span class="block mb-2 font-semibold opacity-60">Details</span>
+            <div class="customerInfor">
+              <div class="flex flex-col items-start gap-2 justify-between">
+                <div class="gap-2 flex items-center">
+                  <span class="text-xs font-normal"
+                    ><i class="pi pi-phone"></i
+                  ></span>
+                  <a href="tel:{{ customerData?.customerId?.mobile }}">{{
+                    customerData?.customerId?.mobile
+                  }}</a>
+                </div>
+                <div
+                  class="gap-2 flex items-center cursor-pointer"
+                  (click)="updateFollowupDate.toggle($event)"
+                >
+                  <span class="text-xs font-normal"
+                    ><i class="pi pi-calendar"></i
+                  ></span>
+                  <span
+                    >{{
+                      customerContactInfo?.nextFollowUpDate | date : "d MMM, y"
+                    }}
+                  </span>
+                </div>
+
+                <p-popover #updateFollowupDate>
+                  <div class="header">
+                    <span class="text-sm font-semibold opacity-60"
+                      >Update Date</span
+                    >
+                    <p-floatlabel variant="on" class="mt-2">
+                      <p-datepicker
+                        [iconDisplay]="'input'"
+                        [showIcon]="true"
+                        inputId="icondisplay"
+                        [(ngModel)]="followUpDate"
+                        (ngModelChange)="updateFollowUpDate($event)"
+                        class="w-full mt-2 pt-2"
+                      />
+                      <label for="icondisplay" class="font-normal"
+                        >Next Followup Date</label
+                      >
+                    </p-floatlabel>
+                  </div>
+                </p-popover>
+                <div
+                  class="gap-2 flex items-center cursor-pointer"
+                  (click)="isOpen = !isOpen; status.toggle($event)"
+                >
+                  <span class="text-xs font-normal"
+                    ><i class="pi pi-objects-column"></i
+                  ></span>
+                  <div
+                    class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs"
+                    [ngClass]="{
+                      'bg-blue-500': customerContactInfo?.status === 'Open',
+                      'bg-yellow-500': customerContactInfo?.status === 'Cold',
+                      'bg-green-500': customerContactInfo?.status === 'Close',
+                      'bg-red-500': customerContactInfo?.status === 'Failed'
+                    }"
+                  >
+                    {{ customerContactInfo?.status }}
+                  </div>
+                  <span class="text-indigo-300">
+                    <i
+                      class="pi"
+                      [ngClass]="isOpen ? 'pi-chevron-up' : 'pi-chevron-down'"
+                    ></i
+                  ></span>
+
+                  <p-popover #status>
+                    <div class="header">
+                      <span class="text-sm font-semibold opacity-60"
+                        >Update Status</span
+                      >
+                    </div>
+                    <div class="flex gap-2">
+                      <p-button
+                        icon="pi pi-circle-on"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="info"
+                        (click)="updateStatus('Open')"
+                        class="w-full"
+                        pTooltip="Open"
+                        tooltipPosition="bottom"
+                      >
+                      </p-button>
+                      <p-button
+                        icon="pi pi-circle-on"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="warn"
+                        (click)="updateStatus('Cold')"
+                        class="w-full"
+                        pTooltip="Cold"
+                        tooltipPosition="bottom"
+                      >
+                      </p-button>
+                      <p-button
+                        icon="pi pi-circle-on"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="success"
+                        (click)="updateStatus('Close')"
+                        class="w-full"
+                        pTooltip="Close"
+                        tooltipPosition="bottom"
+                      >
+                      </p-button>
+                      <p-button
+                        icon="pi pi-circle-on"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="danger"
+                        (click)="updateStatus('Failed')"
+                        class="w-full"
+                        pTooltip="Failed"
+                        tooltipPosition="bottom"
+                      >
+                      </p-button>
+                    </div>
+                  </p-popover>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-popover>
+    </ng-template>
+
+    @for (chat of customerData?.messages; track chat._id) {
+    <div
+      class="bg-gray-100 text-emerald-50 dark:bg-gray-800 px-2 py-2 mb-2 rounded-xl shadow-sm dark:border-none"
+    >
+      <div class="flex gap-1 items-center justify-between">
+        <span class="text-sm font-normal text-gray-800 dark:text-gray-100">
+          {{ chat.message | titlecase }}
+        </span>
+        <p-button
+          icon="pi pi-ellipsis-v"
+          [rounded]="true"
+          [text]="true"
+          severity="contrast"
+          class="pr-0 mr-0"
+          (click)="popover.toggle($event)"
+        ></p-button>
+      </div>
+      <!-- update customer status -->
+      <p-popover #popover>
+        <div class="flex flex-col gap-4">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [text]="true"
+            severity="contrast"
+            class="w-full"
+            (click)="showDialog(chat._id)"
+          ></p-button>
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            class="w-full"
+            severity="danger"
+            (click)="deleteChat(chat._id)"
+          ></p-button>
+        </div>
+      </p-popover>
+
+      <div class="flex items-start gap-2 mt-1">
+        <span class="text-[0.7rem] text-gray-500 dark:text-gray-400">{{
+          chat.timestamp | date : "d MMM, y"
+        }}</span>
+        <span class="text-[0.7rem] text-gray-500 dark:text-gray-400"
+          ><em>{{ chat.edited ? "Edited" : "" }}</em></span
+        >
+      </div>
+    </div>
+
+    } @empty{
+    <div class="mb-2 p-2 rounded-xl border-radius-lg">No messages found.</div>
+    }
+  </p-card>
+
+  <!-- New Message Input Form -->
+  <div
+    class="fixed md:bottom-5 bottom-24 right-0 md:w-[86%] w-full md:ml-64 px-2"
+  >
+    <form [formGroup]="chatForm" (ngSubmit)="submitChat()" class="flex">
+      <p-floatlabel variant="on" class="w-full">
+        <input
+          pInputText
+          id="on_label"
+          autocomplete="off"
+          class="w-full"
+          formControlName="message"
+        />
+        <label for="on_label" class="font-normal">Enter your message</label>
+      </p-floatlabel>
+      <p-button
+        styleClass="w-[15rem] ml-2"
+        type="submit"
+        icon="pi pi-send"
+        rounded="true"
+        pTooltip="Send"
+        tooltipPosition="top"
+        severity="contrast"
+      >
+      </p-button>
+    </form>
+  </div>
+
+  <!-- Edit Customer chat -->
+  <p-drawer
+    header="Edit Chat"
+    [modal]="true"
+    [(visible)]="visible"
+    class="w-full"
+    height="h-60"
+    styleClass="w-full md:w-1/2 lg:w-1/3"
+  >
+    <form
+      [formGroup]="editChatForm"
+      (ngSubmit)="submitEditChat()"
+      class="flex gap-2"
+    >
+      <p-floatlabel variant="on" class="w-full">
+        <input
+          pInputText
+          id="on_label"
+          autocomplete="off"
+          class="w-full"
+          formControlName="message"
+        />
+        <label for="on_label" class="font-normal">Update your message</label>
+        @if(editChatForm.controls['message'].hasError('required') &&
+        editChatForm.controls['message'].touched) {
+        <small class="text-red-400 pl-1 block absolute"
+          >Message is required.</small
+        >
+        }
+      </p-floatlabel>
+      <p-button type="submit" icon="pi pi-send" rounded="true"></p-button>
+    </form>
+  </p-drawer>
+
+  <p-dialog
+    header="{{ customerContactInfo?.productName }}"
+    [modal]="true"
+    [(visible)]="visibleProductImage"
+    class="w-full"
+    height="auto"
+    styleClass="w-full md:w-1/2 lg:w-1/3 "
+  >
+    <img
+      src="{{ backedAppUrl }}/{{ customerContactInfo?.productImage }}"
+      alt="{{ customerContactInfo?.productName | titlecase }}"
+      class="w-full h-full object-cover rounded mb-4"
+    />
+
+    <p-fileupload
+      name="file"
+      mode="basic"
+      [auto]="true"
+      accept="image/*"
+      maxFileSize="10000000"
+      [customUpload]="true"
+      (onSelect)="onBasicUploadAuto($event)"
+      [chooseLabel]="uploadButtonlabel()"
+      chooseIcon="pi pi-upload"
+      class="w-full"
+      inputSyleClass="w-full"
+      styleClass="w-full"
+    />
+  </p-dialog>
+</div>
+<p-confirmdialog />

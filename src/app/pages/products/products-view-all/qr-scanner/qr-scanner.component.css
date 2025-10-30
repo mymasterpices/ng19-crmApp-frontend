@@ -1,0 +1,24 @@
+.scanner-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+zxing-scanner {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Highlight the scanning area */
+.scan-area {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 60%;
+    border: 3px dashed #00ff00;
+    box-sizing: border-box;
+    pointer-events: none;
+    /* allows clicks to pass through to video */
+}

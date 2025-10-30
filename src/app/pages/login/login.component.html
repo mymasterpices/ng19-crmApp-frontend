@@ -1,59 +1,54 @@
-<div
-  class="bg-surface-700 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
->
-  <div class="flex flex-col items-center justify-center">
-    <div>
-      <div class="bg-surface-0 dark:bg-surface-900" style="border-radius: 53px">
-        <div class="text-center mb-8">
-          <div class="flex items-center justify-center mb-3">
-            <img src="img/logo.png" alt="" class="w-8" />
-          </div>
-          <div
-            class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
-          >
-            Welcome to <span class="font-normal">crmapp</span>
-          </div>
-          <span class="text-muted-color font-normal">Sign In to continue</span>
-        </div>
+<div class="flex min-h-screen justify-center items-center">
+  <div
+    class="flex items-start justify-between flex-col min-h-screen min-w-1/2 p-[10rem] max-sm:py-10 max-sm:px-5"
+  >
+    <div class="logo mb-6">
+      <img src="LOGO-BRAND.png" alt="" class="w-40" />
+    </div>
+    <div class="w-full">
+      <form [formGroup]="loginFrom" (ngSubmit)="onSubmit()">
+        <p-floatlabel variant="on" class="mb-5">
+          <input
+            pInputText
+            formControlName="username"
+            id="username"
+            type="text"
+            class="w-full"
+            autocomplete="off"
+          />
+          <label for="username" class="block font-normal mb-1">Username</label>
+        </p-floatlabel>
 
-        <form [formGroup]="loginFrom" (ngSubmit)="onSubmit()">
-          <p-floatlabel variant="on" class="mb-5">
-            <input
-              pInputText
-              formControlName="username"
-              id="username"
-              type="text"
-              class="w-full md:w-[30rem]"
-              autocomplete="off"
-            />
-            <label for="username" class="block font-normal mb-1"
-              >Username</label
-            >
-          </p-floatlabel>
-
-          <p-floatlabel variant="on" class="mb-5">
-            <p-password
-              formControlName="password"
-              [toggleMask]="true"
-              [feedback]="false"
-              class="w-full"
-              inputStyleClass="w-full"
-              styleClass="w-full"
-              autocomplete="off"
-            >
-            </p-password>
-            <label for="password" class="block text-md font-normal mb-1"
-              >Password</label
-            >
-          </p-floatlabel>
-
-          <p-button
-            label="Sign In"
+        <p-floatlabel variant="on" class="mb-5">
+          <p-password
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            class="w-full"
+            inputStyleClass="w-full"
             styleClass="w-full"
-            type="submit"
-          ></p-button>
-        </form>
+            autocomplete="off"
+          >
+          </p-password>
+          <label for="password" class="block text-md font-normal mb-1"
+            >Password</label
+          >
+        </p-floatlabel>
+
+        <p-button label="Sign In" styleClass="w-full" type="submit"></p-button>
+      </form>
+      <div class="flex">
+        <a class="text-sm hover:underline mt-4">Forgot Password?</a>
       </div>
     </div>
+    <div class="mt-6 flex gap-4 text-sm">
+      <a>Privacy Policy</a>
+      <a>Terms & Conditions</a>
+    </div>
+  </div>
+  <div
+    class="md:flex justify-center items-center min-h-screen min-w-1/2 bg-gray-900 hidden h-screen"
+  >
+    <img src="login.svg" alt="" class="w-[60%]" />
   </div>
 </div>

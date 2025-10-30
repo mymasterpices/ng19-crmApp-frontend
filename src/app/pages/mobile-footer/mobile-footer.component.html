@@ -2,28 +2,26 @@
   <p-toolbar
     [style]="{
       'border-radius': '3rem',
-      padding: '1rem',
-      backdropFilter: 'blur(12px)',
-      background: 'rgba(0,0,0,0.2)'
+      padding: '.8rem',
+      backdropFilter: 'blur(10px)',
+      background: 'rgba(254,254,254,0.02)'
     }"
-    class="fixed bottom-3 left-1/2 -translate-x-1/2 w-11/12"
+    class="fixed bottom-2 left-1/2 -translate-x-1/2 w-11/12 z-50"
   >
     <div class="flex items-center justify-between w-full gap-0">
-      <div class="link flex flex-col items-center justify-center gap-0">
-        <p-button
-          icon="pi pi-plus"
-          text
-          [rounded]="true"
-          routerLink="add-new"
-          routerLinkActive="active"
-        />
-      </div>
-
       <p-button
-        icon="pi pi-exclamation-triangle"
+        icon="pi pi-video"
         text
         [rounded]="true"
-        routerLink="missed"
+        routerLink="videos/view-all"
+        routerLinkActive=""
+      />
+
+      <p-button
+        icon="pi pi-refresh"
+        text
+        [rounded]="true"
+        routerLink="followup/todays"
         routerLinkActive=""
         iconPos="top"
       />
@@ -32,24 +30,24 @@
         icon="pi pi-home"
         text
         [rounded]="true"
-        routerLink="dashboard"
+        routerLink="overview"
         routerLinkActive=""
       />
 
       <p-button
-        icon="pi pi-calendar"
+        icon="pi pi-database"
         text
         [rounded]="true"
-        routerLink="today"
+        routerLink="products/view-all"
         routerLinkActive=""
       />
 
       <p-button
-        icon="pi pi-sign-out"
+        icon="pi pi-user-plus"
         text
         [rounded]="true"
-        (click)="logOut()"
-        routerLinkActive=""
+        routerLink="customers/view-all"
+        routerLinkActive="active"
       />
     </div>
   </p-toolbar>

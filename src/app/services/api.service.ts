@@ -6,19 +6,14 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class ApiService {
-  backendUrl: any;
-  getLoginedUser() {
-    throw new Error('Method not implemented.');
-  }
-
   private http = inject(HttpClient);
-  private appUrl = environment.apiUrl;
+  private appUrl = environment.API_URL;
 
   constructor() {}
 
   private baseUrl = this.appUrl;
 
-  //get all customers on dashboard
+  //get all customers on view all customer
   getAllcustomers(params?: HttpParams) {
     return this.http.get(this.baseUrl + '/api/customers/get', {
       params: params || {},
@@ -111,11 +106,8 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}/api/auth/delete/` + userID);
   }
   //change a staff password by admin
-  updatePassword(userID: string, updatedPassword: any) {
-    return this.http.patch(
-      `${this.baseUrl}/api/auth/password/${userID}`,
-      updatedPassword
-    );
+  updatePassword(newPassword: any) {
+    return this.http.patch(`${this.baseUrl}/api/auth/password/`, newPassword);
   }
 
   //new sales staff
@@ -134,12 +126,28 @@ export class ApiService {
   }
 
   //get a sold item by id
-  getSoldItemById(item_id: string, ) {
+  getSoldItemById(item_id: string) {
     return this.http.get(`${this.baseUrl}/api/sold/view/${item_id}`);
   }
   //update a sold item
   updateSoldItem(item_id: string, soldEntry: any) {
-    return this.http.put(`${this.baseUrl}/api/sold/update/${item_id}`, soldEntry);
+    return this.http.put(
+      `${this.baseUrl}/api/sold/update/${item_id}`,
+      soldEntry
+    );
   }
 
+  // product specification
+  findProduct(jewel_code: any) {
+    return this.http.post(`${this.appUrl}/api/products/search`, jewel_code);
+  }
+  //product list upload
+  uploadCsvFile(formData: FormData) {
+    return this.http.post(`${this.baseUrl}/api/products/upload-csv`, formData);
+  }
+
+  getSavedList(): any[] {
+    const data = localStorage.getItem('saveItems');
+    return data ? JSON.parse(data) : [];
+  }
 }
