@@ -1,0 +1,140 @@
+<div class="flex justify-between items-center mb-4">
+  <!-- Search Customer -->
+  <p-floatlabel variant="on">
+    <input
+      #searchInput
+      pInputText
+      autocomplete="off"
+      (input)="getSavedFootfallEntries(searchInput.value)"
+      pSize="small"
+    />
+    <label>Search Customer</label>
+  </p-floatlabel>
+
+  <!-- Month Picker -->
+  <div class="flex gap-4 items-center">
+    <p-floatlabel variant="on">
+      <p-datepicker
+        [(ngModel)]="selectedMonth"
+        (onSelect)="onMonthChange($event)"
+        view="month"
+        dateFormat="mm/yy"
+        monthNavigator="true"
+        yearNavigator="true"
+        yearRange="2020:2030"
+        size="small"
+        [showClear]="true"
+      ></p-datepicker>
+      <label>Select Month</label>
+    </p-floatlabel>
+
+    <!-- New Entry Button -->
+    <p-button
+      icon="pi pi-plus"
+      (click)="openDialog()"
+      severity="contrast"
+      label="New Entry"
+      size="small"
+    ></p-button>
+  </div>
+</div>
+
+<!-- Footfall Table -->
+<p-card>
+  <p-table
+  [value]="allFootfallEntries()"
+  [paginator]="true"
+  [rows]="10"
+  stripedRows
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>#</th>
+      <th pSortableColumn="username">
+        Sales Person
+        <p-sortIcon field="username" />
+      </th>
+      <th>Total Footfall</th>
+      <th>Total Conversion</th>
+      <th>Conversion Rate (%)</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-footfall let-i="rowIndex">
+    <tr
+      routerLink="/footfall/view-footfall-entry/{{ footfall.user_id }}"
+      class="cursor-pointer"
+    >
+      <td>{{ i + 1 }}</td>
+      <td>{{ footfall.username | titlecase }}</td>
+      <td>{{ footfall.totalFootfall }}</td>
+      <td>{{ footfall.totalConversion }}</td>
+      <td>
+        <p-tag
+          [value]="
+            footfall.totalFootfall
+              ? ((footfall.totalConversion / footfall.totalFootfall) * 100
+                  | number : '1.0-2') + '%'
+              : '0%'
+          "
+          [severity]="
+            footfall.totalFootfall
+              ? (footfall.totalConversion / footfall.totalFootfall) * 100 < 40
+                ? 'danger'
+                : (footfall.totalConversion / footfall.totalFootfall) * 100 < 60
+                ? 'warning'
+                : 'success'
+              : 'danger'
+          "
+        ></p-tag>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+</p-card>
+<!-- Footfall Entry Dialog -->
+<p-dialog
+  [(visible)]="visible"
+  header="Footfall Entry"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="5/7"
+>
+  <form [formGroup]="footfallForm" (ngSubmit)="onSubmit()">
+    <div formArrayName="form" class="space-y-4 py-4">
+      <div
+        *ngFor="let person of form.controls; let i = index"
+        [formGroupName]="i"
+        class="flex gap-4"
+      >
+        <!-- Sales Person (readonly) -->
+        <p-floatlabel class="flex-1" variant="on">
+          <input
+            pInputText
+            [disabled]="true"
+            [value]="form.at(i).get('sales_person')?.value | titlecase"
+          />
+          <label>Sales Person</label>
+        </p-floatlabel>
+
+        <!-- Footfall -->
+        <p-floatlabel class="flex-1" variant="on">
+          <input pInputText formControlName="ff" />
+          <label>FF</label>
+        </p-floatlabel>
+
+        <!-- Conversion -->
+        <p-floatlabel class="flex-1" variant="on">
+          <input pInputText formControlName="con" />
+          <label>CO</label>
+        </p-floatlabel>
+      </div>
+    </div>
+
+    <div class="flex justify-end mt-4">
+      <p-button type="submit" label="Save" severity="contrast"></p-button>
+    </div>
+  </form>
+</p-dialog>

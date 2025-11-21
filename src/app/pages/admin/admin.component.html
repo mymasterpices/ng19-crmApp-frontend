@@ -16,7 +16,7 @@
           <img
             src="LOGO-BRAND.png"
             class="mr-3 md:h-8 h-6 dark:brightness-[200]"
-            alt="Flowbite Logo"
+            alt="RKJ Logo"
           />
         </a>
       </div>
@@ -183,6 +183,21 @@
             >
           </a>
         </li>
+
+        <li>
+          <a
+            (click)="drawerNavigation = false"
+            routerLink="footfall/show-footfall"
+            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+            class="flex items-center p-2 w-full"
+            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+          >
+            <span class="flex-1 text-left">
+              <i class="pi pi-arrow-right-arrow-left px-2"></i>
+              Footfall</span
+            >
+          </a>
+        </li>
         <!--users items  -->
         @if(userName == 'admin'){
         <li>
@@ -204,7 +219,7 @@
       </ul>
     </div>
     <div
-      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20 border-t  border-gray-200 dark:border-gray-700"
+      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20 border-t border-gray-200 dark:border-gray-700"
     >
       <div class="flex justify-between gap-4 items-center">
         <div class="flex justify-start gap-3">

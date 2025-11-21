@@ -105,7 +105,8 @@
             @if (item.stones?.length > 0) {
             <ul class="text-xs">
               @for (s of item.stones; track s._id) {
-              <li>{{ s.colour_stone_wt }} ct – ₹{{ s.colour_stone_amt }}</li>
+              <li>
+                {{ s.colour_stone_wt }} ct – ₹{{ s.colour_stone_amt }}</li>
               }
             </ul>
             } @else { — }
@@ -169,7 +170,7 @@
           <td
             class="text-center p-3 border border-gray-200 font-semibold text-green-700"
           >
-            ₹{{ item.final_price }}
+            ₹{{ item.final_price | number: '1.2-2' }}
           </td>
           }
         </tr>
@@ -178,7 +179,14 @@
   </div>
 </div>
 } @else {
-<p class="text-center py-10 text-gray-500">
-  Please select at least 2 or more products to compare.
-</p>
+<p-card header="Notice">
+  <p class="text-gray-500 dark:text-gray-300 mb-4">
+    No items added for comparison. Please add products to compare.
+  </p>
+  <p-button label="Add Products" routerLink="/products/view-all"
+  icon="pi pi-plus"
+  severity="contrast"
+  size="small"
+  ></p-button>
+</p-card>
 }

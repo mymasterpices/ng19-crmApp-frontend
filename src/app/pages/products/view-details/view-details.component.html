@@ -102,16 +102,6 @@
                 </div>
 
                 <!-- Row 7 -->
-                <div
-                  class="flex items-center font-semibold dark:bg-gray-800 bg-gray-100 rounded-xl"
-                >
-                  <div class="flex-1">Cost <small>(Ex. GST)</small></div>
-                  <div class="flex-none">
-                    {{ item.mrp | number : "1.2-2" }} /-
-                  </div>
-                </div>
-
-                <!-- Row 8 -->
 
                 <div
                   class="flex items-center font-semibold dark:bg-gray-800 bg-gray-200 py-3 px-2 rounded-xl"
@@ -266,7 +256,7 @@
                     <div class="flex items-center font-semibold">
                       <div class="flex-1">Payble amt.</div>
                       <div class="flex-1 text-right">
-                        {{ item.final_price }}/-
+                        {{ item.final_price | number : '1.2-2'}}/-
                       </div>
                     </div>
                   </div>

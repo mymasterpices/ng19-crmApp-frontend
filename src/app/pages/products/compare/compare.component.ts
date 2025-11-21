@@ -1,15 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
+import { DecimalPipe, TitleCasePipe } from '@angular/common';
 import { SaveitemsService } from '../../../services/saveitems.service';
 import { TableModule } from 'primeng/table';
 import { environment } from '../../../../environments/environment';
 import { ImageModule } from 'primeng/image';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-compare',
-  imports: [TitleCasePipe, ImageModule, CardModule, TableModule, ButtonModule],
+  imports: [TitleCasePipe, ImageModule, CardModule, TableModule, ButtonModule, RouterLink, DecimalPipe],
   templateUrl: './compare.component.html',
   styleUrl: './compare.component.css',
 })

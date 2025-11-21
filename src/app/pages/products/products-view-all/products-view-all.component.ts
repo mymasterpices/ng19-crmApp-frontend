@@ -24,7 +24,6 @@ import { environment } from '../../../../environments/environment';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
-import { Drawer } from 'primeng/drawer';
 
 interface UploadEvent {
   files: File[];
@@ -60,12 +59,21 @@ export class ProductsViewAllComponent {
 
   @ViewChild('qrScanner') qrScanner!: QrScannerComponent;
 
-  
   onQrScanned(result: string) {
     this.lastScanned = result;
     // Optionally auto-trigger search when QR is scanned
     this.search();
     console.log('Parent received:', result);
+  }
+
+  getTotalDiamondAmount(diamonds: any[]) {
+    if (!diamonds) return 0;
+    return diamonds.reduce((total, d) => total + (d.amount || 0), 0);
+  }
+
+  getTotalStoneAmount(stones: any[]) {
+    if (!stones) return 0;
+    return stones.reduce((total, s) => total + (s.amount || 0), 0);
   }
 
   private apiService = inject(ApiService);
@@ -110,6 +118,7 @@ export class ProductsViewAllComponent {
             summary: 'Error',
             detail: `No product found! for ${changeToUppercase}`,
           });
+          this.searchResult.set([]);
         } else {
           const code = searchNumber.jewel_code || '';
           let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';

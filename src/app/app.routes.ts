@@ -4,7 +4,6 @@ import { AdminComponent } from './pages/admin/admin.component';
 
 import { ChangePasswordComponent } from './pages/change-password/change-password.component';
 import { AllUsersComponent } from './pages/users/all-users/all-users.component';
-import { AddNewUserComponent } from './pages/users/add-new-user/add-new-user.component';
 
 import { authGuard } from './guard/auth.guard';
 import { ViewCustomerComponent } from './pages/customers/view-customer/view-customer.component';
@@ -25,6 +24,8 @@ import { ProductsViewAllComponent } from './pages/products/products-view-all/pro
 import { ViewDetailsComponent } from './pages/products/view-details/view-details.component';
 import { CustomerViewAllComponent } from './pages/customers/customer-view-all/customer-view-all.component';
 import { CompareComponent } from './pages/products/compare/compare.component';
+import { ShowFootfallComponent } from './pages/footfall/show-footfall/show-footfall.component';
+import { ViewFootfallEntryComponent } from './pages/footfall/view-footfall-entry/view-footfall-entry.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -58,6 +59,11 @@ export const routes: Routes = [
       {
         path: 'products/compare',
         component: CompareComponent,
+      },
+      { path: 'footfall/show-footfall', component: ShowFootfallComponent },
+      {
+        path: 'footfall/view-footfall-entry/:user_id',
+        component: ViewFootfallEntryComponent,
       },
     ],
   },

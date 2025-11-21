@@ -26,7 +26,9 @@
 </div>
 <!--  -->
 <section class="flex flex-col items-center justify-start">
-  <div class="w-100 flex justify-center items-center">
+  <div
+    class="w-100 flex justify-center items-center max-sm:fixed max-sm:bottom-16"
+  >
     <div class="my-2 md:w-full">
       <form action="" [formGroup]="searchFrom" (ngSubmit)="search()">
         <div class="my-2">
@@ -59,7 +61,11 @@
 
           @if(searchFrom.controls['jewel_code'].touched &&
           searchFrom.controls['jewel_code'].hasError('required')){
-          <p><small class="text-red-600">Tag number is required</small></p>
+          <p class="text-center">
+            <small class="text-red-600"
+              >Tag number is required or try scanner
+            </small>
+          </p>
           } @if (searchFrom.controls['jewel_code'].hasError('minlength')) {
           <p>
             <small class="text-red-600"
@@ -72,7 +78,7 @@
     </div>
   </div>
 
-  <div class="w-full md:w-1/2">
+  <div class="w-full md:w-5/7">
     <!-- search product result -->
 
     @for(item of searchResult(); track item.id){
@@ -124,9 +130,8 @@
                   <div class="flex-1">{{ item.gross_wt }} Gms</div>
                 </div>
 
-                <!-- Row 3 (Diamonds, if any) -->
                 @if (item.diamonds && item.diamonds.length > 0) { @for(dia of
-                item.diamonds; track $index){
+                item.diamonds; track $index) {
                 <div
                   class="flex flex-col border-b border-gray-200 pb-1 space-y-1"
                 >
@@ -139,7 +144,18 @@
                     <div class="flex-none">{{ dia.amount }}/-</div>
                   </div>
                 </div>
-                }}
+                }
+
+                <div
+                  class="flex items-center border-b border-gray-200 dark:bg-gray-800 bg-gray-100"
+                >
+                  <div class="w-24">Dia. Total</div>
+                  <div class="flex-1"></div>
+                  <div class="flex-none">
+                    {{ getTotalDiamondAmount(item.diamonds) }}/-
+                  </div>
+                </div>
+                }
 
                 <!-- Row 4 (Stones, if any) -->
                 @if (item.stones && item.stones.length > 0) { @for(stone of
@@ -161,8 +177,12 @@
                   class="flex items-center border-b border-gray-200 pb-1 space-y-1"
                 >
                   <div class="w-24 font-semibold">Making</div>
-                  <div class="flex-1">{{ item.making_charge }}%</div>
-                  <div class="flex-none">{{ item.making_amt }}/-</div>
+                  <div class="flex-1">
+                    {{ item.making_charge === 0 ? "-" : item.making_charge }}
+                  </div>
+                  <div class="flex-none">
+                    {{ item.making_amt === 0 ? "-" : item.making_amt }}/-
+                  </div>
                 </div>
 
                 <!-- Row 6 -->
@@ -177,16 +197,6 @@
                 </div>
 
                 <!-- Row 7 -->
-                <div
-                  class="flex items-center font-semibold dark:bg-gray-800 bg-gray-100 rounded-xl"
-                >
-                  <div class="flex-1">Cost <small>(Ex. GST)</small></div>
-                  <div class="flex-none">
-                    {{ item.mrp | number : "1.2-2" }} /-
-                  </div>
-                </div>
-
-                <!-- Row 8 -->
 
                 <div
                   class="flex items-center font-semibold dark:bg-gray-800 bg-gray-200 py-3 px-2 rounded-xl"
