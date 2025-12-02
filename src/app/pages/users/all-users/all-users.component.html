@@ -28,6 +28,7 @@
         <th>#</th>
         <th>Name</th>
         <th>Role</th>
+        <th>Status</th>
         <th>Action</th>
       </tr>
     </ng-template>
@@ -36,8 +37,23 @@
       @if(user.username !== 'admin') {
       <tr>
         <td>{{ i + 1 }}</td>
-        <td>{{ user.username | titlecase }}</td>
+        <td>
+          {{ user.username | titlecase }}
+
+          <i
+            class="pi pi-copy cursor-pointer text-gray-400 hover:text-gray-100 px-1 py-1"
+            pTooltip="Copy id"
+            (click)="copyUserId(user._id)"
+          ></i>
+        </td>
         <td>{{ user.role | titlecase }}</td>
+        <td>
+          <p-toggleswitch
+            [ngModel]="user.status === 'active'"
+            (onChange)="onStatusToggle(user, $event.checked)"
+            pTooltip="{{user.status === 'active' ? 'Active' : 'Inactive'}}"
+          ></p-toggleswitch>
+        </td>
         <td>
           <p-button
             [text]="true"
@@ -71,7 +87,10 @@
   [style]="{ height: '100%', width: '25%' }"
   styleClass="!w-full md:!w-80 lg:!w-[30rem]"
 >
-  <form [formGroup]="changePasswordForm" (ngSubmit)="updatePassword(selectedUserId)">
+  <form
+    [formGroup]="changePasswordForm"
+    (ngSubmit)="updatePassword(selectedUserId)"
+  >
     <span class="p-text-secondary block mb-2">Enter new password</span>
     <div class="mb-3">
       <p-floatlabel variant="on">

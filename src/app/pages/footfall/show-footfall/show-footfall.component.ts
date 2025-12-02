@@ -5,6 +5,7 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { FootfallService } from '../../../services/footfall/footfall.service';
 import { HttpParams } from '@angular/common/http';
@@ -21,6 +22,13 @@ import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { DatePicker } from 'primeng/datepicker';
 import { Card } from 'primeng/card';
+import { LoginedUserService } from '../../../services/logined-user.service';
+import { FileUpload } from 'primeng/fileupload';
+import { Tooltip } from "primeng/tooltip";
+
+interface UploadEvent {
+  files: File[];
+}
 
 @Component({
   selector: 'app-show-footfall',
@@ -41,17 +49,27 @@ import { Card } from 'primeng/card';
     CommonModule,
     DatePicker,
     Card,
-  ],
+    FileUpload,
+    Tooltip
+],
   templateUrl: './show-footfall.component.html',
   styleUrls: ['./show-footfall.component.css'],
 })
 export class ShowFootfallComponent implements OnInit {
   private _footfallService = inject(FootfallService);
   private _messageService = inject(MessageService);
+  private _loginedUserService = inject(LoginedUserService);
   private fb = inject(FormBuilder);
 
+  loginedUser = this._loginedUserService.getLoginedUser();
+
   visible = false;
-  footfallForm: FormGroup = this.fb.group({ form: this.fb.array([]) });
+  uploadVisible = false;
+
+  footfallForm: FormGroup = this.fb.group({
+    date: new FormControl<Date | null>(null),
+    form: this.fb.array([]),
+  });
   salesPerson: any[] = [];
   allFootfallEntries = signal<any[]>([]);
   selectedMonth: Date | null = null;
@@ -144,13 +162,21 @@ export class ShowFootfallComponent implements OnInit {
   }
 
   onSubmit() {
-    const formValue = this.footfallForm.value.form;
+    const formValue = this.footfallForm.value;
+    const selectedDate: Date | string | null = formValue.date;
+    const rows = formValue.form;
+
+    console.log('Full form value:', formValue);
+    console.log('Selected date:', selectedDate);
 
     this.salesPerson.forEach((person) => {
-      const entry = formValue.find(
-        (f: any) => f.sales_person === person.username
-      );
+      const entry = rows.find((f: any) => f.sales_person === person.username);
       if (!entry) return;
+
+      const timestamp =
+        selectedDate instanceof Date
+          ? selectedDate.toISOString()
+          : selectedDate || new Date().toISOString();
 
       const payload = {
         name: person.name,
@@ -160,10 +186,12 @@ export class ShowFootfallComponent implements OnInit {
           {
             footfall: Number(entry.ff) || 0,
             conversion: Number(entry.con) || 0,
-            timestamp: new Date().toISOString(),
+            timestamp, // ✅ will now be what you selected
           },
         ],
       };
+
+      console.log('Show the Data payload', payload);
 
       this._footfallService.saveFootfallEntry(person._id, payload).subscribe({
         next: () => console.log(`Saved entry for ${person.username}`),
@@ -177,6 +205,7 @@ export class ShowFootfallComponent implements OnInit {
         },
       });
     });
+
     this.getSavedFootfallEntries();
     this._messageService.add({
       severity: 'success',
@@ -185,5 +214,76 @@ export class ShowFootfallComponent implements OnInit {
     });
     this.footfallForm.reset();
     this.visible = false;
+  }
+
+  //bulk upload footfall data
+
+  selectedFile: File | null = null;
+  isUploading = signal('Upload');
+
+  csvForm: FormGroup = new FormGroup({
+    csv_file: new FormControl<File | null>(null, Validators.required),
+  });
+
+  onFileChange(event: UploadEvent) {
+    const input = event.files[0];
+    if (!input) return;
+
+    const file = input;
+    if (!file.name.endsWith('.csv')) {
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Invalid File',
+        detail: 'Please upload a CSV file',
+      });
+      return;
+    }
+
+    this.selectedFile = file;
+    this.csvForm.patchValue({ csv_file: file });
+
+    this._messageService.add({
+      severity: 'info',
+      summary: 'File Selected',
+      detail: file.name,
+    });
+  }
+
+  onBulkUpload() {
+    if (!this.selectedFile) {
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Missing CSV file',
+        detail: 'Please select a CSV file',
+      });
+      return;
+    }
+
+    this.isUploading.set('Processing...');
+
+    this._footfallService
+      .uploadBulkFootfallEntries(this.selectedFile)
+      .subscribe({
+        next: (res: any) => {
+          this._messageService.add({
+            severity: 'success',
+            summary: 'Upload Complete',
+            detail: `${res.totalImported || 0} entries imported successfully`,
+          });
+          this.isUploading.set('Upload');
+          this.getSavedFootfallEntries();
+          this.csvForm.reset();
+          this.uploadVisible = false;
+          this.selectedFile = null;
+        },
+        error: (err) => {
+          this._messageService.add({
+            severity: 'error',
+            summary: 'Upload Failed',
+            detail: err.error?.error || 'Please try again',
+          });
+          this.isUploading.set('Upload');
+        },
+      });
   }
 }

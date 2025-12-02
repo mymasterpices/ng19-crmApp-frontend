@@ -1,0 +1,18 @@
+.highlight-row {
+  background-color: #d4edda !important;
+  animation: highlightFade 2s ease-in-out forwards;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: #28a745;
+    color: rgb(0, 0, 0);
+  }
+  50% {
+    background-color: #d4edda;
+    color: #000;
+  }
+  100% {
+    background-color: transparent;
+  }
+}

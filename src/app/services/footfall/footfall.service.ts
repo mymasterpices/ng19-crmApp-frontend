@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +31,7 @@ export class FootfallService {
   }
   //update footfall entry
   updateFootfallEntry(footfall_id: string, footfallEntry: any) {
-    return this.http.put(
+    return this.http.patch(
       environment.API_URL + '/api/footfall/update/' + footfall_id,
       footfallEntry
     );
@@ -39,5 +39,22 @@ export class FootfallService {
   //get all sales persons
   getAllSalesPersons() {
     return this.http.get(environment.API_URL + '/api/auth/users');
+  }
+  //upload bulk footfall entries
+  uploadBulkFootfallEntries(file: any) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      environment.API_URL + '/api/footfall/import',
+      formData
+    );
+  }
+
+  //// user.service.ts (or similar)
+  updateUserStatus(id: string, status: 'active' | 'inactive') {
+    return this.http.patch(`${environment.API_URL}/api/auth/status`, {
+      id,
+      status,
+    });
   }
 }

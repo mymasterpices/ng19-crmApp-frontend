@@ -21,12 +21,14 @@
   </div>
 </div>
 
+@if(filteredFootEntries().length> 0) {
 <p-card>
   <p-table
     [value]="filteredFootEntries()"
     [paginator]="true"
     [rows]="31"
     stripedRows=""
+    size="small"
   >
     <ng-template pTemplate="header">
       <tr>
@@ -43,10 +45,11 @@
           <p-sortIcon field="conversion" />
         </th>
         <th>Conversion %</th>
+        <th>Edit/Update</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-entry>
-      <tr>
+      <tr [ngClass]="{ 'highlight-row': highlightedRowId() === entry._id }">
         <td>{{ entry.timestamp | date : "d/MMM/y" }}</td>
         <td>{{ entry.footfall }}</td>
         <td>{{ entry.conversion }}</td>
@@ -69,7 +72,68 @@
             "
           ></p-tag>
         </td>
+        <td>
+          <p-button
+            icon="pi pi-pencil"
+            severity="contrast"
+            [text]="true"
+            size="small"
+            (onClick)="toggle($event, op)"
+          >
+          </p-button>
+          <p-popover #op styleClass="md:w-1/4 w-full">
+            <div class="container p-2">
+              <div class="flex justify-between">
+                <span class="font-semibold block mb-2">Update Entry</span>
+                <span class="font-normal text-gray-400 block mb-2">{{
+                  entry.timestamp | date : "d/MMM/y"
+                }}</span>
+              </div>
+              <form
+                action=""
+                class="flex gap-5 justify-start flex-row flex-wrap mt-1"
+                [formGroup]="update_footefall_entry"
+                (ngSubmit)="onSubmit(entry._id)"
+              >
+                <!-- Footfall -->
+                <p-floatlabel class="" variant="on">
+                  <input pInputText formControlName="ff" />
+                  <label>FF</label>
+                </p-floatlabel>
+
+                <!-- Conversion -->
+                <p-floatlabel class="" variant="on">
+                  <input pInputText formControlName="con" />
+                  <label>CO</label>
+                </p-floatlabel>
+
+                <p-button
+                  severity="contrast"
+                  label="Update"
+                  icon="pi pi-file"
+                  type="submit"
+                >
+                </p-button>
+              </form>
+            </div>
+          </p-popover>
+        </td>
       </tr>
     </ng-template>
   </p-table>
 </p-card>
+} @else {
+<p-card>
+  <div class="flex flex-col items-center justify-center py-5">
+    <i class="pi pi-info-circle !text-4xl text-red-500 mb-4"></i>
+    <p class="mb-2">There are no footfall entries for the selected month.</p>
+    <p-button
+      routerLink="/footfall/show-footfall"
+      [text]="true"
+      label="Go to Footfall"
+      icon="pi pi-arrow-left"
+    >
+    </p-button>
+  </div>
+</p-card>
+}

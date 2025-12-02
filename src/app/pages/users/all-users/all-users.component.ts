@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { TitleCasePipe } from '@angular/common';
+import { NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
@@ -12,6 +12,7 @@ import { PasswordModule } from 'primeng/password';
 import {
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -19,6 +20,8 @@ import { ApiService } from '../../../services/api.service';
 import { AddNewUserComponent } from '../add-new-user/add-new-user.component';
 import { Drawer } from 'primeng/drawer';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { FootfallService } from '../../../services/footfall/footfall.service';
 
 @Component({
   selector: 'app-all-users',
@@ -36,12 +39,15 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     AddNewUserComponent,
     Drawer,
     ConfirmDialogModule,
+    ToggleSwitch,
+    FormsModule,
   ],
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',
 })
 export class AllUsersComponent implements OnInit {
   private loginService = inject(ApiService);
+  private _footfallService = inject(FootfallService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
@@ -51,6 +57,8 @@ export class AllUsersComponent implements OnInit {
   displayBasic: boolean = false;
   //store user id
   user_id: string = '';
+  //toggle switch user status
+  checked = signal<boolean>(true);
 
   changePasswordForm = new FormGroup({
     password: new FormControl('', [
@@ -150,6 +158,42 @@ export class AllUsersComponent implements OnInit {
             console.log(error);
           }
         );
+      },
+    });
+  }
+
+  //copy user id
+  copyUserId(userId: string) {
+    navigator.clipboard.writeText(userId).then(() => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'User ID copied to clipboard',
+      });
+    });
+  }
+
+  //handle dialog close
+  onStatusToggle(user: any, isChecked: boolean) {
+    const newStatus = isChecked ? 'active' : 'inactive';
+
+    this._footfallService.updateUserStatus(user._id, newStatus).subscribe({
+      next: () => {
+        // update UI state
+        user.status = newStatus;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Status Updated',
+          detail: `${user.username} is now ${newStatus}`,
+        });
+      },
+      error: (err) => {
+        // revert UI if failed
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Update Failed',
+          detail: err.error?.error || 'Could not update status',
+        });
       },
     });
   }
