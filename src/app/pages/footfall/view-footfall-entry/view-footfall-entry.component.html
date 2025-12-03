@@ -44,6 +44,7 @@
           Conversion
           <p-sortIcon field="conversion" />
         </th>
+        <th>PC</th>
         <th>Conversion %</th>
         <th>Edit/Update</th>
       </tr>
@@ -53,6 +54,7 @@
         <td>{{ entry.timestamp | date : "d/MMM/y" }}</td>
         <td>{{ entry.footfall }}</td>
         <td>{{ entry.conversion }}</td>
+        <td>{{ entry.pc != null ? entry.pc : "-" }}</td>
         <td>
           <p-tag
             [value]="

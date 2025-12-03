@@ -24,7 +24,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { Card } from 'primeng/card';
 import { LoginedUserService } from '../../../services/logined-user.service';
 import { FileUpload } from 'primeng/fileupload';
-import { Tooltip } from "primeng/tooltip";
+import { Tooltip } from 'primeng/tooltip';
 
 interface UploadEvent {
   files: File[];
@@ -50,8 +50,8 @@ interface UploadEvent {
     DatePicker,
     Card,
     FileUpload,
-    Tooltip
-],
+    Tooltip,
+  ],
   templateUrl: './show-footfall.component.html',
   styleUrls: ['./show-footfall.component.css'],
 })
@@ -121,6 +121,10 @@ export class ShowFootfallComponent implements OnInit {
             (sum: number, e: any) => sum + e.conversion,
             0
           );
+          const totalPC = entries.reduce(
+            (sum: number, e: any) => sum + e.pc,
+            0
+          );
 
           return {
             ...person,
@@ -146,6 +150,7 @@ export class ShowFootfallComponent implements OnInit {
       sales_person: new FormControl(person.username || ''),
       ff: new FormControl(person.ff || ''),
       con: new FormControl(person.con || ''),
+      pc: new FormControl(person.pc || ''),
     });
   }
 
@@ -179,13 +184,13 @@ export class ShowFootfallComponent implements OnInit {
           : selectedDate || new Date().toISOString();
 
       const payload = {
-        name: person.name,
         username: person.username,
         user_id: person._id,
         foot_entry: [
           {
             footfall: Number(entry.ff) || 0,
             conversion: Number(entry.con) || 0,
+            pc: Number(entry.pc) || null,
             timestamp, // ✅ will now be what you selected
           },
         ],
@@ -206,18 +211,18 @@ export class ShowFootfallComponent implements OnInit {
       });
     });
 
-    this.getSavedFootfallEntries();
     this._messageService.add({
       severity: 'success',
       summary: 'Success',
       detail: 'All entries saved successfully',
     });
+
     this.footfallForm.reset();
+    this.getSavedFootfallEntries();
     this.visible = false;
   }
 
   //bulk upload footfall data
-
   selectedFile: File | null = null;
   isUploading = signal('Upload');
 

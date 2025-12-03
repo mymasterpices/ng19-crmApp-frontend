@@ -65,7 +65,7 @@
       <tr>
         <th>#</th>
         <th pSortableColumn="username">
-          Sales Person
+          Sales Staff
           <p-sortIcon field="username" />
         </th>
         <th>Total Footfall</th>
@@ -156,7 +156,7 @@
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  styleClass="md:w-[45rem] w-full"
+  styleClass="md:w-[58rem] w-full"
 >
   <form
     [formGroup]="footfallForm"
@@ -176,7 +176,7 @@
       <div
         *ngFor="let person of form.controls; let i = index"
         [formGroupName]="i"
-        class="flex gap-4 flex-wrap flex-col"
+        class="flex gap-4 flex-row"
       >
         <!-- Sales Person (readonly) -->
         <p-floatlabel variant="on">
@@ -184,21 +184,27 @@
             pInputText
             [disabled]="true"
             [value]="form.at(i).get('sales_person')?.value | titlecase"
-            class="w-40"
+            class="max-sm:w-25"
           />
           <label>Sales Person</label>
         </p-floatlabel>
 
         <!-- Footfall -->
         <p-floatlabel variant="on">
-          <input pInputText formControlName="ff" class="w-40" />
+          <input pInputText formControlName="ff" class="max-sm:w-25" />
           <label>FF</label>
         </p-floatlabel>
 
         <!-- Conversion -->
         <p-floatlabel variant="on">
-          <input pInputText formControlName="con" class="w-40" />
+          <input pInputText formControlName="con" class="max-sm:w-25" />
           <label>CO</label>
+        </p-floatlabel>
+
+        <!-- PC -->
+        <p-floatlabel variant="on">
+          <input pInputText formControlName="pc" class="max-sm:w-25" />
+          <label>PC</label>
         </p-floatlabel>
       </div>
     </div>

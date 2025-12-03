@@ -16,7 +16,6 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Card } from 'primeng/card';
-import { DialogModule } from 'primeng/dialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { Popover, PopoverModule } from 'primeng/popover';
