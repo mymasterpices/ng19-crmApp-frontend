@@ -19,8 +19,8 @@
     stripedRows
     size="small"
     [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[10, 20, 30]"
+    [rows]="15"
+    [rowsPerPageOptions]="[15, 30, 45]"
     responsiveLayout="scroll"
   >
     <ng-template pTemplate="header">
@@ -51,7 +51,7 @@
           <p-toggleswitch
             [ngModel]="user.status === 'active'"
             (onChange)="onStatusToggle(user, $event.checked)"
-            pTooltip="{{user.status === 'active' ? 'Active' : 'Inactive'}}"
+            pTooltip="{{ user.status === 'active' ? 'Active' : 'Inactive' }}"
           ></p-toggleswitch>
         </td>
         <td>

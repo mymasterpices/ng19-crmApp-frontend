@@ -89,7 +89,10 @@ export class ShowFootfallComponent implements OnInit {
 
   getSalesPersonName() {
     this._footfallService.getAllSalesPersons().subscribe({
-      next: (res: any) => (this.salesPerson = res),
+      next: (res: any) => {
+        // keep only users with status === 'active'
+        this.salesPerson = res.filter((user: any) => user.status === 'active');
+      },
       error: (err) => console.error(err),
     });
   }
@@ -119,10 +122,6 @@ export class ShowFootfallComponent implements OnInit {
           );
           const totalConversion = entries.reduce(
             (sum: number, e: any) => sum + e.conversion,
-            0
-          );
-          const totalPC = entries.reduce(
-            (sum: number, e: any) => sum + e.pc,
             0
           );
 
