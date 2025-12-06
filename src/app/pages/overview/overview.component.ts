@@ -7,10 +7,27 @@ import { ApiService } from '../../services/api.service';
 import { ChartModule } from 'primeng/chart';
 import { RouterLink } from '@angular/router';
 import { SharevideosService } from '../../services/sharevideos.service';
+import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
+
+interface FootEntry {
+  username: string;
+  user_id: string;
+  footfall: number;
+  conversion: number;
+  pc?: string | null;
+  timestamp: string; // ISO string
+}
 
 @Component({
   selector: 'app-overview',
-  imports: [CardModule, ProgressBarModule, DatePipe, ChartModule, RouterLink],
+  imports: [
+    CardModule,
+    ProgressBarModule,
+    DatePipe,
+    ChartModule,
+    RouterLink,
+    FootfaloverviewComponent,
+  ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
 })
