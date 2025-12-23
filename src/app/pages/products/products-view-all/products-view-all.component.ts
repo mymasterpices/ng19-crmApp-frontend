@@ -73,7 +73,7 @@ export class ProductsViewAllComponent {
 
   getTotalStoneAmount(stones: any[]) {
     if (!stones) return 0;
-    return stones.reduce((total, s) => total + (s.amount || 0), 0);
+    return stones.reduce((total, s) => total + (s.colour_stone_amt || 0), 0);
   }
 
   getMakingChargeAmount(item: any): number {
