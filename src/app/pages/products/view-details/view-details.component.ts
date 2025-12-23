@@ -28,7 +28,7 @@ import { FloatLabel } from 'primeng/floatlabel';
     TooltipModule,
     ImageModule,
     FloatLabel,
-    DecimalPipe, 
+    DecimalPipe,
   ],
   templateUrl: './view-details.component.html',
   styleUrl: './view-details.component.css',
@@ -103,7 +103,7 @@ export class ViewDetailsComponent implements OnInit {
 
           this.item = res[0];
           this.searchResult.set(res);
-          this.priceAfterDiscount.set(this.item.mrp);
+          this.priceAfterDiscount.set(this.getGrandTotal(this.item));
           this.getAlreadySavedItems(this.item);
           //shiow indicator if product saved in locall
 
@@ -137,37 +137,115 @@ export class ViewDetailsComponent implements OnInit {
     }
   }
 
-  calculate(): void {
+  getMakingChargeAmount(item: any): number {
+    // 1. Calculate the base material cost once
+    const materialSubtotal =
+      (item.metal_amt || 0) +
+      this.getTotalDiamondAmount(item.diamonds || []) +
+      this.getTotalStoneAmount(item.stones || []);
+
+    // 2. Check if it's a Percentage based charge
+    if (item.making_charge && item.making_charge !== 0) {
+      // Formula: (Material Cost * Percentage) / 100
+      return (materialSubtotal * item.making_charge) / 100;
+    }
+
+    // 3. Check if it's a Flat Amount based charge
+    else if (item.making_amt && item.making_amt !== 0) {
+      // Usually, making_amt is a fixed value (e.g., $50),
+      // so we return it directly.
+      return item.making_amt;
+    }
+
+    // 4. Default to 0 if no charges exist
+    return 0;
+  }
+
+  getTotalDiamondAmount(diamonds: any[]) {
+    if (!diamonds) return 0;
+    return diamonds.reduce((total, d) => total + (d.amount || 0), 0);
+  }
+
+  getTotalStoneAmount(stones: any[]) {
+    if (!stones) return 0;
+    return stones.reduce((total, s) => total + (s.amount || 0), 0);
+  }
+
+  calculateGST(item: any): number {
+    // 1. Get the base material sum
+    const materialSubtotal =
+      (item.metal_amt || 0) +
+      this.getTotalDiamondAmount(item.diamonds || []) +
+      this.getTotalStoneAmount(item.stones || []);
+
+    // 2. Calculate Making Charges (as per your formula: (subtotal * charge) / 100)
+    const makingChargeAmount =
+      (materialSubtotal * (item.making_charge || 0)) / 100;
+
+    // 3. Calculate 3% GST on the sum of both
+    const totalBeforeTax = materialSubtotal + makingChargeAmount;
+
+    return totalBeforeTax * 0.03;
+  }
+
+  getGrandTotal(item: any): number {
+    const materials =
+      (item.metal_amt || 0) +
+      this.getTotalDiamondAmount(item.diamonds) +
+      this.getTotalStoneAmount(item.stones);
+
+    const making = this.getMakingChargeAmount(item);
+
+    const subtotal = materials + making;
+    const gst = subtotal * 0.03;
+
+    return subtotal + gst;
+  }
+
+  ApplyDiscount(): void {
     const currentItem = this.searchResult()[0];
     if (!currentItem) return;
 
-    if (this.userInput > 0) {
-      if (this.userInput > currentItem.mrp) {
-        this.priceAfterDiscount.set(currentItem.mrp);
+    // 1. Store the grand total in a variable for performance and consistency
+    const totalAmount = this.getGrandTotal(currentItem);
+    const discountAmount = this.userInput || 0;
 
-        //show error message
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Discount can't be greater than product price`,
-        });
-        return;
-      } else {
-        this.priceAfterDiscount.set(currentItem.mrp - this.userInput);
-        this.favIcon.set(false);
-        this._messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Discount applied sucessfully`,
-        });
-      }
+    // 2. Handle Case: No discount entered
+    if (discountAmount <= 0) {
+      this.priceAfterDiscount.set(totalAmount);
+      this.discountPercent.set(0);
+      return;
     }
-    const discountPercent =
-      this.userInput <= currentItem.mrp
-        ? (this.userInput / currentItem.mrp) * 100
-        : 0;
 
-    this.discountPercent.set(discountPercent);
+    // 3. Handle Case: Discount is too high
+    if (discountAmount > totalAmount) {
+      this.priceAfterDiscount.set(totalAmount);
+      this.discountPercent.set(0);
+
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `Discount can't be greater than the total price (${totalAmount.toFixed(
+          2
+        )})`,
+      });
+      return;
+    }
+
+    // 4. Success Case: Calculate Discounted Price
+    const finalPrice = totalAmount - discountAmount;
+    this.priceAfterDiscount.set(finalPrice);
+
+    // 5. Calculate Percentage based on the Grand Total
+    const percent = (discountAmount / totalAmount) * 100;
+    this.discountPercent.set(percent);
+
+    this.favIcon.set(false);
+    this._messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: `Discount applied successfully`,
+    });
   }
 
   finalize(): void {

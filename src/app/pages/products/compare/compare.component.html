@@ -3,16 +3,16 @@
   <div class="min-w-max">
     <table class="w-full table-auto border border-gray-200">
       <!-- Header -->
-      <thead class="bg-gray-100 dark:bg-gray-800 text-center">
+      <thead class="text-center">
         <tr>
           <!-- Sticky left column -->
           <th
-            class="text-left p-3 border border-gray-200 sticky left-0 z-10 w-40 bg-gray-100 dark:bg-gray-800"
+            class="text-left p-3 border border-gray-200 sticky left-0 z-10 w-40 dark:bg-gray-800"
           >
-            Details
+            #
           </th>
           @for (item of SavedItems(); track item._id) {
-          <th class="p-3 border border-gray-200 align-top">
+          <th class="p-3 border border-gray-200 align-top bg-white">
             <div class="flex flex-col items-center relative">
               <img
                 [src]="item.product_image_url || placeholder"
@@ -21,7 +21,7 @@
               />
               <span class="font-semibold text-sm text-center">
                 {{ item.product_category | titlecase }} <br />
-                {{ item.sub_category | titlecase }}
+                <!-- {{ item.sub_category | titlecase }} -->
               </span>
               <span class="text-xs text-gray-500 mt-1">{{
                 item.jewel_code
@@ -44,9 +44,7 @@
       <tbody class="text-sm">
         <!-- Gross Wt -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
             Gross wt.
           </th>
           @for (item of SavedItems(); track item._id) {
@@ -58,9 +56,7 @@
 
         <!-- Net Wt -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
             Net wt.
           </th>
           @for (item of SavedItems(); track item._id) {
@@ -70,11 +66,8 @@
           }
         </tr>
 
-        <!-- Diamond Weight and Details -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
             Diamonds
           </th>
           @for (item of SavedItems(); track item._id) {
@@ -95,9 +88,7 @@
 
         <!-- Stones -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
             Stones
           </th>
           @for (item of SavedItems(); track item._id) {
@@ -105,8 +96,7 @@
             @if (item.stones?.length > 0) {
             <ul class="text-xs">
               @for (s of item.stones; track s._id) {
-              <li>
-                {{ s.colour_stone_wt }} ct – ₹{{ s.colour_stone_amt }}</li>
+              <li>{{ s.colour_stone_wt }} ct – ₹{{ s.colour_stone_amt }}</li>
               }
             </ul>
             } @else { — }
@@ -114,39 +104,55 @@
           }
         </tr>
 
-        <!-- Collection -->
+        <!-- making calc -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
-            Collection
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
+            Making
           </th>
           @for (item of SavedItems(); track item._id) {
           <td class="text-center p-3 border border-gray-200">
-            {{ item.collection || "—" }}
+            <div class="flex-1 text-gray-600">
+              @if(item.making_charge && item.making_charge !== 0) {
+              {{ item.making_charge }}% } @else if (item.making_amt &&
+              item.making_amt !== 0) { Fixed } @else { - }
+            </div>
+
+            <div class="flex-none font-medium">
+              @if(getMakingChargeAmount(item) > 0) {
+              {{ getMakingChargeAmount(item) | number : "1.2-2" }}/- } @else { -
+              }
+            </div>
           </td>
           }
         </tr>
 
-        <!-- MRP -->
+        <!-- making calc -->
         <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
-            MRP
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
+            GST
           </th>
           @for (item of SavedItems(); track item._id) {
           <td class="text-center p-3 border border-gray-200">
-            ₹{{ item.mrp }}
+            {{ calculateGST(item) | number : "1.2-2" }}/-
+          </td>
+          }
+        </tr>
+
+        <!-- rkj price -->
+        <tr>
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
+            RKJ Price
+          </th>
+          @for (item of SavedItems(); track item._id) {
+          <td class="text-center p-3 border border-gray-200">
+            ₹{{ getGrandTotal(item) | number : "1.2-2" }}/-
           </td>
           }
         </tr>
 
         <!-- Discount -->
-        <tr>
-          <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-50"
-          >
+        <tr class="bg-blue-100 dark:bg-blue-900">
+          <th class="text-left p-3 border border-gray-200 sticky left-0">
             Discount
           </th>
           @for (item of SavedItems(); track item._id) {
@@ -162,7 +168,7 @@
         <!-- Final Price -->
         <tr>
           <th
-            class="text-left p-3 border border-gray-200 sticky left-0 bg-gray-100 font-semibold"
+            class="text-left p-3 border border-gray-200 sticky left-0 font-semibold"
           >
             Final Price
           </th>
@@ -170,7 +176,7 @@
           <td
             class="text-center p-3 border border-gray-200 font-semibold text-green-700"
           >
-            ₹{{ item.final_price | number: '1.2-2' }}
+            ₹{{ item.final_price | number : "1.2-2" }}
           </td>
           }
         </tr>
@@ -183,10 +189,12 @@
   <p class="text-gray-500 dark:text-gray-300 mb-4">
     No items added for comparison. Please add products to compare.
   </p>
-  <p-button label="Add Products" routerLink="/products/view-all"
-  icon="pi pi-plus"
-  severity="contrast"
-  size="small"
+  <p-button
+    label="Add Products"
+    routerLink="/products/view-all"
+    icon="pi pi-plus"
+    severity="contrast"
+    size="small"
   ></p-button>
 </p-card>
 }

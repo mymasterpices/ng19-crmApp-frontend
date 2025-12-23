@@ -12,7 +12,7 @@
     >
     </p-button>
     }
-    
+
     <p-button
       icon="pi pi-hourglass"
       class="mt-3 right-3"
@@ -120,7 +120,7 @@
                   <div class="flex-1">{{ item.net_wt }} Gms</div>
                   <div class="flex-1">{{ item.material }}</div>
                   <div class="flex-none relative">
-                    {{ item.metal_amt || "NA" }}/-
+                    {{ item.metal_amt || "NA" | number : "1.2-2" }}/-
                   </div>
                 </div>
 
@@ -141,18 +141,22 @@
                     <div class="flex-1">
                       {{ dia.diamond_colour || dia.quality_code }}
                     </div>
-                    <div class="flex-none">{{ dia.amount }}/-</div>
+                    <div class="flex-none">
+                      {{ dia.amount | number : "1.2-2" }}/-
+                    </div>
                   </div>
                 </div>
                 }
 
                 <div
-                  class="flex items-center border-b border-gray-200 dark:bg-gray-800 bg-gray-100"
+                  class="flex items-center border-b border-gray-200 dark:bg-gray-800 bg-blue-100 p-2 rounded-lg"
                 >
                   <div class="w-24">Dia. Total</div>
                   <div class="flex-1"></div>
                   <div class="flex-none">
-                    {{ getTotalDiamondAmount(item.diamonds) }}/-
+                    {{
+                      getTotalDiamondAmount(item.diamonds) | number : "1.2-2"
+                    }}/-
                   </div>
                 </div>
                 }
@@ -177,11 +181,17 @@
                   class="flex items-center border-b border-gray-200 pb-1 space-y-1"
                 >
                   <div class="w-24 font-semibold">Making</div>
-                  <div class="flex-1">
-                    {{ item.making_charge === 0 ? "-" : item.making_charge }}
+
+                  <div class="flex-1 text-gray-600">
+                    @if(item.making_charge && item.making_charge !== 0) {
+                    {{ item.making_charge }}% } @else if (item.making_amt &&
+                    item.making_amt !== 0) { Fixed } @else { - }
                   </div>
-                  <div class="flex-none">
-                    {{ item.making_amt === 0 ? "-" : item.making_amt }}/-
+
+                  <div class="flex-none font-medium">
+                    @if(getMakingChargeAmount(item) > 0) {
+                    {{ getMakingChargeAmount(item) | number : "1.2-2" }}/- }
+                    @else { - }
                   </div>
                 </div>
 
@@ -192,7 +202,7 @@
                   <div class="w-24 font-semibold">GST</div>
                   <div class="flex-1">3%</div>
                   <div class="flex-none">
-                    {{ item.mrp * 0.03 | number : "1.2-2" }}/-
+                    {{ calculateGST(item) | number : "1.2-2" }}/-
                   </div>
                 </div>
 
@@ -203,7 +213,7 @@
                 >
                   <div class="flex-1">Cost <small>(Inc. GST)</small></div>
                   <div class="flex-none">
-                    {{ item.mrp * 0.03 + item.mrp | number : "1.2-2" }} /-
+                    {{ getGrandTotal(item) | number : "1.2-2" }}/-
                   </div>
                 </div>
               </div>

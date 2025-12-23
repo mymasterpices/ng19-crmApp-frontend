@@ -59,11 +59,17 @@ export const routes: Routes = [
       {
         path: 'products/compare',
         component: CompareComponent,
+        data: { expectedRole: 'admin' },
       },
-      { path: 'footfall/show-footfall', component: ShowFootfallComponent },
+      {
+        path: 'footfall/show-footfall',
+        component: ShowFootfallComponent,
+        data: { expectedRole: 'admin' },
+      },
       {
         path: 'footfall/view-footfall-entry/:user_id',
         component: ViewFootfallEntryComponent,
+        data: { expectedRole: 'admin' },
       },
     ],
   },

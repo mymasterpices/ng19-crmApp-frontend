@@ -184,6 +184,7 @@
           </a>
         </li>
 
+        @if(userName == 'admin'){
         <li>
           <a
             (click)="drawerNavigation = false"
@@ -199,7 +200,7 @@
           </a>
         </li>
         <!--users items  -->
-        @if(userName == 'admin'){
+
         <li>
           <a
             (click)="drawerNavigation = false"
