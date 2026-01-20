@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ApiService } from '../../../services/api.service';
 import { CurrencyPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
@@ -12,6 +12,9 @@ import { HttpParams } from '@angular/common/http';
 import { ImageModule } from 'primeng/image';
 import { BadgeModule } from 'primeng/badge';
 import { TableModule } from 'primeng/table';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { FloatLabel } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-sold-items',
@@ -28,66 +31,102 @@ import { TableModule } from 'primeng/table';
     ImageModule,
     BadgeModule,
     TableModule,
-    RouterLink,
+    FloatLabel,
+    InputTextModule,
   ],
   templateUrl: './sold-items.component.html',
   styleUrl: './sold-items.component.css',
 })
 export class SoldItemsComponent implements OnInit {
+  // Services
   private apiService = inject(ApiService);
-  private appUrl = environment.API_URL;
-  public router = inject(Router);
-  backendUrl = this.appUrl;
-
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
   private loginedUserService = inject(LoginedUserService);
+  public router = inject(Router);
 
+  // Constants
+  backendUrl = environment.API_URL;
   loginUser: string = '';
 
-  // Data
-  soldItems: any[] = []; // All items
-  pagedItems: any[] = []; // Current page items
+  // --- Signals (State) ---
+  // We store the raw data in a signal
+  allSoldItems = signal<any[]>([]);
 
-  // Paginator state
-  first: number = 0;
-  rows: number = 10;
+  // Pagination State Signals
+  first = signal<number>(0);
+  rows = signal<number>(10);
+
+  // --- Computed Signal (The Logic) ---
+  // This automatically recalculates whenever allSoldItems, first, or rows change.
+  // This replaces your manual 'updatePagedItems' function.
+  pagedItems = computed(() => {
+    const start = this.first();
+    const end = start + this.rows();
+    return this.allSoldItems().slice(start, end);
+  });
 
   ngOnInit(): void {
     this.loginUser = this.loginedUserService.getLoginedUser();
-
     this.getAllSoldItems();
   }
 
-  getAllSoldItems() {
+  getAllSoldItems(search: string = '') {
     let params = new HttpParams();
 
-    if (this.loginUser !== 'admin') {
-      if (this.loginUser) params = params.set('sales_staff', this.loginUser);
+    // Simply attach the search term if it exists
+    if (search.trim()) {
+      params = params.set('full_name', search.trim());
     }
+
+    // We no longer check for user roles here
     this.apiService.getAllSoldItems(params).subscribe({
       next: (response: any) => {
-        this.soldItems = response;
-        this.updatePagedItems();
-        console.log('Sold items fetched successfully:', response);
+        // ✅ Update the Signal - this ensures the table refreshes
+        const data = Array.isArray(response) ? response : [];
+        this.allSoldItems.set(data);
+
+        // Reset pagination to the first page for the new results
+        this.first.set(0);
+        console.log('Public data fetched:', data);
       },
       error: (error) => {
-        console.error('Error fetching sold items:', error);
+        console.error('Error fetching data:', error);
+        this.allSoldItems.set([]); // Clear the table on error
       },
     });
   }
 
   onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePagedItems();
+    // ✅ FIX: Update the signals directly
+    this.first.set(event.first);
+    this.rows.set(event.rows);
   }
 
-  updatePagedItems() {
-    const start = this.first;
-    const end = this.first + this.rows;
-    this.pagedItems = this.soldItems.slice(start, end);
-  }
-
-  delete(item_id: string) {
-    console.log('Delete function called for item_id:', item_id);
+  deleteSoldItem(item_id: string) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this record?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.apiService.deleteSoldItem(item_id).subscribe({
+          next: (res: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Deleted',
+              detail: res.message || 'Item removed successfully',
+            });
+            this.getAllSoldItems(); // Refresh list
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'Delete failed',
+            });
+          },
+        });
+      },
+    });
   }
 }

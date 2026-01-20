@@ -77,26 +77,26 @@
     aria-label="Sidenav"
     [ngClass]="{
       'translate-x-0': drawerNavigation,
-      '-translate-x-full': !drawerNavigation
+      '-translate-x-full': !drawerNavigation,
     }"
   >
     <div class="py-5 px-3 h-full bg-white dark:bg-gray-800">
       <ul class="space-y-2">
-        @if(userName == 'admin'){
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            class="flex items-center p-2 w-full"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
-            routerLink="/overview"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-th-large px-2"></i>
-              Overview</span
+        @if (userName == "admin" || userName == "superadmin") {
+          <li>
+            <a
+              (click)="drawerNavigation = false"
+              class="flex items-center p-2 w-full"
+              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              routerLink="/overview"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
             >
-          </a>
-        </li>
+              <span class="flex-1 text-left">
+                <i class="pi pi-th-large px-2"></i>
+                Overview</span
+              >
+            </a>
+          </li>
         }
         <!-- Customers -->
         <li>
@@ -184,38 +184,38 @@
           </a>
         </li>
 
-        @if(userName == 'admin'){
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLink="footfall/show-footfall"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            class="flex items-center p-2 w-full"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-arrow-right-arrow-left px-2"></i>
-              Footfall</span
+        @if (userName == "admin" || userName == "superadmin") {
+          <li>
+            <a
+              (click)="drawerNavigation = false"
+              routerLink="footfall/show-footfall"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+              class="flex items-center p-2 w-full"
+              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
             >
-          </a>
-        </li>
-        <!--users items  -->
+              <span class="flex-1 text-left">
+                <i class="pi pi-arrow-right-arrow-left px-2"></i>
+                Footfall</span
+              >
+            </a>
+          </li>
+          <!--users items  -->
 
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            routerLink="/all-users"
-            class="flex items-center p-2 w-full"
-            (click)="toggleMenu('users')"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-user px-2"></i>
-              Users</span
+          <li>
+            <a
+              (click)="drawerNavigation = false"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+              routerLink="/all-users"
+              class="flex items-center p-2 w-full"
+              (click)="toggleMenu('users')"
+              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
             >
-          </a>
-        </li>
+              <span class="flex-1 text-left">
+                <i class="pi pi-user px-2"></i>
+                Users</span
+              >
+            </a>
+          </li>
         }
       </ul>
     </div>

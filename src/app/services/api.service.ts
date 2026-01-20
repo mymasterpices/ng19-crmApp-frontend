@@ -35,7 +35,7 @@ export class ApiService {
   //delete a customer
   deleteCustomer(customer_id: string) {
     return this.http.delete(
-      this.baseUrl + '/api/customers/delete/' + customer_id
+      this.baseUrl + '/api/customers/delete/' + customer_id,
     );
   }
 
@@ -43,7 +43,7 @@ export class ApiService {
   changePassword(confirmPasswordInput: any) {
     return this.http.patch(
       this.baseUrl + '/api/auth/update-password/',
-      confirmPasswordInput
+      confirmPasswordInput,
     );
   }
 
@@ -55,20 +55,20 @@ export class ApiService {
   //search for a customer by name
   searchCustomer(customer_name: string) {
     return this.http.get(
-      `${this.baseUrl}/api/customers/search/${customer_name}`
+      `${this.baseUrl}/api/customers/search/${customer_name}`,
     );
   }
 
   editChat(customer_id: string, chat_id: string, chat: any) {
     return this.http.put(
       `${this.baseUrl}/api/chat/update/${customer_id}/${chat_id}`,
-      chat
+      chat,
     );
   }
   //delete a chat
   deleteChat(customer_id: string, chat_id: string) {
     return this.http.delete(
-      `${this.baseUrl}/api/chat/delete/${customer_id}/${chat_id}`
+      `${this.baseUrl}/api/chat/delete/${customer_id}/${chat_id}`,
     );
   }
 
@@ -88,7 +88,7 @@ export class ApiService {
   updateCustomer(customer_id: string, update: any) {
     return this.http.put(
       `${this.baseUrl}/api/customers/update/${customer_id}`,
-      update
+      update,
     );
   }
 
@@ -97,8 +97,10 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/api/auth/users`);
   }
   //get all sales staff
-  getAllSalesstaff() {
-    return this.http.get(`${this.baseUrl}/api/auth/users`);
+  getAllSalesstaff(params?: HttpParams) {
+    return this.http.get(`${this.baseUrl}/api/auth/users`, {
+      params: params || {},
+    });
   }
 
   //delete a staff
@@ -133,8 +135,12 @@ export class ApiService {
   updateSoldItem(item_id: string, soldEntry: any) {
     return this.http.put(
       `${this.baseUrl}/api/sold/update/${item_id}`,
-      soldEntry
+      soldEntry,
     );
+  }
+  //delete a sold item
+  deleteSoldItem(item_id: string) {
+    return this.http.delete(`${this.baseUrl}/api/sold/delete/${item_id}`);
   }
 
   // product specification

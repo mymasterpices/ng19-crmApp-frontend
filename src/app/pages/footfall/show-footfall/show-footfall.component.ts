@@ -118,11 +118,11 @@ export class ShowFootfallComponent implements OnInit {
 
           const totalFootfall = entries.reduce(
             (sum: number, e: any) => sum + e.footfall,
-            0
+            0,
           );
           const totalConversion = entries.reduce(
             (sum: number, e: any) => sum + e.conversion,
-            0
+            0,
           );
 
           return {
@@ -156,7 +156,7 @@ export class ShowFootfallComponent implements OnInit {
   loadFootfallForm() {
     this.form.clear();
     this.salesPerson.forEach((person) =>
-      this.form.push(this.createEntryForm(person))
+      this.form.push(this.createEntryForm(person)),
     );
   }
 

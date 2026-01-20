@@ -1,14 +1,13 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { NgClass, TitleCasePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { PopoverModule } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
 import { FloatLabel } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
+import { InputTextModule } from 'primeng/inputtext';
 import {
   FormControl,
   FormGroup,
@@ -18,29 +17,32 @@ import {
 } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
 import { AddNewUserComponent } from '../add-new-user/add-new-user.component';
-import { Drawer } from 'primeng/drawer';
+import { DrawerModule } from 'primeng/drawer'; // Fixed import for v19
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FootfallService } from '../../../services/footfall/footfall.service';
+import { HttpParams } from '@angular/common/http';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-all-users',
+  standalone: true,
   imports: [
     CardModule,
     TableModule,
     TitleCasePipe,
     ButtonModule,
-    PopoverModule,
     TooltipModule,
-    DialogModule,
     PasswordModule,
     FloatLabel,
     ReactiveFormsModule,
     AddNewUserComponent,
-    Drawer,
+    DrawerModule,
     ConfirmDialogModule,
-    ToggleSwitch,
+    ToggleSwitchModule,
     FormsModule,
+    InputTextModule,
   ],
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',
@@ -51,14 +53,17 @@ export class AllUsersComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
-  allUsers: any[] = [];
+  // Signals
+  allUsers = signal<any[]>([]);
+  isLoading = signal<boolean>(false);
 
-  change_password: boolean = false;
-  displayBasic: boolean = false;
-  //store user id
-  user_id: string = '';
-  //toggle switch user status
-  checked = signal<boolean>(true);
+  // UI State
+  change_password = false;
+  displayBasic = false;
+  selectedUserId = '';
+
+  // Search Debounce logic
+  private searchSubject = new Subject<string>();
 
   changePasswordForm = new FormGroup({
     password: new FormControl('', [
@@ -67,134 +72,127 @@ export class AllUsersComponent implements OnInit {
     ]),
   });
 
-  showDialog(user: string) {
-    this.change_password = true;
-    this.user_id = user;
-    console.log(this.user_id);
+  constructor() {
+    // Initialize Search Debounce
+    this.searchSubject
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntilDestroyed(), // Clean up on component destroy
+      )
+      .subscribe((searchTerm) => {
+        this.getAllCustomer(searchTerm);
+      });
   }
-
-  constructor() {}
 
   ngOnInit(): void {
     this.getAllCustomer();
   }
-  //change password
-  updatePassword(selectedUserId: string) {
-    const newPassword = {
-      password: this.changePasswordForm.get('password')?.value,
-      userid: selectedUserId,
-    };
 
-    this.loginService.updatePassword(newPassword).subscribe({
+  // Triggered by template (input)
+  onSearch(value: string) {
+    this.searchSubject.next(value);
+  }
+
+  getAllCustomer(search: string = '') {
+    this.isLoading.set(true);
+    let params = new HttpParams();
+
+    if (search.trim()) {
+      params = params.set('username', search.trim());
+    }
+
+    this.loginService.getAllSalesstaff(params).subscribe({
       next: (res: any) => {
-        console.log(res);
-        this.getAllCustomer();
-        this.changePasswordForm.reset();
-        this.change_password = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Password updated successfully',
-        });
+        // Filter out admin at the data level
+        const filtered = res.filter((user: any) => user.username !== 'admin');
+        this.allUsers.set(filtered);
+        this.isLoading.set(false);
       },
       error: (error: any) => {
-        this.changePasswordForm.reset();
-        console.log(error);
+        console.error('Fetch Error:', error);
+        this.allUsers.set([]);
+        this.isLoading.set(false);
       },
     });
   }
-
-  //get all customers
-  getAllCustomer() {
-    this.loginService.getAllSalesstaff().subscribe({
-      next: (res: any) => {
-        this.allUsers = res;
-        console.log(res);
-      },
-      error: (error: any) => {
-        console.log(error);
-      },
-    });
-  }
-
-  selectedUserId: string = '';
 
   selectUserForPasswordChange(userId: string) {
     this.selectedUserId = userId;
     this.change_password = true;
-    console.log('Selected User ID:', userId);
   }
 
-  deleteCustomer(user_id: string) {
-    // console.log(user_id);
-    this.confirmationService.confirm({
-      message: 'Are you sure that you want to user?',
-      header: 'Delete a user',
-      closable: true,
-      closeOnEscape: true,
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: 'secondary',
-        outlined: true,
+  updatePassword(userId: string) {
+    if (this.changePasswordForm.invalid) return;
+
+    const payload = {
+      password: this.changePasswordForm.value.password,
+      userid: userId,
+    };
+
+    this.loginService.updatePassword(payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Password updated',
+        });
+        this.change_password = false;
+        this.changePasswordForm.reset();
+        this.getAllCustomer();
       },
-      acceptButtonProps: {
-        label: 'Delete',
-      },
-      accept: () => {
-        this.loginService.deleteSalesstaff(user_id).subscribe(
-          (res: any) => {
-            console.log(res);
-            this.getAllCustomer();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: res.message,
-            });
-            //close drawer if open
-            this.change_password = false;
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-      },
+      error: (err) => console.error(err),
     });
   }
 
-  //copy user id
-  copyUserId(userId: string) {
-    navigator.clipboard.writeText(userId).then(() => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'User ID copied to clipboard',
-      });
-    });
-  }
-
-  //handle dialog close
   onStatusToggle(user: any, isChecked: boolean) {
     const newStatus = isChecked ? 'active' : 'inactive';
-
     this._footfallService.updateUserStatus(user._id, newStatus).subscribe({
       next: () => {
-        // update UI state
         user.status = newStatus;
         this.messageService.add({
           severity: 'success',
-          summary: 'Status Updated',
-          detail: `${user.username} is now ${newStatus}`,
+          summary: 'Updated',
+          detail: `${user.username} is ${newStatus}`,
         });
       },
       error: (err) => {
-        // revert UI if failed
         this.messageService.add({
           severity: 'error',
-          summary: 'Update Failed',
-          detail: err.error?.error || 'Could not update status',
+          summary: 'Error',
+          detail: 'Failed to update status',
         });
       },
+    });
+  }
+
+  deleteCustomer(user_id: string) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this user?',
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.loginService.deleteSalesstaff(user_id).subscribe({
+          next: (res: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Deleted',
+              detail: res.message,
+            });
+            this.getAllCustomer();
+            this.change_password = false;
+          },
+        });
+      },
+    });
+  }
+
+  copyUserId(userId: string) {
+    navigator.clipboard.writeText(userId);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Copied',
+      detail: 'ID copied to clipboard',
     });
   }
 }

@@ -1,7 +1,7 @@
 <div class="flex justify-between items-center">
   <h2 class="text-xl font-semibold">Find product</h2>
   <div class="flex justify-between gap-4">
-    @if(loginedUser == 'admin'){
+    @if(loginedUser == 'admin' || loginedUser == 'superadmin'){
     <p-button
       icon="pi pi-upload"
       class="mt-3 right-3"

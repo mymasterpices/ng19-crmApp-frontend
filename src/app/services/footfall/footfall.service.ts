@@ -20,20 +20,24 @@ export class FootfallService {
   saveFootfallEntry(userId: string, footfallEntry: any) {
     return this.http.post(
       `${environment.API_URL}/api/footfall/save/${userId}`,
-      footfallEntry
+      footfallEntry,
     );
   }
   //delete footfall entry
-  deleteFootfallEntry(footfall_id: string) {
+  deleteFootfallEntry(userId: string, footfall_id: string) {
     return this.http.delete(
-      environment.API_URL + '/api/footfall/delete/' + footfall_id
+      environment.API_URL +
+        '/api/footfall/delete/' +
+        userId +
+        '/' +
+        footfall_id,
     );
   }
   //update footfall entry
   updateFootfallEntry(footfall_id: string, footfallEntry: any) {
     return this.http.patch(
       environment.API_URL + '/api/footfall/update/' + footfall_id,
-      footfallEntry
+      footfallEntry,
     );
   }
   //get all sales persons
@@ -46,7 +50,7 @@ export class FootfallService {
     formData.append('file', file);
     return this.http.post(
       environment.API_URL + '/api/footfall/import',
-      formData
+      formData,
     );
   }
 

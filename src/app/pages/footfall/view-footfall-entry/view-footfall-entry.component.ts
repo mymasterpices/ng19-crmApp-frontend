@@ -1,5 +1,4 @@
-import { MessageService } from 'primeng/api';
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FootfallService } from '../../../services/footfall/footfall.service';
 import { HttpParams } from '@angular/common/http';
@@ -19,6 +18,7 @@ import { Card } from 'primeng/card';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { Popover, PopoverModule } from 'primeng/popover';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-view-footfall-entry',
@@ -37,8 +37,8 @@ import { Popover, PopoverModule } from 'primeng/popover';
     FloatLabelModule,
     InputTextModule,
     ReactiveFormsModule,
-    RouterLink
-],
+    RouterLink,
+  ],
   templateUrl: './view-footfall-entry.component.html',
   styleUrls: ['./view-footfall-entry.component.css'],
 })
@@ -46,6 +46,7 @@ export class ViewFootfallEntryComponent implements OnInit {
   private router = inject(ActivatedRoute);
   private _footfallService = inject(FootfallService);
   private _messageService = inject(MessageService);
+  private _confirmationService = inject(ConfirmationService);
 
   username = '';
   userFootfallData: any = null;
@@ -145,5 +146,40 @@ export class ViewFootfallEntryComponent implements OnInit {
           console.log(err);
         },
       });
+  }
+
+  deleteEntry(id: string) {
+    // console.log(user_id);
+    this._confirmationService.confirm({
+      message: 'Are you sure?',
+      header: 'Delete foortfall entry',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+      },
+      accept: () => {
+        this._footfallService.deleteFootfallEntry(this.userID, id).subscribe({
+          next: (res: any) => {
+            console.log(res);
+            this.fetchUserFootfall(this.userID);
+            this._messageService.add({
+              severity: 'success',
+              summary: 'Deleted',
+              detail: res.message,
+            });
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+      },
+    });
   }
 }

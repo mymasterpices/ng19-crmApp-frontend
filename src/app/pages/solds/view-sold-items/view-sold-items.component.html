@@ -1,114 +1,117 @@
 @if (viewSoldItem) {
-<div class="mt-4">
-  <p-card>
-    <div class="imageCarsuel">
-      @if(viewSoldItem.products.length == 1) {
-      <div class="flex justify-center items-center gap-3">
-        <p-image
-        [src]="appUrl + '/' + viewSoldItem.products[0].soldupload"
-        preview="true"
-        [styleClass]="'w-auto h-30 object-cover rounded'"
-      />
+  <div class="mt-4">
+    <p-card>
+      <div class="imageCarsuel">
+        @if (viewSoldItem.products.length == 1) {
+          <div class="flex justify-center items-center gap-3">
+            <p-image
+              [src]="appUrl + '/' + viewSoldItem.products[0].soldupload"
+              preview="true"
+              [styleClass]="'w-auto h-30 object-cover rounded'"
+            />
+          </div>
+        } @else {
+          <p-carousel
+            [value]="viewSoldItem.products"
+            [numVisible]="1"
+            [numScroll]="1"
+            [circular]="true"
+            [autoplayInterval]="3000"
+            [showIndicators]="false"
+            [responsiveOptions]="[
+              { breakpoint: '1024px', numVisible: 4, numScroll: 1 },
+              { breakpoint: '600px', numVisible: 3, numScroll: 1 },
+              { breakpoint: '480px', numVisible: 1, numScroll: 1 },
+            ]"
+          >
+            <ng-template let-product pTemplate="item">
+              <img
+                [src]="appUrl + '/' + product.soldupload"
+                previewGroup="productsGallery"
+                class="w-full h-48 object-cover rounded-lg"
+              />
+              <p class="text-center opacity-75">
+                {{ product.tag | uppercase }}
+              </p>
+            </ng-template>
+          </p-carousel>
+        }
       </div>
-      } @else {
-      <p-carousel
-        [value]="viewSoldItem.products"
-        [numVisible]="1"
-        [numScroll]="1"
-        [circular]="true"
-        [autoplayInterval]="3000"
-        [showIndicators]="false"
-        [responsiveOptions]="[
-          { breakpoint: '1024px', numVisible: 4, numScroll: 1 },
-          { breakpoint: '600px', numVisible: 3, numScroll: 1 },
-          { breakpoint: '480px', numVisible: 1, numScroll: 1 }
-        ]"
-      >
-        <ng-template let-product pTemplate="item">
-          <img
-            [src]="appUrl + '/' + product.soldupload"
-            previewGroup="productsGallery"
-            class="w-full h-48 object-cover rounded-lg"
-          />
-          <p class="text-center opacity-75">{{product.tag | uppercase}}</p>
-        </ng-template>
-      </p-carousel>
+      @if (user === "admin" || user === "superadmin") {
+        <div class="flex justify-between items-center gap-3 mt-3">
+          <h5 class="flex">Sales Person</h5>
+          <p class="italic">{{ viewSoldItem.sales_staff | titlecase }}</p>
+        </div>
       }
-    </div>
-    @if(user === 'admin'){
-    <div class="flex justify-between items-center gap-3 mt-3">
-      <h5 class="flex text-xs">Sales Person</h5>
-      <p class="italic">{{ viewSoldItem.sales_staff | titlecase }}</p>
-    </div>
+      <div class="flex justify-between items-center gap-3 mt-3">
+        <h5 class="flex-none">Personal Details</h5>
+        <p class="italic">{{ viewSoldItem.createdAt | date }}</p>
+      </div>
 
-    }
-    <div class="flex justify-between items-center gap-3 mt-3">
-      <h5 class="flex-none text-xs">Personal Details</h5>
-      <p class="italic">{{ viewSoldItem.createdAt | date }}</p>
-    </div>
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <div class="flex justify-between gap-4">
+            <strong>{{ viewSoldItem.full_name | titlecase }}</strong>
+            <strong>{{ viewSoldItem.mobile }}</strong>
+          </div>
 
-    <div class="flex gap-3">
-      <div class="flex-1">
-        <div class="flex justify-between gap-4">
-          <strong>{{ viewSoldItem.full_name | titlecase }}</strong>
-          <strong>{{ viewSoldItem.mobile }}</strong>
-        </div>
-
-        <div class="flex justify-between gap-4 text-sm">
-          <span>Birthday</span>
-          <span>{{ viewSoldItem.birthday | date }}</span>
-        </div>
-        <div class="flex justify-between gap-4 text-sm">
-          <span>Anniversary</span>
-          <span>{{ viewSoldItem.anniversary | date }}</span>
-        </div>
-        <div class="flex justify-between gap-4 text-sm">
-          <span>Email:</span>
-          <span>{{ viewSoldItem.email }}</span>
+          <div class="flex justify-between gap-4 ">
+            <span>Birthday</span>
+            <span>{{ viewSoldItem.birthday | date }}</span>
+          </div>
+          <div class="flex justify-between gap-4 ">
+            <span>Anniversary</span>
+            <span>{{ viewSoldItem.anniversary | date }}</span>
+          </div>
+          <div class="flex justify-between gap-4 ">
+            <span>Email:</span>
+            <span>{{ viewSoldItem.email }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <p-divider ></p-divider>
+      <p-divider></p-divider>
 
-    <h5 class="flex-none text-xs">Product Info</h5>
-    <div class="flex gap-3 flex-col md:flex-row">
-      @for(product of viewSoldItem.products; track $index) {
-
-      <p-accordion [value]="['0']" [multiple]="true">
-        <p-accordion-panel value="$index">
-          <p-accordion-header>{{ product.tag | uppercase }}</p-accordion-header>
-          <p-accordion-content>
-            <div class="container">
-              <div class="flex justify-between gap-4 text-sm">
-                <span>Tag:</span>
-                <span>{{ product.tag | uppercase }}</span>
-              </div>
-              <div class="flex justify-between gap-4 text-sm">
-                <span>Gold wt.:</span>
-                <span>{{ product.gold_wt }} Gms</span>
-              </div>
-              <div class="flex justify-between gap-4 text-sm">
-                <span>Dia wt.:</span>
-                <span>{{ product.dia_wt }} Cts</span>
-              </div>
-              <div class="flex justify-between gap-4 text-sm">
-                <span>Stn wt.:</span>
-                <span>{{ product.stn_wt }} Cts</span>
-              </div>
-              <div class="flex justify-between gap-4 text-sm">
-                <span>Price:</span>
-                <span>{{ product.amount | currency : "INR" : "symbol" }}</span>
-              </div>
-            </div>
-          </p-accordion-content>
-        </p-accordion-panel>
-      </p-accordion>
-
-      }
-    </div>
-  </p-card>
-</div>
+      <h5 class="flex-none">Product Info</h5>
+      <div class="flex gap-6 flex-col md:flex-row">
+        @for (product of viewSoldItem.products; track $index) {
+          <p-accordion [value]="['0']" [multiple]="true">
+            <p-accordion-panel value="$index">
+              <p-accordion-header class="!p-0 !pt-2 !pb-2">{{
+                product.tag | uppercase
+              }}</p-accordion-header>
+              <p-accordion-content>
+                <div class="container">
+                  <div class="flex justify-between">
+                    <span>Tag:</span>
+                    <span>{{ product.tag | uppercase }}</span>
+                  </div>
+                  <div class="flex justify-between gap-4 ">
+                    <span>Gold wt.:</span>
+                    <span>{{ product.gold_wt }} Gms</span>
+                  </div>
+                  <div class="flex justify-between gap-4 ">
+                    <span>Dia wt.:</span>
+                    <span>{{ product.dia_wt }} Cts</span>
+                  </div>
+                  <div class="flex justify-between gap-4 ">
+                    <span>Stn wt.:</span>
+                    <span>{{ product.stn_wt }} Cts</span>
+                  </div>
+                  <div class="flex justify-between gap-4 ">
+                    <span>Price:</span>
+                    <span>{{
+                      product.amount | currency: "INR" : "symbol"
+                    }}</span>
+                  </div>
+                </div>
+              </p-accordion-content>
+            </p-accordion-panel>
+          </p-accordion>
+        }
+      </div>
+    </p-card>
+  </div>
 }
 
 <!-- Update Sold Item Dialog -->
@@ -133,11 +136,14 @@
         />
         <label for="full_name">Full Name</label>
       </p-floatlabel>
-      @if(soldEntryFrom.controls['full_name'].errors?.['required'] &&
-      soldEntryFrom.controls['full_name'].touched) {
-      <small class="text-red-500 text-xs">Full name is required</small>
-      } @if(soldEntryFrom.controls['full_name'].errors?.['minlength']) {
-      <small class="text-red-500 text-xs">Minimum 3 characters required</small>
+      @if (
+        soldEntryFrom.controls["full_name"].errors?.["required"] &&
+        soldEntryFrom.controls["full_name"].touched
+      ) {
+        <small class="text-red-500">Full name is required</small>
+      }
+      @if (soldEntryFrom.controls["full_name"].errors?.["minlength"]) {
+        <small class="text-red-500">Minimum 3 characters required</small>
       }
     </div>
 
