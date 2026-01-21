@@ -1,34 +1,45 @@
 import { Injectable } from '@angular/core';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoginedUserService {
-  private userName: string = ''; // Default username
+  private userName: string = '';
+  private userRole: string = ''; // Added property for role
 
-  // Get logged-in user's username
+  /**
+   * Decodes the token and returns the username.
+   * Also updates the internal userRole state.
+   */
   getLoginedUser(): string {
     const token = localStorage.getItem('RkJewellersUser');
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
         this.userName = decodedToken?.username || 'Guest';
+        this.userRole = decodedToken?.role || ''; // ✅ Extracting the role here
       } catch (error) {
         console.error('Error decoding token:', error);
         this.userName = 'Guest';
+        this.userRole = '';
       }
     }
     return this.userName;
   }
 
-  // Getter for username
-  getUserName(): string {
-    return this.userName;
+  /**
+   * New Method: Returns the user's role (admin, superadmin, etc.)
+   */
+  getUserRole(): string {
+    // If userName is empty, try to decode first
+    if (!this.userName) {
+      this.getLoginedUser();
+    }
+    return this.userRole;
   }
 
-  // Optional: Setter for username (e.g., after login)
-  setUserName(userName: string): void {
-    this.userName = userName;
+  getUserName(): string {
+    return this.userName;
   }
 }

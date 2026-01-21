@@ -1,6 +1,6 @@
 <div class="mb-[5rem] mt-2 h-screen">
   <!-- Customer Chat History Card -->
-  <p-card class="">
+  <p-card>
     <ng-template pTemplate="header">
       <div class="flex justify-between items-center w-full px-4 pt-2]">
         <span class="text-lg font-semibold">
@@ -9,7 +9,7 @@
 
         <div class="flex items-center gap-2">
           <p-avatar
-            [image]=" backedAppUrl + `/${customerContactInfo?.productImage}`"
+            [image]="backedAppUrl + `/${customerContactInfo?.productImage}`"
             [shape]="'circle'"
             class="mr-1"
             (click)="viewLargeProductImage()"
@@ -47,7 +47,7 @@
                   ></span>
                   <span
                     >{{
-                      customerContactInfo?.nextFollowUpDate | date : "d MMM, y"
+                      customerContactInfo?.nextFollowUpDate | date: "d MMM, y"
                     }}
                   </span>
                 </div>
@@ -85,7 +85,7 @@
                       'bg-blue-500': customerContactInfo?.status === 'Open',
                       'bg-yellow-500': customerContactInfo?.status === 'Cold',
                       'bg-green-500': customerContactInfo?.status === 'Close',
-                      'bg-red-500': customerContactInfo?.status === 'Failed'
+                      'bg-red-500': customerContactInfo?.status === 'Failed',
                     }"
                   >
                     {{ customerContactInfo?.status }}
@@ -159,86 +159,57 @@
     </ng-template>
 
     @for (chat of customerData?.messages; track chat._id) {
-    <div
-      class="bg-gray-100 text-emerald-50 dark:bg-gray-800 px-2 py-2 mb-2 rounded-xl shadow-sm dark:border-none"
-    >
-      <div class="flex gap-1 items-center justify-between">
-        <span class="text-sm font-normal text-gray-800 dark:text-gray-100">
-          {{ chat.message | titlecase }}
-        </span>
-        <p-button
-          icon="pi pi-ellipsis-v"
-          [rounded]="true"
-          [text]="true"
-          severity="contrast"
-          class="pr-0 mr-0"
-          (click)="popover.toggle($event)"
-        ></p-button>
-      </div>
-      <!-- update customer status -->
-      <p-popover #popover>
-        <div class="flex flex-col gap-4">
+      <div
+        class="bg-gray-100 text-emerald-50 dark:bg-gray-800 px-2 py-2 mb-2 rounded-xl shadow-sm dark:border-none"
+      >
+        <div class="flex gap-1 items-center justify-between">
+          <span class="text-sm font-normal text-gray-800 dark:text-gray-100">
+            {{ chat.message | titlecase }}
+          </span>
           <p-button
-            icon="pi pi-pencil"
+            icon="pi pi-ellipsis-v"
             [rounded]="true"
             [text]="true"
             severity="contrast"
-            class="w-full"
-            (click)="showDialog(chat._id)"
-          ></p-button>
-          <p-button
-            icon="pi pi-trash"
-            [rounded]="true"
-            [text]="true"
-            class="w-full"
-            severity="danger"
-            (click)="deleteChat(chat._id)"
+            class="pr-0 mr-0"
+            (click)="popover.toggle($event)"
           ></p-button>
         </div>
-      </p-popover>
+        <!-- update customer status -->
+        <p-popover #popover>
+          <div class="flex flex-col gap-4">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="contrast"
+              class="w-full"
+              (click)="showDialog(chat._id)"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              class="w-full"
+              severity="danger"
+              (click)="deleteChat(chat._id)"
+            ></p-button>
+          </div>
+        </p-popover>
 
-      <div class="flex items-start gap-2 mt-1">
-        <span class="text-[0.7rem] text-gray-500 dark:text-gray-400">{{
-          chat.timestamp | date : "d MMM, y"
-        }}</span>
-        <span class="text-[0.7rem] text-gray-500 dark:text-gray-400"
-          ><em>{{ chat.edited ? "Edited" : "" }}</em></span
-        >
+        <div class="flex items-start gap-2 mt-1">
+          <span class="text-[0.7rem] text-gray-500 dark:text-gray-400">{{
+            chat.timestamp | date: "d MMM, y"
+          }}</span>
+          <span class="text-[0.7rem] text-gray-500 dark:text-gray-400"
+            ><em>{{ chat.edited ? "Edited" : "" }}</em></span
+          >
+        </div>
       </div>
-    </div>
-
-    } @empty{
-    <div class="mb-2 p-2 rounded-xl border-radius-lg">No messages found.</div>
+    } @empty {
+      <div class="mb-2 p-2 rounded-xl border-radius-lg">No messages found.</div>
     }
   </p-card>
-
-  <!-- New Message Input Form -->
-  <div
-    class="fixed md:bottom-5 bottom-24 right-0 md:w-[86%] w-full md:ml-64 px-2"
-  >
-    <form [formGroup]="chatForm" (ngSubmit)="submitChat()" class="flex">
-      <p-floatlabel variant="on" class="w-full">
-        <input
-          pInputText
-          id="on_label"
-          autocomplete="off"
-          class="w-full"
-          formControlName="message"
-        />
-        <label for="on_label" class="font-normal">Enter your message</label>
-      </p-floatlabel>
-      <p-button
-        styleClass="w-[15rem] ml-2"
-        type="submit"
-        icon="pi pi-send"
-        rounded="true"
-        pTooltip="Send"
-        tooltipPosition="top"
-        severity="contrast"
-      >
-      </p-button>
-    </form>
-  </div>
 
   <!-- Edit Customer chat -->
   <p-drawer
@@ -263,11 +234,13 @@
           formControlName="message"
         />
         <label for="on_label" class="font-normal">Update your message</label>
-        @if(editChatForm.controls['message'].hasError('required') &&
-        editChatForm.controls['message'].touched) {
-        <small class="text-red-400 pl-1 block absolute"
-          >Message is required.</small
-        >
+        @if (
+          editChatForm.controls["message"].hasError("required") &&
+          editChatForm.controls["message"].touched
+        ) {
+          <small class="text-red-400 pl-1 block absolute"
+            >Message is required.</small
+          >
         }
       </p-floatlabel>
       <p-button type="submit" icon="pi pi-send" rounded="true"></p-button>
@@ -304,4 +277,39 @@
     />
   </p-dialog>
 </div>
+
+<!-- New Message Input Form -->
+
+<div
+  class="fixed md:bottom-5 bottom-24 flex justify-center items-center w-full max-w-[79.5%] max-sm:max-w-[90%] z-10"
+>
+  <form
+    [formGroup]="chatForm"
+    (ngSubmit)="submitChat()"
+    class="flex min-w-lg max-sm:min-w-full"
+  >
+    <input
+      pInputText
+      id="on_label"
+      autocomplete="off"
+      class="w-full md:w-[68%]"
+      styleClass="w-full "
+      formControlName="message"
+      placeholder="Enter your message"
+      pSize="large"
+    />
+    <p-button
+      styleClass="w-[15rem] ml-2"
+      type="submit"
+      icon="pi pi-send"
+      rounded="true"
+      pTooltip="Send"
+      tooltipPosition="top"
+      severity="contrast"
+      size="large"
+    >
+    </p-button>
+  </form>
+</div>
+
 <p-confirmdialog />

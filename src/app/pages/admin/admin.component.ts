@@ -34,7 +34,7 @@ import { AuthService } from '../../services/auth.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { CardModule } from 'primeng/card';
-import { MobileFooterComponent } from "../mobile-footer/mobile-footer.component";
+import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 
 @Component({
   selector: 'app-admin',
@@ -59,8 +59,8 @@ import { MobileFooterComponent } from "../mobile-footer/mobile-footer.component"
     CommonModule,
     NgClass,
     FormsModule,
-    MobileFooterComponent
-],
+    MobileFooterComponent,
+  ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })
@@ -68,6 +68,7 @@ export class AdminComponent implements OnInit {
   @ViewChild('drawerRef') drawerRef!: Drawer;
 
   isDark = signal<boolean>(false);
+  userRole: string = '';
   userName: string = '';
 
   menuStates: Record<string, boolean> = {};
@@ -104,7 +105,8 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userName = this.loginedUserService.getLoginedUser();
+    this.userRole = this.loginedUserService.getUserRole();
+    this.userName = this.loginedUserService.getUserName();
   }
 
   toggleDarkMode() {

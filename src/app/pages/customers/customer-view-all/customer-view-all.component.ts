@@ -16,9 +16,11 @@ import { PaginatorModule } from 'primeng/paginator';
 import { ApiService } from '../../../services/api.service';
 import { LoginedUserService } from '../../../services/logined-user.service';
 import { environment } from '../../../../environments/environment';
-import { Drawer, DrawerModule } from 'primeng/drawer';
+import { DrawerModule } from 'primeng/drawer';
 import { AddNewComponent } from '../add-new/add-new.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FloatLabel } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-customer-view-all',
@@ -36,6 +38,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     DrawerModule,
     AddNewComponent,
     ConfirmDialogModule,
+    FloatLabel,
+    InputTextModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './customer-view-all.component.html',
@@ -57,156 +61,141 @@ export class CustomerViewAllComponent implements OnInit {
     { label: 'Failed', value: 'Failed' },
   ]);
 
-  private appUrl = environment.API_URL;
-  backedAppUrl = this.appUrl;
-
+  userRole: string = '';
   loginUser: string = '';
   addNewCustomer: boolean = false;
+  backendAppUrl = environment.API_URL;
 
-  // Pagination signals
   totalRecords = signal<number>(0);
   rows = signal<number>(10);
   first = signal<number>(0);
 
-  ngOnInit(): void {
-    this.loginUser = this.loginedUserService.getLoginedUser();
-    this.getAllcustomers();
-    this.getSalespersonOptions(); // ✅ Only called once
-  }
-
-  // Filter form
   searchForm = new FormGroup({
     salesperson: new FormControl(null),
     status: new FormControl(null),
   });
 
-  // ✅ Fetch unique salesperson list
-  getSalespersonOptions() {
-    this.loginService.getAllSalespersons().subscribe(
-      (res: any) => {
-        const usernames = res.map((user: any) => user.username);
-        const uniqueUsernames = Array.from(new Set(usernames));
-        const options = uniqueUsernames.map((username) => ({
-          label: username,
-          value: username,
-        }));
-        this.salespersonOptions.set(options);
-      },
-      (error: any) => {
-        console.error(error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error.message,
-        });
-      }
-    );
+  ngOnInit(): void {
+    this.userRole = this.loginedUserService.getUserRole();
+    this.loginUser = this.loginedUserService.getLoginedUser();
+    this.getAllcustomers();
+    this.getSalespersonOptions();
   }
 
-  // ✅ Search with filters
+  getSalespersonOptions() {
+    this.loginService.getAllSalespersons().subscribe({
+      next: (res: any) => {
+        const unique = [...new Set(res.map((u: any) => u.username))];
+        this.salespersonOptions.set(
+          unique.map((name) => ({ label: name, value: name })),
+        );
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
+  // ✅ Fixed: Only accepts name search + security restriction
+  getSearchCustomer(search: string = '') {
+    const isPrivileged =
+      this.userRole === 'admin' || this.userRole === 'superadmin';
+    let params = new HttpParams();
+
+    // 1. Mandatory Security: Ensure non-admins only search THEIR own customers
+    if (!isPrivileged) {
+      params = params.set('salesperson', this.loginUser);
+    }
+
+    // 2. Name Search: Only apply the name parameter
+    if (search.trim()) {
+      params = params.set('name', search.trim());
+    }
+
+    // 3. Execute
+    this.executeFetch(params);
+  }
+
+  // ✅ Fixed: Now combines form filters with role security
   searchCustomer(): void {
+    const isPrivileged =
+      this.userRole === 'admin' || this.userRole === 'superadmin';
     const { salesperson, status } = this.searchForm.value;
     let params = new HttpParams();
 
-    if (salesperson) params = params.set('salesperson', salesperson);
-    if (status) params = params.set('status', status);
-
-    this.loginService.getAllcustomers(params).subscribe(
-      (res: any) => {
-        this.customers.set(res);
-        this.totalRecords.set(res.length);
-      },
-      (error: any) => {
-        this.customers.set([]);
-        console.error(error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error.message,
-        });
-      }
-    );
-  }
-
-  // ✅ Load customers (with salesperson restriction if not admin)
-  getAllcustomers(): void {
-    const salesperson = this.loginedUserService.getLoginedUser();
-    let params = new HttpParams();
-
-    if (salesperson && salesperson !== 'admin') {
+    if (!isPrivileged) {
+      params = params.set('salesperson', this.loginUser);
+    } else if (salesperson) {
       params = params.set('salesperson', salesperson);
     }
 
-    this.loginService.getAllcustomers(params).subscribe(
-      (res: any) => {
-        this.customers.set(res);
-        this.totalRecords.set(res.length);
+    if (status) params = params.set('status', status);
+
+    this.executeFetch(params);
+  }
+
+  // ✅ Fixed: Standard load respecting roles
+  getAllcustomers(): void {
+    const isPrivileged =
+      this.userRole === 'admin' || this.userRole === 'superadmin';
+    let params = new HttpParams();
+
+    if (!isPrivileged) {
+      params = params.set('salesperson', this.loginUser);
+    }
+
+    this.executeFetch(params);
+  }
+
+  // Helper to prevent code duplication
+  private executeFetch(params: HttpParams) {
+    this.loginService.getAllcustomers(params).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : [];
+        this.customers.set(data);
+        this.totalRecords.set(data.length);
+        this.first.set(0);
       },
-      (error: any) => {
+      error: (error: any) => {
         this.customers.set([]);
-        console.error(error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.error.message,
+          detail: error.error?.message,
         });
-      }
-    );
+      },
+    });
   }
 
-  // ✅ Handle pagination
   onPageChange(event: any) {
     this.first.set(event.first);
     this.rows.set(event.rows);
   }
 
-  // ✅ View customer details
   viewCustomer(customer_id: string) {
     this.router.navigate(['view-customer', customer_id]);
   }
 
-  // ✅ Delete customer with confirmation
   deleteCustomer(customerId: string) {
     this.confirmationService.confirm({
       message: 'Are you sure that you want to delete?',
-      header: 'Delete a customer',
+      header: 'Delete customer',
       icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: 'secondary',
-        outlined: true,
-      },
-      acceptButtonProps: {
-        label: 'Delete',
-      },
       accept: () => {
-        this.loginService.deleteCustomer(customerId).subscribe(
-          (res: any) => {
+        this.loginService.deleteCustomer(customerId).subscribe({
+          next: (res: any) => {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
               detail: res.message,
             });
-            this.getAllcustomers(); // Refresh list
+            this.getAllcustomers();
           },
-          (error: any) => {
-            console.error(error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: error.error.message,
-            });
-          }
-        );
+          error: (err) => console.error(err),
+        });
       },
     });
   }
 
-  // ✅ Computed customer list for pagination
   paginatedCustomers = computed(() => {
-    const allCustomers = this.customers();
-    const startIndex = this.first();
-    const endIndex = startIndex + this.rows();
-    return allCustomers.slice(startIndex, endIndex);
+    return this.customers().slice(this.first(), this.first() + this.rows());
   });
 }

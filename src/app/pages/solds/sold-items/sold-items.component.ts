@@ -47,7 +47,7 @@ export class SoldItemsComponent implements OnInit {
 
   // Constants
   backendUrl = environment.API_URL;
-  loginUser: string = '';
+  userRole: string = '';
 
   // --- Signals (State) ---
   // We store the raw data in a signal
@@ -67,7 +67,7 @@ export class SoldItemsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loginUser = this.loginedUserService.getLoginedUser();
+    this.userRole = this.loginedUserService.getUserRole();
     this.getAllSoldItems();
   }
 

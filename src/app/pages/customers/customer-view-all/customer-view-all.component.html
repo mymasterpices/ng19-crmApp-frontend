@@ -1,7 +1,6 @@
-<div class="flex justify-between items-center md:flex-row flex-col">
-  @if (loginUser == "admin") {
-    <div class="div mt-1 pt-1 w-1/2 max-sm:w-full">
-      <h6 class="text-xs font-semibold">Filters</h6>
+<div class="flex justify-between items-center">
+  @if (userRole !== "user") {
+    <div class="div w-1/2 max-sm:w-full">
       <form action="" [formGroup]="searchForm" (ngSubmit)="searchCustomer()">
         <div class="card flex justify-center gap-3">
           <p-select
@@ -22,21 +21,32 @@
             icon="pi pi-search"
             type="submit"
             [rounded]="true"
-            text="primary"
+            text="true"
+            severity="contrast"
             [disabled]="!searchForm.valid"
           ></p-button>
         </div>
       </form>
     </div>
+  } @else {
+    <p-floatlabel variant="on">
+      <input
+        #searchInput
+        pInputText
+        autocomplete="off"
+        pSize="small"
+        (input)="getSearchCustomer(searchInput.value)"
+        class="w-full md:w-32rem"
+        styleClass="w-full"
+      />
+      <label>Search Customer</label>
+    </p-floatlabel>
   }
   <p-button
     icon="pi pi-plus"
-    label="Add New"
     size="small"
     severity="contrast"
     (click)="addNewCustomer = true"
-    class="my-3 md:w-auto w-full"
-    styleClass="md:w-auto w-full"
   ></p-button>
 </div>
 <div
@@ -50,7 +60,7 @@
       >
         <div class="product-image">
           <img
-            [src]="backedAppUrl + '/' + customer.productImage"
+            [src]="backendAppUrl + '/' + customer.productImage"
             [alt]="customer.productName"
             class="w-16 h-full object-cover rounded"
           />
@@ -86,7 +96,7 @@
         </div>
       </div>
 
-      @if (loginUser == "admin") {
+      @if (userRole == "superadmin") {
         <div class="absolute top-2 right-2 z-10 flex space-x-2">
           <p-button
             icon="pi pi-trash"

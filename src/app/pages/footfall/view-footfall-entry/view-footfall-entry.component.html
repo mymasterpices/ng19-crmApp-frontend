@@ -8,17 +8,19 @@
     {{ username }}
   </h1>
   <div>
-    Result
-    <p-datepicker
-      [(ngModel)]="selectedMonth"
-      view="month"
-      dateFormat="mm/yy"
-      (onSelect)="onMonthChange($event)"
-      placeholder="Select Month"
-      class="w-full"
-      styleClass="max-sm:w-full"
-      [showClear]="true"
-    ></p-datepicker>
+    <div class="flex justify-between items-center gap-1">
+      <p>Result</p>
+      <p-datepicker
+        [(ngModel)]="selectedMonth"
+        view="month"
+        dateFormat="mm/yy"
+        (onSelect)="onMonthChange($event)"
+        placeholder="Select Month"
+        class="w-full"
+        styleClass="max-sm:w-50"
+        [showClear]="true"
+      ></p-datepicker>
+    </div>
   </div>
 </div>
 
@@ -30,6 +32,7 @@
       [rows]="31"
       stripedRows=""
       size="small"
+      
     >
       <ng-template pTemplate="header">
         <tr>
@@ -47,7 +50,7 @@
           </th>
           <th>PC</th>
           <th>Conversion %</th>
-          <th>Edit/Update</th>
+          <th>Update</th>
           <th>Action</th>
         </tr>
       </ng-template>
