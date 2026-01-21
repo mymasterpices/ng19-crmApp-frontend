@@ -200,8 +200,9 @@
               >
             </a>
           </li>
-          <!--users items  -->
-
+        }
+        <!--users items  -->
+        @if (userRole == "superadmin") {
           <li>
             <a
               (click)="drawerNavigation = false"
