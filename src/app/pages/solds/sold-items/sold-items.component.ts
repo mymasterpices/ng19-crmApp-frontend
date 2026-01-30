@@ -48,6 +48,7 @@ export class SoldItemsComponent implements OnInit {
   // Constants
   backendUrl = environment.API_URL;
   userRole: string = '';
+  userName: string = '';
 
   // --- Signals (State) ---
   // We store the raw data in a signal
@@ -68,6 +69,7 @@ export class SoldItemsComponent implements OnInit {
 
   ngOnInit(): void {
     this.userRole = this.loginedUserService.getUserRole();
+    this.userName = this.loginedUserService.getUserName();
     this.getAllSoldItems();
   }
 
@@ -77,6 +79,9 @@ export class SoldItemsComponent implements OnInit {
     // Simply attach the search term if it exists
     if (search.trim()) {
       params = params.set('full_name', search.trim());
+    }
+    if (this.userName != 'admin' && this.userName != 'superadmin') {
+      params = params.set('sales_staff', this.userName);
     }
 
     // We no longer check for user roles here

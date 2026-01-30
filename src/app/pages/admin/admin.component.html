@@ -1,6 +1,6 @@
-<div class="antialiased bg-gray-50 dark:bg-gray-900">
+<div class="antialiased bg-gray-50 dark:bg-gray-950">
   <nav
-    class="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50"
+    class="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-950 dark:border-gray-700 fixed left-0 right-0 top-0 z-50"
   >
     <div class="flex flex-wrap justify-between items-center">
       <div class="flex justify-start items-center">
@@ -74,24 +74,23 @@
   <!-- Sidebar -->
 
   <aside
-    class="fixed top-0 left-0 z-3 w-100 md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+    class="fixed top-0 left-0 z-3 w-100 md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-950 dark:border-gray-700"
     aria-label="Sidenav"
     [ngClass]="{
       'translate-x-0': drawerNavigation,
       '-translate-x-full': !drawerNavigation,
     }"
   >
-    <div class="py-5 px-3 h-full bg-white dark:bg-gray-800">
+    <div class="py-5 px-3 h-full bg-white dark:bg-gray-950">
       <ul class="space-y-2">
         @if (userRole !== "user") {
           <li>
             <a
               (click)="drawerNavigation = false"
               class="flex items-center p-2 w-full"
-              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-90 group w-full"
               routerLink="/overview"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            >
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 ">
               <span class="flex-1 text-left">
                 <i class="pi pi-th-large px-2"></i>
                 Overview</span
@@ -222,7 +221,7 @@
       </ul>
     </div>
     <div
-      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20 border-t border-gray-200 dark:border-gray-700"
+      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-950 z-20 border-t border-gray-200 dark:border-gray-700"
     >
       <div class="flex justify-between gap-4 items-center">
         <div class="flex justify-start gap-3">
@@ -251,7 +250,7 @@
   </aside>
 
   <main
-    class="p-4 md:ml-64 min-h-screen pt-20 max-sm:pb-20 bg-gray-200 dark:bg-gray-900"
+    class="p-4 md:ml-64 min-h-screen pt-20 max-sm:pb-20 bg-gray-200 dark:bg-gray-950"
   >
     <router-outlet></router-outlet>
   </main>
