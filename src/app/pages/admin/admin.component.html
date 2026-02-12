@@ -200,6 +200,20 @@
             </a>
           </li>
         }
+        <li>
+            <a
+              (click)="drawerNavigation = false"
+              routerLink="orders/order-dashboard"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+              class="flex items-center p-2 w-full"
+              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-inbox px-2"></i>
+                Orders</span
+              >
+            </a>
+          </li>
         <!--users items  -->
         @if (userRole == "superadmin") {
           <li>

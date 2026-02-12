@@ -1,0 +1,198 @@
+<section class="flex justify-between align-center mb-4">
+  <h1 class="text-xl font-semibold">Order Dashboard</h1>
+  <p-button
+    icon="pi pi-shopping-bag"
+    label="New Order"
+    size="small"
+    severity="contrast"
+    (click)="drawerVisible = true"
+  />
+</section>
+
+<section class="bg-white rounded-lg p-2 md:p-4 dark:bg-gray-900 surface-border">
+  <div class="order-status mb-4">
+    <h3 class="font-semibold mb-2">Order Status</h3>
+    <p-carousel
+      [value]="tags"
+      [numVisible]="5"
+      [numScroll]="1"
+      [circular]="false"
+      [responsiveOptions]="responsiveOptions"
+      [showIndicators]="false"
+    >
+      <ng-template let-tag pTemplate="item">
+        <div class="my-2">
+          <p-button
+            [severity]="tag.severity"
+            [badge]="tag.count"
+            [routerLink]="'/orders/all-orders/' + tag.name.toLowerCase()"
+            [label]="tag.name | titlecase"
+            class="px-3 py-2"
+          >
+          </p-button>
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
+
+  <hr class="border-top-1 surface-border my-4" />
+  <div class="report">
+    <h3 class="font-semibold mb-2">Reports</h3>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 my-3">
+      <div
+        class="bg-gray-200 p-4 rounded-lg dark:bg-gray-800 cursor-pointer"
+        [routerLink]="['/orders/order-report']"
+      >
+        <h5 class="font-semibold text-md text-gray-600 dark:text-gray-100">
+          Karigar wt.
+        </h5>
+        <h4 class="font-bold text-lg text-primary">
+          {{ totalKarigarWeight }} <span class="text-sm font-normal">gms</span>
+        </h4>
+      </div>
+
+      <!-- <div class="bg-gray-200 p-4 rounded-lg dark:bg-gray-800">
+        <h5 class="font-semibold text-md text-gray-600 dark:text-gray-100">
+          Party wt.
+        </h5>
+        <h4 class="font-bold text-lg text-primary">
+          {{ totalKarigarWeight }} <span class="text-sm font-normal">gms</span>
+        </h4>
+      </div> -->
+    </div>
+  </div>
+</section>
+
+<section class="mt-5">
+  <h3 class="font-semibold">Looking for something else?</h3>
+  <div class="flex flex-wrap gap-3 mt-2">
+    <p-button
+      icon="pi pi-align-center"
+      label="Orders"
+      size="small"
+      severity="contrast"
+      routerLink="/orders/all-orders"
+    />
+    <p-button
+      icon="pi pi-qrcode"
+      label="Change Status"
+      size="small"
+      severity="contrast"
+      routerLink="/orders/change-status"
+    />
+    @if (userRole === "superadmin") {
+      <p-button
+        icon="pi pi-user-edit"
+        label="Masters"
+        size="small"
+        severity="contrast"
+        (onClick)="masterdrawerVisible = true"
+      />
+    }
+  </div>
+</section>
+
+<p-drawer
+  [(visible)]="drawerVisible"
+  position="left"
+  [modal]="true"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+>
+  <ng-template pTemplate="header">
+    <span class="font-semibold text-xl">Create New Order</span>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <app-new-order />
+  </ng-template>
+</p-drawer>
+
+<!-- masterFroms -->
+<p-drawer
+  header="Masters"
+  [(visible)]="masterdrawerVisible"
+  position="left"
+  [modal]="true"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+>
+  <div class="card">
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">Add Karigar</p-tab>
+        <p-tab value="1">Add Category</p-tab>
+        <p-tab value="2">Add SalesPerson</p-tab>
+      </p-tablist>
+      <p-tabpanels class="!p-0 mt-1">
+        <p-tabpanel value="0" styleClass="!p-0 !m-0">
+          <p-floatlabel variant="on" class="my-4">
+            <input
+              pInputText
+              #karigarInput
+              id="value3"
+              class="w-full"
+              styleClass="w-full"
+            />
+            <label for="value3">Add karigar</label>
+          </p-floatlabel>
+          <p-button
+            label="Save"
+            size="small"
+            severity="contrast"
+            class="w-full"
+            styleClass="w-30"
+            [loading]="saveLoading"
+            (onClick)="saveNewkarigar(karigarInput)"
+          >
+          </p-button>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <p-floatlabel variant="on" class="my-4">
+            <input
+              pInputText
+              #categoryInput
+              id="value3"
+              class="w-full"
+              styleClass="w-full"
+            />
+            <label for="value3">Add category</label>
+          </p-floatlabel>
+
+          <p-button
+            label="Save"
+            size="small"
+            severity="contrast"
+            class="w-full"
+            styleClass="w-30"
+            [loading]="saveLoading"
+            (onClick)="saveNewCategory(categoryInput)"
+          >
+          </p-button>
+        </p-tabpanel>
+
+        <p-tabpanel value="2">
+          <p-floatlabel variant="on" class="my-4">
+            <input
+              pInputText
+              #salespersonInput
+              id="value3"
+              class="w-full"
+              styleClass="w-full"
+            />
+            <label for="value3">Add sales person</label>
+          </p-floatlabel>
+
+          <p-button
+            label="Save"
+            size="small"
+            severity="contrast"
+            class="w-full"
+            styleClass="w-30"
+            [loading]="saveLoading"
+            (onClick)="savenewsalesPerson(salespersonInput)"
+          >
+          </p-button>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</p-drawer>

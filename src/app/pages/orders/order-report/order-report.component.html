@@ -1,0 +1,55 @@
+<div class="report-container p-4">
+  <div class="flex justify-between gap-4 items-center pb-4">
+    <h2 class="text-2xl font-semibold mb-4">Report</h2>
+
+    <div class="filter-section flex items-center gap-3">
+      <p-select
+        [options]="statusList"
+        optionLabel="name"
+        optionValue="name"
+        placeholder="Select Status"
+        class="w-full md:w-64"
+        [showClear]="true"
+        (onChange)="onStatusChange($event)"
+      ></p-select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+    <div class="chart-card p-1 bg-white rounded-xl shadow-sm">
+      <p-chart
+        type="pie"
+        [data]="pieChartData"
+        [options]="pieChartOptions"
+      ></p-chart>
+
+      <div
+        *ngIf="karigarSummary().length === 0"
+        class="text-center p-10 text-gray-400"
+      >
+        No data found for this status.
+      </div>
+    </div>
+
+    <div class="cards-container grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div
+        *ngFor="let k of karigarSummary()"
+        class="karigar-card p-4 bg-white rounded-lg shadow-sm border-l-4 border-emerald-500"
+      >
+        <h3 class="text-lg font-bold text-gray-800 mb-2 uppercase">
+          {{ k.name }}
+        </h3>
+        <div class="flex justify-between text-sm py-1">
+          <span class="text-gray-500">Hold Gold:</span>
+          <span class="font-bold text-gray-700"
+            >{{ k.totalWeight | number: "1.3-3" }} gm</span
+          >
+        </div>
+        <div class="flex justify-between text-sm py-1">
+          <span class="text-gray-500">Job Quantity:</span>
+          <span class="font-bold text-gray-700">{{ k.totalQty }} pcs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

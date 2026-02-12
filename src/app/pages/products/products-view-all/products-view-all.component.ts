@@ -175,6 +175,9 @@ export class ProductsViewAllComponent {
           });
           this.searchResult.set([]);
         } else {
+          // Close the dialog
+          this.scanner = false;
+
           const code = searchNumber.jewel_code || '';
           let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
 
@@ -211,7 +214,7 @@ export class ProductsViewAllComponent {
       },
       (error) => {
         console.error('API Error:', error);
-      }
+      },
     );
   }
 

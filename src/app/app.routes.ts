@@ -26,6 +26,13 @@ import { CustomerViewAllComponent } from './pages/customers/customer-view-all/cu
 import { CompareComponent } from './pages/products/compare/compare.component';
 import { ShowFootfallComponent } from './pages/footfall/show-footfall/show-footfall.component';
 import { ViewFootfallEntryComponent } from './pages/footfall/view-footfall-entry/view-footfall-entry.component';
+import { OrderDashboardComponent } from './pages/orders/order-dashboard/order-dashboard.component';
+import { NewOrderComponent } from './pages/orders/new-order/new-order.component';
+import { AllOrdersComponent } from './pages/orders/all-orders/all-orders.component';
+import { OrderDetailComponent } from './pages/orders/order-detail/order-detail.component';
+import { ChangeStatusComponent } from './pages/orders/change-status/change-status.component';
+import { OrderReportComponent } from './pages/orders/order-report/order-report.component';
+import { EditOrderComponent } from './pages/orders/edit-order/edit-order.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -71,6 +78,17 @@ export const routes: Routes = [
         component: ViewFootfallEntryComponent,
         data: { expectedRole: 'admin' },
       },
+      {
+        path: 'orders/order-dashboard',
+        component: OrderDashboardComponent,
+      },
+      { path: 'orders/new-order', component: NewOrderComponent },
+      { path: 'orders/all-orders', component: AllOrdersComponent },
+      { path: 'orders/all-orders/:status', component: AllOrdersComponent },
+      { path: 'orders/order-detail/:id', component: OrderDetailComponent },
+      { path: 'orders/change-status', component: ChangeStatusComponent },
+      { path: 'orders/order-report', component: OrderReportComponent },
+      { path: 'orders/edit-order/:id', component: EditOrderComponent },
     ],
   },
   {

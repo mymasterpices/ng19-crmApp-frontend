@@ -1,16 +1,16 @@
 <div class="flex justify-between items-center">
   <h2 class="text-xl font-semibold">Find product</h2>
   <div class="flex justify-between gap-4">
-    @if(loginedUser == 'admin' || loginedUser == 'superadmin'){
-    <p-button
-      icon="pi pi-upload"
-      class="mt-3 right-3"
-      (onClick)="visible = true"
-      severity="secondary"
-      label="Upload"
-      size="small"
-    >
-    </p-button>
+    @if (loginedUser == "admin" || loginedUser == "superadmin") {
+      <p-button
+        icon="pi pi-upload"
+        class="mt-3 right-3"
+        (onClick)="visible = true"
+        severity="secondary"
+        label="Upload"
+        size="small"
+      >
+      </p-button>
     }
 
     <p-button
@@ -27,7 +27,7 @@
 <!--  -->
 <section class="flex flex-col items-center justify-start">
   <div
-    class="w-100 flex justify-center items-center max-sm:fixed max-sm:bottom-16"
+    class="w-full md:w-100 flex justify-center items-center"
   >
     <div class="my-2 md:w-full">
       <form action="" [formGroup]="searchFrom" (ngSubmit)="search()">
@@ -59,169 +59,184 @@
             </p-inputgroup>
           </div>
 
-          @if(searchFrom.controls['jewel_code'].touched &&
-          searchFrom.controls['jewel_code'].hasError('required')){
-          <p class="text-center">
-            <small class="text-red-600"
-              >Tag number is required or try scanner
-            </small>
-          </p>
-          } @if (searchFrom.controls['jewel_code'].hasError('minlength')) {
-          <p>
-            <small class="text-red-600"
-              >Tag number must contain alphabet and number</small
-            >
-          </p>
+          @if (
+            searchFrom.controls["jewel_code"].touched &&
+            searchFrom.controls["jewel_code"].hasError("required")
+          ) {
+            <p class="text-center">
+              <small class="text-red-600"
+                >Tag number is required or try scanner
+              </small>
+            </p>
+          }
+          @if (searchFrom.controls["jewel_code"].hasError("minlength")) {
+            <p>
+              <small class="text-red-600"
+                >Tag number must contain alphabet and number</small
+              >
+            </p>
           }
         </div>
       </form>
     </div>
   </div>
 
-  <div class="w-full md:w-5/7">
+  <div class="w-full md:w-5/7 py-4">
     <!-- search product result -->
 
-    @for(item of searchResult(); track item.id){
-    <p-card>
-      <div
-        class="flex justify-start w-full gap-4 relative flex-col md:flex-row"
-      >
-        <a
-          class="] w-[60%] md:w-[20%] mx-auto mb-2"
-          routerLink="/view-details/{{ item.jewel_code }}"
+    @for (item of searchResult(); track item.id) {
+      <p-card>
+        <div
+          class="flex justify-start w-full gap-4 relative flex-col md:flex-row"
         >
-          @if(isImageFound()){
-          <img
-            [src]="productImageUrl()"
-            alt="{{ item.jewel_code }}"
-            class="rounded-2xl"
-          />
-          }@else {
-          <img src="imagenotfound.jpg" alt="{{ item.jewel_code }}" />
-          }
-        </a>
-        <div class="rounded-xl w-full flex-1">
-          <div class="">
-            <div class="flex justify-between items-center">
-              <h3 class="card-title pb-3">
-                <b> {{ item.product_category | titlecase }} -</b>
-                {{ item.sub_category | titlecase }}
-              </h3>
-              <b class="ml-auto">{{ item.jewel_code }}</b>
-            </div>
+          <a
+            class="] w-[60%] md:w-[20%] mx-auto mb-2"
+            routerLink="/view-details/{{ item.jewel_code }}"
+          >
+            @if (isImageFound()) {
+              <img
+                [src]="productImageUrl()"
+                alt="{{ item.jewel_code }}"
+                class="rounded-2xl"
+              />
+            } @else {
+              <img src="imagenotfound.jpg" alt="{{ item.jewel_code }}" />
+            }
+          </a>
+          <div class="rounded-xl w-full flex-1">
+            <div class="">
+              <div class="flex justify-between items-center">
+                <h3 class="card-title pb-3">
+                  <b> {{ item.product_category | titlecase }} -</b>
+                  {{ item.sub_category | titlecase }}
+                </h3>
+                <b class="ml-auto">{{ item.jewel_code }}</b>
+              </div>
 
-            <div class="rounded-lg border-gray-300">
-              <div class="flex flex-col md:text-sm space-y-2">
-                <!-- Row 1 -->
-                <div
-                  class="flex items-center border-b border-gray-200 py-2 relative"
-                >
-                  <div class="w-24 font-semibold">Net wt.</div>
-                  <div class="flex-1">{{ item.net_wt }} Gms</div>
-                  <div class="flex-1">{{ item.material }}</div>
-                  <div class="flex-none relative">
-                    {{ item.metal_amt || "NA" | number : "1.2-2" }}/-
+              <div class="rounded-lg border-gray-300">
+                <div class="flex flex-col md:text-sm space-y-2">
+                  <!-- Row 1 -->
+                  <div
+                    class="flex items-center border-b border-gray-200 py-2 relative"
+                  >
+                    <div class="w-24 font-semibold">Net wt.</div>
+                    <div class="flex-1">{{ item.net_wt }} Gms</div>
+                    <div class="flex-1">{{ item.material }}</div>
+                    <div class="flex-none relative">
+                      {{ item.metal_amt || "NA" | number: "1.2-2" }}/-
+                    </div>
                   </div>
-                </div>
 
-                <!-- Row 2 -->
-                <div class="flex items-center border-b border-gray-200 pb-1">
-                  <div class="w-24 font-semibold">Gross wt.</div>
-                  <div class="flex-1">{{ item.gross_wt }} Gms</div>
-                </div>
+                  <!-- Row 2 -->
+                  <div class="flex items-center border-b border-gray-200 pb-1">
+                    <div class="w-24 font-semibold">Gross wt.</div>
+                    <div class="flex-1">{{ item.gross_wt }} Gms</div>
+                  </div>
 
-                @if (item.diamonds && item.diamonds.length > 0) { @for(dia of
-                item.diamonds; track $index) {
-                <div
-                  class="flex flex-col border-b border-gray-200 pb-1 space-y-1"
-                >
-                  <div class="flex items-start">
-                    <div class="w-24 font-semibold">Dia wt.</div>
-                    <div class="flex-1">{{ dia.weight }} Cts</div>
+                  @if (item.diamonds && item.diamonds.length > 0) {
+                    @for (dia of item.diamonds; track $index) {
+                      <div
+                        class="flex flex-col border-b border-gray-200 pb-1 space-y-1"
+                      >
+                        <div class="flex items-start">
+                          <div class="w-24 font-semibold">Dia wt.</div>
+                          <div class="flex-1">{{ dia.weight }} Cts</div>
+                          <div class="flex-1">
+                            {{ dia.diamond_colour || dia.quality_code }}
+                          </div>
+                          <div class="flex-none">
+                            {{ dia.amount | number: "1.2-2" }}/-
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <div
+                      class="flex items-center border-b border-gray-200 dark:bg-gray-800 bg-blue-100 p-2 rounded-lg"
+                    >
+                      <div class="w-24">Dia. Total</div>
+                      <div class="flex-1"></div>
+                      <div class="flex-none">
+                        {{
+                          getTotalDiamondAmount(item.diamonds)
+                            | number: "1.2-2"
+                        }}/-
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Row 4 (Stones, if any) -->
+                  @if (item.stones && item.stones.length > 0) {
+                    @for (stone of item.stones; track $index) {
+                      <div
+                        class="flex flex-col border-b border-gray-200 pb-1 space-y-1"
+                      >
+                        <div class="flex items-center">
+                          <div class="w-24 font-semibold">CS wt.</div>
+                          <div class="flex-1">
+                            {{ stone.colour_stone_wt }} Cts
+                          </div>
+
+                          <div class="flex-none">
+                            {{ stone.colour_stone_amt }}/-
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  }
+
+                  <!-- Row 5 -->
+                  <div
+                    class="flex items-center border-b border-gray-200 pb-1 space-y-1"
+                  >
+                    <div class="w-24 font-semibold">Making</div>
+
                     <div class="flex-1">
-                      {{ dia.diamond_colour || dia.quality_code }}
+                      @if (item.making_charge && item.making_charge !== 0) {
+                        {{ item.making_charge }}%
+                      } @else if (item.making_amt && item.making_amt !== 0) {
+                        Fixed
+                      } @else {
+                        -
+                      }
                     </div>
+
+                    <div class="flex-none font-medium">
+                      @if (getMakingChargeAmount(item) > 0) {
+                        {{ getMakingChargeAmount(item) | number: "1.2-2" }}/-
+                      } @else {
+                        -
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Row 6 -->
+                  <div
+                    class="flex items-center border-b border-gray-200 pb-1 space-y-1"
+                  >
+                    <div class="w-24 font-semibold">GST</div>
+                    <div class="flex-1">3%</div>
                     <div class="flex-none">
-                      {{ dia.amount | number : "1.2-2" }}/-
+                      {{ calculateGST(item) | number: "1.2-2" }}/-
                     </div>
                   </div>
-                </div>
-                }
 
-                <div
-                  class="flex items-center border-b border-gray-200 dark:bg-gray-800 bg-blue-100 p-2 rounded-lg"
-                >
-                  <div class="w-24">Dia. Total</div>
-                  <div class="flex-1"></div>
-                  <div class="flex-none">
-                    {{
-                      getTotalDiamondAmount(item.diamonds) | number : "1.2-2"
-                    }}/-
-                  </div>
-                </div>
-                }
+                  <!-- Row 7 -->
 
-                <!-- Row 4 (Stones, if any) -->
-                @if (item.stones && item.stones.length > 0) { @for(stone of
-                item.stones; track $index){
-                <div
-                  class="flex flex-col border-b border-gray-200 pb-1 space-y-1"
-                >
-                  <div class="flex items-center">
-                    <div class="w-24 font-semibold">CS wt.</div>
-                    <div class="flex-1">{{ stone.colour_stone_wt }} Cts</div>
-
-                    <div class="flex-none">{{ stone.colour_stone_amt }}/-</div>
-                  </div>
-                </div>
-                }}
-
-                <!-- Row 5 -->
-                <div
-                  class="flex items-center border-b border-gray-200 pb-1 space-y-1"
-                >
-                  <div class="w-24 font-semibold">Making</div>
-
-                  <div class="flex-1 text-gray-600">
-                    @if(item.making_charge && item.making_charge !== 0) {
-                    {{ item.making_charge }}% } @else if (item.making_amt &&
-                    item.making_amt !== 0) { Fixed } @else { - }
-                  </div>
-
-                  <div class="flex-none font-medium">
-                    @if(getMakingChargeAmount(item) > 0) {
-                    {{ getMakingChargeAmount(item) | number : "1.2-2" }}/- }
-                    @else { - }
-                  </div>
-                </div>
-
-                <!-- Row 6 -->
-                <div
-                  class="flex items-center border-b border-gray-200 pb-1 space-y-1"
-                >
-                  <div class="w-24 font-semibold">GST</div>
-                  <div class="flex-1">3%</div>
-                  <div class="flex-none">
-                    {{ calculateGST(item) | number : "1.2-2" }}/-
-                  </div>
-                </div>
-
-                <!-- Row 7 -->
-
-                <div
-                  class="flex items-center font-semibold dark:bg-gray-800 bg-gray-200 py-3 px-2 rounded-xl"
-                >
-                  <div class="flex-1">Cost <small>(Inc. GST)</small></div>
-                  <div class="flex-none">
-                    {{ getGrandTotal(item) | number : "1.2-2" }}/-
+                  <div
+                    class="flex items-center font-semibold dark:bg-gray-800 bg-gray-200 py-3 px-2 rounded-xl"
+                  >
+                    <div class="flex-1">Cost <small>(Inc. GST)</small></div>
+                    <div class="flex-none">
+                      {{ getGrandTotal(item) | number: "1.2-2" }}/-
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </p-card>
+      </p-card>
     }
   </div>
 </section>
@@ -231,11 +246,8 @@
   header="Scan product QR"
   class="w-full h-screen"
 >
-  @if(scanner){
-  <app-qr-scanner
-    #qrScanner
-    (scanCompleted)="onQrScanned($event); scanner = false"
-  ></app-qr-scanner>
+  @if (scanner) {
+    <app-qr-scanner (scanCompleted)="onQrScanned($event)"></app-qr-scanner>
   }
 </p-dialog>
 

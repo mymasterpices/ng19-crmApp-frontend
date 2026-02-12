@@ -1,48 +1,58 @@
-import { Component, signal, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  signal,
+  Output,
+  EventEmitter,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZXingScannerModule } from '@zxing/ngx-scanner';
-import { BarcodeFormat } from '@zxing/library';
+import {
+  NgxScannerQrcodeComponent,
+  ScannerQRCodeConfig,
+  ScannerQRCodeResult,
+} from 'ngx-scanner-qrcode';
 
 @Component({
   selector: 'app-qr-scanner',
   standalone: true,
-  imports: [CommonModule, ZXingScannerModule],
+  imports: [CommonModule, NgxScannerQrcodeComponent],
   template: `
-    <div class="scanner-wrapper">
-      <zxing-scanner
-        [formats]="allowedFormats"
-        (camerasFound)="onCamerasFound($event)"
-        (scanSuccess)="onScanSuccess($event)"
-        (scanError)="onScanError($event)"
-        [autostart]="true"
-        [device]="selectedDevice"
-        class="rounded-xl"
-      ></zxing-scanner>
+    <div class="scanner-shell">
+      <ngx-scanner-qrcode
+        #action="scanner"
+        [config]="config"
+        (event)="handleScan($event)"
+        (error)="onScanError($event)"
+      >
+      </ngx-scanner-qrcode>
 
-      <div class="scan-area" [style.border-color]="borderColor()"></div>
+      <div class="scan-area" [style.border-color]="borderColor()">
+        <div class="laser" *ngIf="isScanning()"></div>
+      </div>
     </div>
 
-    <div *ngIf="scannedResult()">
-      <h3>Result:</h3>
-      <p>{{ scannedResult() }}</p>
-    </div>
-
-    <div *ngIf="errorMessage">
-      <h3>Error:</h3>
-      <p>{{ errorMessage }}</p>
+    <div *ngIf="errorMessage()" class="error-msg">
+      <p>{{ errorMessage() }}</p>
     </div>
   `,
   styles: [
     `
-      .scanner-wrapper {
+      /* 3. FIXED SIZE CSS */
+      .scanner-shell {
         position: relative;
         width: 100%;
+        height: 300px; /* Locked Height */
+        background: #000;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
       }
 
-      zxing-scanner {
-        width: 100%;
-        height: auto;
-        display: block;
+      ::ng-deep ngx-scanner-qrcode video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important; /* Prevents distortion */
       }
 
       .scan-area {
@@ -50,55 +60,93 @@ import { BarcodeFormat } from '@zxing/library';
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 250px;
-        height: 250px;
-        border: 4px dashed;
-        box-sizing: border-box;
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
         pointer-events: none;
-        transition: border-color 0.3s ease;
+        transition: all 0.3s ease;
+        z-index: 10;
+      }
+
+      /* 4. LASER ANIMATION */
+      .laser {
+        width: 100%;
+        height: 2px;
+        background-color: rgba(0, 255, 0, 0.5);
+        position: absolute;
+        box-shadow: 0 0 10px 2px rgba(0, 255, 0, 0.4);
+        animation: scanning 2s infinite ease-in-out;
+      }
+
+      @keyframes scanning {
+        0% {
+          top: 0;
+        }
+        50% {
+          top: 100%;
+        }
+        100% {
+          top: 0;
+        }
+      }
+
+      .error-msg {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        text-align: center;
       }
     `,
   ],
 })
-export class QrScannerComponent {
-  allowedFormats = [BarcodeFormat.QR_CODE];
-  selectedDevice?: MediaDeviceInfo;
-
-  scannedResult = signal<string | null>(null);
-  borderColor = signal<string>('#ffff00'); // default yellow
-  errorMessage: string | null = null;
-
+export class QrScannerComponent implements AfterViewInit {
+  @ViewChild('action') scanner!: NgxScannerQrcodeComponent;
   @Output() scanCompleted = new EventEmitter<string>();
 
-  onCamerasFound(devices: MediaDeviceInfo[]): void {
-    if (devices && devices.length > 0) {
-      this.selectedDevice = devices[0];
+  // Use Signals for state management
+  borderColor = signal<string>('#ffffff80'); // Semi-transparent white
+  errorMessage = signal<string | null>(null);
+  isScanning = signal<boolean>(true);
+
+  // 5. CONFIG: Optimal for Jewelry Tags
+  public config: ScannerQRCodeConfig = {
+    constraints: {
+      video: {
+        facingMode: 'environment',
+        aspectRatio: { ideal: 1 },
+      },
+    },
+  };
+
+  ngAfterViewInit() {
+    // Autostart on load
+    setTimeout(() => {
+      this.scanner.start();
+    }, 500);
+  }
+
+  handleScan(event: ScannerQRCodeResult[]): void {
+    const result = Array.isArray(event)
+      ? event[0]?.value
+      : (event as any)?.value;
+
+    if (result) {
+      this.borderColor.set('#22c55e'); // Green on success
+      this.scanCompleted.emit(result);
+
+      // Note: We DO NOT call this.scanner.stop() here
+      // This keeps the camera alive and prevents the black screen.
+
+      // Reset border color after 1.5 seconds
+      setTimeout(() => {
+        this.borderColor.set('#ffffff80');
+      }, 1500);
     }
   }
 
-  onScanSuccess(result: string): void {
-    this.scannedResult.set(result);
-    this.borderColor.set('#00ff00'); // green for success
-    this.scanCompleted.emit(result);
-
-    // Reset border after 1 second so scanner is ready for next scan
-    setTimeout(() => {
-      this.borderColor.set('#ffff00'); // reset to yellow
-      this.scannedResult.set(null); // optionally clear scanned result
-      this.errorMessage = null; // clear error if any
-    }, 1000);
-  }
-
   onScanError(error: any): void {
-    this.errorMessage = error;
-    this.borderColor.set('#ff0000'); // red on error
-
-    // Reset border after 1 second
-    setTimeout(() => {
-      this.borderColor.set('#ffff00'); // back to yellow
-      this.errorMessage = null;
-    }, 1000);
-
+    this.errorMessage.set('Camera access failed. Please check permissions.');
+    this.borderColor.set('#ef4444'); // Red on error
     console.error('Scan error:', error);
   }
 }
