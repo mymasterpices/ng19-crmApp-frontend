@@ -18,8 +18,6 @@ import { OrderServices } from '../../../services/orders/order-services';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
-import { ActivatedRoute } from '@angular/router';
-
 
 @Component({
   selector: 'app-new-order',
@@ -44,7 +42,6 @@ export class NewOrderComponent implements OnInit {
   isSaving = signal<boolean>(false);
 
   private _orderServices = inject(OrderServices);
-  private _router = inject(ActivatedRoute);
   private _messageService = inject(MessageService);
   private _shareorderService = inject(ShareOrderService);
   private fb = inject(FormBuilder);
@@ -73,7 +70,6 @@ export class NewOrderComponent implements OnInit {
     this.getkarigarsList();
     this.getSalespersonList();
     this.getCategoryList();
-    
   }
 
   karigarList: any[] = [];

@@ -96,6 +96,10 @@ import {
         margin-top: 0.5rem;
         text-align: center;
       }
+      /* Ensure the video is not mirrored */
+      ngx-scanner-qrcode video {
+        transform: scaleX(1) !important;
+      }
     `,
   ],
 })

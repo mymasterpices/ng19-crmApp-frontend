@@ -1,4 +1,4 @@
-import { Limit } from './../../../../../node_modules/qrcode/node_modules/p-limit/index.d';
+
 import {
   Component,
   inject,
@@ -10,12 +10,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpParams } from '@angular/common/http';
-
-import {
-  NgxScannerQrcodeComponent,
-  ScannerQRCodeConfig,
-  ScannerQRCodeResult,
-} from 'ngx-scanner-qrcode';
+import { ScannerQRCodeConfig, ScannerQRCodeResult } from 'ngx-scanner-qrcode';
+import { NgxScannerQrcodeComponent } from 'ngx-scanner-qrcode';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -31,6 +27,7 @@ import { OrderServices } from '../../../services/orders/order-services';
 import { environment } from '../../../../environments/environment.development';
 import { Router, RouterLink } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
+import { ScannerService } from '../../../services/scanner/scanner.service';
 
 @Component({
   selector: 'app-change-status',
@@ -55,22 +52,27 @@ import { ShareOrderService } from '../../../services/orders/share-order.service'
 export class ChangeStatusComponent implements AfterViewInit, OnInit {
   private _orderService = inject(OrderServices);
   private _router = inject(Router);
+  private _scannerService = inject(ScannerService);
   private _shareOrderService = inject(ShareOrderService);
   private _messageService = inject(MessageService);
 
+  public config = this._scannerService.config;
+  
   @ViewChild('action') scanner!: NgxScannerQrcodeComponent;
 
-  public config: ScannerQRCodeConfig = {
-    constraints: {
-      video: {
-        facingMode: 'environment',
-        aspectRatio: { ideal: 1 }, // Standard 4:3 aspect ratio for stability
-      },
-    },
-    canvasStyles: [
-      { lineWidth: 1, strokeStyle: '#22c55e', fillStyle: '#22c55e' }, // Green scan line
-    ],
-  };
+
+  // 1. Add this variable to your class
+  private currentCameraIndex = 0;
+
+  public toggleCamera() {
+    const devices = this.scanner.devices.value;
+    const currentId = (this.scanner as any)._deviceId; // Internal fallback
+    const nextId = this._scannerService.getNextDevice(devices, currentId);
+    this.scanner.playDevice(nextId);
+  }
+
+  
+
   searchOrderNum: string = '';
   isLoading: boolean = false;
   hasSearched: boolean = false; // Tracks if user has attempted a search

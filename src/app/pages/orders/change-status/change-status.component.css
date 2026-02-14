@@ -1,12 +1,12 @@
 .scanner-shell {
   width: 100%;
-  max-width: 500px; /* Limits width on desktop */
-  height: 350px; /* Fixed height */
+  max-width: 300px; /* Limits width on desktop */
+  height: 300px; /* Fixed height */
   margin: 0 auto;
   position: relative;
   border-radius: 16px;
   overflow: hidden; /* Clips the video feed to the border radius */
-  border: 2px solid #e2e8f0;
+  border: 3px dotted #e2e8f0;
   background-color: #000; /* Black background while camera loads */
 }
 

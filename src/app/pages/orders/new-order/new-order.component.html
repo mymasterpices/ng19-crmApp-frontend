@@ -6,6 +6,9 @@
           <input pInputText id="party" formControlName="party" class="w-full" />
           <label for="party">Party Name</label>
         </p-floatlabel>
+        @if(productForm.controls['party'].invalid && productForm.controls['party'].touched){
+          <p>Party name is mandatory</p>
+        }
       </div>
 
       <!-- KARIGAR - SIMPLEST -->
@@ -45,7 +48,7 @@
           mode="advanced"
           [multiple]="false"
           accept="image/*"
-          maxFileSize="1000000"
+          maxFileSize="8000000"
           [customUpload]="true"
           (onSelect)="onFileSelect($event)"
           (onRemove)="onFileRemove()"
