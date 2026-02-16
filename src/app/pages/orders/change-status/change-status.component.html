@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-3">
-  <div
+  <!-- <div
     class="scanner-container w-full border-round-xl overflow-hidden shadow-2"
     style="height: 300px"
   >
@@ -16,7 +16,7 @@
         <div class="laser" *ngIf="isScanning()"></div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="w-full">
     <p-iconfield class="w-full">
@@ -45,12 +45,12 @@
     }
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
     @for (order of orderDetails(); track order._id) {
       <div class="pb-4">
         <p-card styleClass="shadow-2 border-round-xl overflow-hidden h-full">
           <div class="flex gap-3">
-            <div class="flex-shrink-0">
+            <div class="!flex-shrink-0">
               <p-image
                 [src]="backendUrl + '/' + order.imageProduct"
                 imageClass="border-round-md object-cover"

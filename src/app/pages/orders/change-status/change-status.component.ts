@@ -1,4 +1,3 @@
-
 import {
   Component,
   inject,
@@ -10,8 +9,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpParams } from '@angular/common/http';
-import { ScannerQRCodeConfig, ScannerQRCodeResult } from 'ngx-scanner-qrcode';
-import { NgxScannerQrcodeComponent } from 'ngx-scanner-qrcode';
+// import { ScannerQRCodeConfig, ScannerQRCodeResult } from 'ngx-scanner-qrcode';
+// import { NgxScannerQrcodeComponent } from 'ngx-scanner-qrcode';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -25,7 +24,7 @@ import { ImageModule } from 'primeng/image';
 
 import { OrderServices } from '../../../services/orders/order-services';
 import { environment } from '../../../../environments/environment.development';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { ScannerService } from '../../../services/scanner/scanner.service';
 
@@ -35,7 +34,6 @@ import { ScannerService } from '../../../services/scanner/scanner.service';
   imports: [
     CommonModule,
     FormsModule,
-    NgxScannerQrcodeComponent,
     InputTextModule,
     ButtonModule,
     CardModule,
@@ -49,7 +47,7 @@ import { ScannerService } from '../../../services/scanner/scanner.service';
   templateUrl: './change-status.component.html',
   styleUrl: './change-status.component.css',
 })
-export class ChangeStatusComponent implements AfterViewInit, OnInit {
+export class ChangeStatusComponent implements OnInit {
   private _orderService = inject(OrderServices);
   private _router = inject(Router);
   private _scannerService = inject(ScannerService);
@@ -57,21 +55,18 @@ export class ChangeStatusComponent implements AfterViewInit, OnInit {
   private _messageService = inject(MessageService);
 
   public config = this._scannerService.config;
-  
-  @ViewChild('action') scanner!: NgxScannerQrcodeComponent;
 
+  // @ViewChild('action') scanner!: NgxScannerQrcodeComponent;
 
   // 1. Add this variable to your class
-  private currentCameraIndex = 0;
+  // private currentCameraIndex = 0;
 
-  public toggleCamera() {
-    const devices = this.scanner.devices.value;
-    const currentId = (this.scanner as any)._deviceId; // Internal fallback
-    const nextId = this._scannerService.getNextDevice(devices, currentId);
-    this.scanner.playDevice(nextId);
-  }
-
-  
+  // public toggleCamera() {
+  //   const devices = this.scanner.devices.value;
+  //   const currentId = (this.scanner as any)._deviceId; // Internal fallback
+  //   const nextId = this._scannerService.getNextDevice(devices, currentId);
+  //   this.scanner.playDevice(nextId);
+  // }
 
   searchOrderNum: string = '';
   isLoading: boolean = false;
@@ -87,13 +82,13 @@ export class ChangeStatusComponent implements AfterViewInit, OnInit {
     this.orderStatusListfunc();
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => this.startScanner(), 500);
-  }
+  // ngAfterViewInit() {
+  //   setTimeout(() => this.startScanner(), 500);
+  // }
 
-  public startScanner() {
-    if (this.scanner) this.scanner.start();
-  }
+  // public startScanner() {
+  //   if (this.scanner) this.scanner.start();
+  // }
 
   // Unified search function
   public handleSearch(orderNumber: string) {
@@ -125,16 +120,16 @@ export class ChangeStatusComponent implements AfterViewInit, OnInit {
     });
   }
 
-  public onScanSuccess(event: ScannerQRCodeResult[]) {
-    const result = Array.isArray(event)
-      ? event[0]?.value
-      : (event as any)?.value;
-    if (result) {
-      // this.scanner.stop();
-      this.searchOrderNum = result;
-      this.handleSearch(result);
-    }
-  }
+  // public onScanSuccess(event: ScannerQRCodeResult[]) {
+  //   const result = Array.isArray(event)
+  //     ? event[0]?.value
+  //     : (event as any)?.value;
+  //   if (result) {
+  //     // this.scanner.stop();
+  //     this.searchOrderNum = result;
+  //     this.handleSearch(result);
+  //   }
+  // }
 
   // Triggered on every keystroke
   searchByOrderNum(event: any) {

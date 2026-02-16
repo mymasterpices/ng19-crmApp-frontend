@@ -18,6 +18,7 @@ import { OrderServices } from '../../../services/orders/order-services';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-new-order',
@@ -178,7 +179,8 @@ export class NewOrderComponent implements OnInit {
           });
           this.productForm.reset({ quantity: 1 });
           this.uploadedFile = null;
-          this._shareorderService.generateOrderPdf(res);
+          console.log('Get saved new order PDF order#: ', res.data._id);
+          this.getPDF(res.data._id);
         },
         error: (err) => {
           this.isSaving.set(false);
@@ -192,5 +194,26 @@ export class NewOrderComponent implements OnInit {
     } else {
       this.productForm.markAllAsTouched();
     }
+  }
+
+  //get
+  getPDF(orderId: any) {
+    const params = new HttpParams().set('id', orderId);
+
+    this._orderServices.getOrders(params).subscribe({
+      next: (res: any) => {
+        console.log('API Response:', res);
+        const data = Array.isArray(res) ? res : [res];
+
+        if (data.length > 0) {
+          this._shareorderService.generateOrderPdf(data);
+        } else {
+          console.warn('No order found for this ID');
+        }
+      },
+      error: (err: any) => {
+        console.log('error while fetch data for pdf', err);
+      },
+    });
   }
 }

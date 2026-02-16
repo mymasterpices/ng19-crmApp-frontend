@@ -6,7 +6,10 @@
           <input pInputText id="party" formControlName="party" class="w-full" />
           <label for="party">Party Name</label>
         </p-floatlabel>
-        @if(productForm.controls['party'].invalid && productForm.controls['party'].touched){
+        @if (
+          productForm.controls["party"].invalid &&
+          productForm.controls["party"].touched
+        ) {
           <p>Party name is mandatory</p>
         }
       </div>
@@ -48,14 +51,13 @@
           mode="advanced"
           [multiple]="false"
           accept="image/*"
-          maxFileSize="8000000"
           [customUpload]="true"
           (onSelect)="onFileSelect($event)"
           (onRemove)="onFileRemove()"
           [showUploadButton]="false"
           [showCancelButton]="true"
           chooseLabel="Add Image"
-          styleClass="w-full"
+          styleClass="w-full !p-0"
           name="imageProduct"
         >
         </p-fileupload>
@@ -68,6 +70,8 @@
             formControlName="deliveryDate"
             dateFormat="dd/mm/yy"
             [showIcon]="true"
+            [touchUI]="true"
+            appendTo="body"
             styleClass="w-full"
             class="w-full"
           ></p-datepicker>

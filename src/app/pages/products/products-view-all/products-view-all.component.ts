@@ -1,6 +1,11 @@
 import { Component, inject, signal, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 // PrimeNG Imports
@@ -20,9 +25,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 // Services & Scanner
 import { ApiService } from '../../../services/api.service';
 import { LoginedUserService } from './../../../services/logined-user.service';
-import { ScannerService } from '../../../services/scanner/scanner.service';
 import { environment } from '../../../../environments/environment';
-import { NgxScannerQrcodeComponent, ScannerQRCodeResult } from 'ngx-scanner-qrcode';
 
 interface UploadEvent {
   files: File[];
@@ -47,22 +50,15 @@ interface UploadEvent {
     DecimalPipe,
     InputGroupModule,
     InputGroupAddonModule,
-    NgxScannerQrcodeComponent,
   ],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
 })
 export class ProductsViewAllComponent {
   // --- Dependency Injection ---
-  private _scannerService = inject(ScannerService);
   private _apiService = inject(ApiService);
   private _loginedUserService = inject(LoginedUserService);
   private _messageService = inject(MessageService);
-
-  // --- Scanner Configuration ---
-  @ViewChild('action') scanner!: NgxScannerQrcodeComponent;
-  public config = this._scannerService.config;
-  public isScannerVisible = false;
 
   // --- State Management (Signals) ---
   searchResult = signal<any[]>([]);
@@ -70,7 +66,7 @@ export class ProductsViewAllComponent {
   productImageUrl = signal<string>('');
   isImageFound = signal<boolean>(false);
   isUploading = signal<string>('Upload');
-  
+
   // --- Component Variables ---
   loginedUser = this._loginedUserService.getUserName();
   visible: boolean = false; // CSV upload dialog
@@ -85,28 +81,10 @@ export class ProductsViewAllComponent {
     csv_file: new FormControl<File | null>(null, Validators.required),
   });
 
-  // --- Scanner Logic ---
-  public onScanSuccess(event: ScannerQRCodeResult[]) {
-    const result = this._scannerService.handleScanEvent(event);
-    if (result) {
-      this.lastScanned = result;
-      this.searchFrom.patchValue({ jewel_code: result });
-      this.search(); // Execute search immediately
-      this.isScannerVisible = false; // Close scanner modal
-      if (this.scanner) this.scanner.stop();
-    }
-  }
-
-  public toggleCamera() {
-    const devices = this.scanner.devices.value;
-    const currentId = (this.scanner as any)._deviceId;
-    const nextId = this._scannerService.getNextDevice(devices, currentId);
-    this.scanner.playDevice(nextId);
-  }
-
   // --- Search & Image Logic ---
   search() {
-    const searchValue = this.searchFrom.get('jewel_code')?.value || this.lastScanned;
+    const searchValue =
+      this.searchFrom.get('jewel_code')?.value || this.lastScanned;
     if (!searchValue) return;
 
     const term = searchValue.toUpperCase().trim();
@@ -126,13 +104,13 @@ export class ProductsViewAllComponent {
           this.searchResult.set(Array.isArray(res) ? res : [res]);
         }
       },
-      error: (err) => console.error('Search API Error:', err)
+      error: (err) => console.error('Search API Error:', err),
     });
   }
 
   private handleImageLookup(code: string) {
     let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
-    
+
     // Jewelry Specific Prefix Logic
     if (/^DB[1-8]/i.test(code)) {
       prefix = code.substring(0, 3).toUpperCase();
@@ -164,13 +142,17 @@ export class ProductsViewAllComponent {
   }
 
   getTotalStoneAmount(stones: any[]): number {
-    return (stones || []).reduce((total, s) => total + (s.colour_stone_amt || 0), 0);
+    return (stones || []).reduce(
+      (total, s) => total + (s.colour_stone_amt || 0),
+      0,
+    );
   }
 
   getMakingChargeAmount(item: any): number {
-    const materialSubtotal = (item.metal_amt || 0) + 
-                             this.getTotalDiamondAmount(item.diamonds) + 
-                             this.getTotalStoneAmount(item.stones);
+    const materialSubtotal =
+      (item.metal_amt || 0) +
+      this.getTotalDiamondAmount(item.diamonds) +
+      this.getTotalStoneAmount(item.stones);
 
     if (item.making_charge) {
       return (materialSubtotal * item.making_charge) / 100;
@@ -181,19 +163,24 @@ export class ProductsViewAllComponent {
   }
 
   getGrandTotal(item: any): number {
-    const materials = (item.metal_amt || 0) + 
-                      this.getTotalDiamondAmount(item.diamonds) + 
-                      this.getTotalStoneAmount(item.stones);
+    const materials =
+      (item.metal_amt || 0) +
+      this.getTotalDiamondAmount(item.diamonds) +
+      this.getTotalStoneAmount(item.stones);
     const making = this.getMakingChargeAmount(item);
     const subtotal = materials + making;
-    return subtotal + (subtotal * 0.03); // Total + 3% GST
+    return subtotal + subtotal * 0.03; // Total + 3% GST
   }
 
   // --- CSV File Operations ---
   onFileChange(event: any) {
     const file = event.files[0];
     if (!file || !file.name.endsWith('.csv')) {
-      this._messageService.add({ severity: 'error', summary: 'Invalid File', detail: 'CSV only' });
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Invalid File',
+        detail: 'CSV only',
+      });
       return;
     }
     this.selectedFile = file;
@@ -208,15 +195,23 @@ export class ProductsViewAllComponent {
 
     this._apiService.uploadCsvFile(formData).subscribe({
       next: (res: any) => {
-        this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Imported successfully' });
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Imported successfully',
+        });
         this.isUploading.set('Upload');
         this.visible = false;
         this.selectedFile = null;
       },
       error: (err) => {
-        this._messageService.add({ severity: 'error', summary: 'Failed', detail: 'Check CSV format' });
+        this._messageService.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: 'Check CSV format',
+        });
         this.isUploading.set('Upload');
-      }
+      },
     });
   }
 }

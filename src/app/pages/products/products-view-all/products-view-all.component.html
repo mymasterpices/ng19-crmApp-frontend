@@ -1,22 +1,24 @@
 <div class="flex justify-between items-center mb-4">
   <h2 class="text-xl font-semibold">Find Product</h2>
   <div class="flex gap-2">
-    @if (loginedUser === 'admin' || loginedUser === 'superadmin') {
-    <p-button 
-      icon="pi pi-upload" 
-      (onClick)="visible = true" 
-      severity="secondary" 
-      label="Upload" 
-      size="small">
-    </p-button>
+    @if (loginedUser === "admin" || loginedUser === "superadmin") {
+      <p-button
+        icon="pi pi-upload"
+        (onClick)="visible = true"
+        severity="secondary"
+        label="Upload"
+        size="small"
+      >
+      </p-button>
     }
 
-    <p-button 
-      icon="pi pi-hourglass" 
-      routerLink="/products/compare" 
-      severity="contrast" 
-      label="Compare" 
-      size="small">
+    <p-button
+      icon="pi pi-hourglass"
+      routerLink="/products/compare"
+      severity="contrast"
+      label="Compare"
+      size="small"
+    >
     </p-button>
   </div>
 </div>
@@ -31,28 +33,34 @@
               <i class="pi pi-search"></i>
             </p-inputGroupAddon>
 
-            <input 
-              type="text" 
-              pInputText 
-              placeholder="Enter tag no." 
-              formControlName="jewel_code" 
+            <input
+              type="text"
+              pInputText
+              placeholder="Enter tag no."
+              formControlName="jewel_code"
               class="w-full"
-              (change)="search()" 
+              (change)="search()"
             />
 
-            <p-inputGroupAddon>
-              <p-button 
-                icon="pi pi-camera" 
-                [text]="true" 
-                severity="contrast" 
-                (onClick)="isScannerVisible = true">
+            <!-- <p-inputGroupAddon>
+              <p-button
+                icon="pi pi-camera"
+                [text]="true"
+                severity="contrast"
+                (onClick)="isScannerVisible = true"
+              >
               </p-button>
-            </p-inputGroupAddon>
+            </p-inputGroupAddon> -->
           </p-inputGroup>
 
-          @if (searchFrom.controls['jewel_code'].touched && searchFrom.controls['jewel_code'].hasError('required')) {
+          @if (
+            searchFrom.controls["jewel_code"].touched &&
+            searchFrom.controls["jewel_code"].hasError("required")
+          ) {
             <p class="text-center mt-1">
-              <small class="text-red-600">Tag number is required or try scanner</small>
+              <small class="text-red-600"
+                >Tag number is required or try scanner</small
+              >
             </p>
           }
         </div>
@@ -62,88 +70,124 @@
 
   <div class="w-full md:w-5/7 py-4">
     @for (item of searchResult(); track item.jewel_code) {
-    <p-card styleClass="mb-4">
-      <div class="flex flex-col md:flex-row gap-6 relative">
-        <div class="w-full md:w-[200px] flex-shrink-0">
-          <a [routerLink]="['/view-details', item.jewel_code]">
-            @if (isImageFound()) {
-              <img [src]="productImageUrl()" [alt]="item.jewel_code" class="rounded-2xl w-full h-auto shadow-md" />
-            } @else {
-              <div class="bg-gray-100 rounded-2xl flex items-center justify-center aspect-square border-2 border-dashed border-gray-300">
-                <i class="pi pi-image text-gray-400 text-4xl"></i>
-              </div>
-            }
-          </a>
-        </div>
-
-        <div class="flex-1">
-          <div class="flex justify-between items-start mb-3">
-            <h3 class="text-lg font-bold uppercase">
-              {{ item.product_category }} - {{ item.sub_category }}
-            </h3>
-            <span class="p-tag p-tag-info font-mono text-sm">{{ item.jewel_code }}</span>
-          </div>
-
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between border-b pb-1">
-              <span class="text-gray-600 font-semibold">Net / Gross Wt:</span>
-              <span>{{ item.net_wt }}g / {{ item.gross_wt }}g</span>
-            </div>
-
-            @if (item.diamonds?.length) {
-              <div class="bg-blue-50 p-2 rounded-lg">
-                <span class="text-xs font-bold text-blue-700 block mb-1">DIAMONDS</span>
-                @for (dia of item.diamonds; track $index) {
-                  <div class="flex justify-between text-xs mb-1">
-                    <span>{{ dia.weight }} Cts ({{ dia.diamond_colour || dia.quality_code }})</span>
-                    <span>₹{{ dia.amount | number:'1.2-2' }}</span>
-                  </div>
-                }
-                <div class="flex justify-between border-t border-blue-200 mt-1 pt-1 font-bold">
-                  <span>Dia Total:</span>
-                  <span>₹{{ getTotalDiamondAmount(item.diamonds) | number:'1.2-2' }}</span>
+      <p-card styleClass="mb-4">
+        <div class="flex flex-col md:flex-row gap-6 relative">
+          <div class="w-full md:w-[200px] flex-shrink-0">
+            <a [routerLink]="['/view-details', item.jewel_code]">
+              @if (isImageFound()) {
+                <img
+                  [src]="productImageUrl()"
+                  [alt]="item.jewel_code"
+                  class="rounded-2xl w-full h-auto shadow-md"
+                />
+              } @else {
+                <div
+                  class="bg-gray-100 rounded-2xl flex items-center justify-center aspect-square border-2 border-dashed border-gray-300"
+                >
+                  <i class="pi pi-image text-gray-400 text-4xl"></i>
                 </div>
-              </div>
-            }
+              }
+            </a>
+          </div>
 
-            @if (item.stones?.length) {
-              <div class="bg-purple-50 p-2 rounded-lg">
-                <span class="text-xs font-bold text-purple-700 block mb-1">COLOUR STONES</span>
-                @for (stone of item.stones; track $index) {
-                  <div class="flex justify-between text-xs">
-                    <span>{{ stone.colour_stone_wt }} Cts</span>
-                    <span>₹{{ stone.colour_stone_amt | number:'1.2-2' }}</span>
+          <div class="flex-1">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-bold uppercase">
+                {{ item.product_category }} - {{ item.sub_category }}
+              </h3>
+              <span class="p-tag p-tag-info font-mono text-sm">{{
+                item.jewel_code
+              }}</span>
+            </div>
+
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between border-b pb-1">
+                <span class="text-gray-600 font-semibold">Net / Gross Wt:</span>
+                <span>{{ item.net_wt }}g / {{ item.gross_wt }}g</span>
+              </div>
+
+              @if (item.diamonds?.length) {
+                <div class="bg-blue-50 p-2 rounded-lg">
+                  <span class="text-xs font-bold text-blue-700 block mb-1"
+                    >DIAMONDS</span
+                  >
+                  @for (dia of item.diamonds; track $index) {
+                    <div class="flex justify-between text-xs mb-1">
+                      <span
+                        >{{ dia.weight }} Cts ({{
+                          dia.diamond_colour || dia.quality_code
+                        }})</span
+                      >
+                      <span>₹{{ dia.amount | number: "1.2-2" }}</span>
+                    </div>
+                  }
+                  <div
+                    class="flex justify-between border-t border-blue-200 mt-1 pt-1 font-bold"
+                  >
+                    <span>Dia Total:</span>
+                    <span
+                      >₹{{
+                        getTotalDiamondAmount(item.diamonds) | number: "1.2-2"
+                      }}</span
+                    >
                   </div>
-                }
+                </div>
+              }
+
+              @if (item.stones?.length) {
+                <div class="bg-purple-50 p-2 rounded-lg">
+                  <span class="text-xs font-bold text-purple-700 block mb-1"
+                    >COLOUR STONES</span
+                  >
+                  @for (stone of item.stones; track $index) {
+                    <div class="flex justify-between text-xs">
+                      <span>{{ stone.colour_stone_wt }} Cts</span>
+                      <span
+                        >₹{{ stone.colour_stone_amt | number: "1.2-2" }}</span
+                      >
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="flex justify-between border-b pb-1">
+                <span class="text-gray-600 font-semibold">Making Charge:</span>
+                <span>
+                  {{ item.making_charge ? item.making_charge + "%" : "Fixed" }}
+                  (₹{{ getMakingChargeAmount(item) | number: "1.2-2" }})
+                </span>
               </div>
-            }
 
-            <div class="flex justify-between border-b pb-1">
-              <span class="text-gray-600 font-semibold">Making Charge:</span>
-              <span>
-                {{ item.making_charge ? item.making_charge + '%' : 'Fixed' }} 
-                (₹{{ getMakingChargeAmount(item) | number:'1.2-2' }})
-              </span>
-            </div>
+              <div class="flex justify-between text-gray-600">
+                <span>GST (3%):</span>
+                <span
+                  >₹{{
+                    getGrandTotal(item) -
+                      (getMakingChargeAmount(item) +
+                        item.metal_amt +
+                        getTotalDiamondAmount(item.diamonds) +
+                        getTotalStoneAmount(item.stones)) | number: "1.2-2"
+                  }}</span
+                >
+              </div>
 
-            <div class="flex justify-between text-gray-600">
-              <span>GST (3%):</span>
-              <span>₹{{ (getGrandTotal(item) - (getMakingChargeAmount(item) + item.metal_amt + getTotalDiamondAmount(item.diamonds) + getTotalStoneAmount(item.stones))) | number:'1.2-2' }}</span>
-            </div>
-
-            <div class="flex justify-between items-center bg-gray-900 text-white p-3 rounded-xl mt-4">
-              <span class="font-bold">Grand Total (Inc. GST)</span>
-              <span class="text-lg font-bold">₹{{ getGrandTotal(item) | number:'1.2-2' }}/-</span>
+              <div
+                class="flex justify-between items-center bg-gray-900 text-white p-3 rounded-xl mt-4"
+              >
+                <span class="font-bold">Grand Total (Inc. GST)</span>
+                <span class="text-lg font-bold"
+                  >₹{{ getGrandTotal(item) | number: "1.2-2" }}/-</span
+                >
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </p-card>
+      </p-card>
     }
   </div>
 </section>
 
-<p-dialog 
+<!-- <p-dialog 
   [(visible)]="isScannerVisible" 
   header="Scan Product QR" 
   [modal]="true" 
@@ -165,29 +209,33 @@
       </div>
     </div>
   }
-</p-dialog>
+</p-dialog> -->
 
-<p-dialog 
-  header="Import Products (CSV)" 
-  [modal]="true" 
-  [(visible)]="visible" 
+<p-dialog
+  header="Import Products (CSV)"
+  [modal]="true"
+  [(visible)]="visible"
   styleClass="w-full md:w-[400px]"
 >
-  <form [formGroup]="csvForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-    <p-fileUpload 
-      mode="basic" 
-      [customUpload]="true" 
-      (onSelect)="onFileChange($event)" 
-      accept=".csv" 
-      chooseLabel="Pick CSV File" 
+  <form
+    [formGroup]="csvForm"
+    (ngSubmit)="onSubmit()"
+    class="flex flex-col gap-4"
+  >
+    <p-fileUpload
+      mode="basic"
+      [customUpload]="true"
+      (onSelect)="onFileChange($event)"
+      accept=".csv"
+      chooseLabel="Pick CSV File"
       chooseIcon="pi pi-file-excel"
       styleClass="w-full"
     ></p-fileUpload>
 
-    <p-button 
-      type="submit" 
-      [label]="isUploading()" 
-      severity="contrast" 
+    <p-button
+      type="submit"
+      [label]="isUploading()"
+      severity="contrast"
       [disabled]="!selectedFile || isUploading() !== 'Upload'"
       styleClass="w-full"
     ></p-button>
