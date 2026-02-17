@@ -8,6 +8,7 @@ import { ChartModule } from 'primeng/chart';
 import { RouterLink } from '@angular/router';
 import { SharevideosService } from '../../services/sharevideos.service';
 import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
+import { HttpParams } from '@angular/common/http';
 
 interface FootEntry {
   username: string;
@@ -35,8 +36,10 @@ export class OverviewComponent implements OnInit {
   private _logginedUserService = inject(LoginedUserService);
   private _apiServices = inject(ApiService);
   private _shareVideoService = inject(SharevideosService);
-  //declare variables
+
+  //Declear variabes
   userName = this._logginedUserService.getUserName();
+  userRole = this._logginedUserService.getUserRole();
   today: Date = new Date();
 
   customers: any = [];
@@ -47,8 +50,12 @@ export class OverviewComponent implements OnInit {
   //count today's followup
   todaysFollow = '';
   missedFollow = '';
-
   failedCount = '';
+
+  //videos stactics
+  sharedLinks = '';
+  sharedCount = '';
+  selectionCount = '';
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -66,7 +73,17 @@ export class OverviewComponent implements OnInit {
 
   //missed's follow
   countMissedFollowup() {
-    this._apiServices.missedFollowupCustomers().subscribe({
+    const user = this.userName;
+    const role = this.userRole;
+    let params = new HttpParams();
+
+    if (role !== 'admin' && role !== 'superadmin') {
+      params = params.set('salesperson', user);
+    } else {
+      console.log('Admin access: Fetching all records');
+    }
+
+    this._apiServices.missedFollowupCustomers(params).subscribe({
       next: (res: any) => {
         console.log('Missed customer:', res);
         this.missedFollow = res;
@@ -79,7 +96,16 @@ export class OverviewComponent implements OnInit {
 
   //up-comming followup
   countTodaysfollowUp() {
-    this._apiServices.todayFollowupCustomers().subscribe({
+    const user = this.userName;
+    const role = this.userRole;
+    let params = new HttpParams();
+
+    if (role !== 'admin' && role !== 'superadmin') {
+      params = params.set('salesperson', user);
+    } else {
+      console.log('Admin access: Fetching all records');
+    }
+    this._apiServices.todayFollowupCustomers(params).subscribe({
       next: (res: any) => {
         console.log('Missed customer:', res);
         this.todaysFollow = res;
@@ -91,7 +117,17 @@ export class OverviewComponent implements OnInit {
   }
 
   loadCustomers() {
-    this._apiServices.getAllcustomers().subscribe({
+    const user = this.userName;
+    const role = this.userRole;
+    let params = new HttpParams();
+
+    if (role !== 'admin' && role !== 'superadmin') {
+      params = params.set('salesperson', user);
+    } else {
+      console.log('Admin access: Fetching all records');
+    }
+
+    this._apiServices.getAllcustomers(params).subscribe({
       next: (res) => {
         this.customers = res;
         this.prepareChart();
@@ -99,7 +135,7 @@ export class OverviewComponent implements OnInit {
 
         //count failed customer
         this.failedCount = this.customers.filter(
-          (c: any) => c.status === 'Failed'
+          (c: any) => c.status === 'Failed',
         ).length;
         console.log('Failed customers:', this.failedCount);
       },
@@ -171,11 +207,6 @@ export class OverviewComponent implements OnInit {
       ],
     };
   }
-
-  //videos stactics
-  sharedLinks = '';
-  sharedCount = '';
-  selectionCount = '';
 
   countVideoFunc() {
     this._shareVideoService.getAllVideos().subscribe({

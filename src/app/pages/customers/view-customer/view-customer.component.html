@@ -2,7 +2,7 @@
   <!-- Customer Chat History Card -->
   <p-card>
     <ng-template pTemplate="header">
-      <div class="flex justify-between items-center w-full px-4 pt-2]">
+      <div class="flex justify-between items-center w-full px-4 pt-2">
         <span class="text-lg font-semibold">
           {{ customerData?.customerId?.name | titlecase }}
         </span>
@@ -10,7 +10,7 @@
         <div class="flex items-center gap-2">
           <p-avatar
             [image]="backedAppUrl + `/${customerContactInfo?.productImage}`"
-            [shape]="'circle'"
+            [shape]="'square'"
             class="mr-1"
             (click)="viewLargeProductImage()"
           ></p-avatar>
@@ -160,7 +160,7 @@
 
     @for (chat of customerData?.messages; track chat._id) {
       <div
-        class="bg-gray-100 text-emerald-50 dark:bg-gray-800 px-2 py-2 mb-2 rounded-xl shadow-sm dark:border-none"
+        class="bg-gray-200 text-emerald-50 dark:bg-gray-950 px-3 py-3 mb-2 rounded-xl shadow-sm dark:border-none"
       >
         <div class="flex gap-1 items-center justify-between">
           <span class="text-sm font-normal text-gray-800 dark:text-gray-100">

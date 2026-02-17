@@ -87,10 +87,10 @@
           <li>
             <a
               (click)="drawerNavigation = false"
-              class="flex items-center p-2 w-full"
-              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-90 group w-full"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
               routerLink="/overview"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 ">
+              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+            >
               <span class="flex-1 text-left">
                 <i class="pi pi-th-large px-2"></i>
                 Overview</span
@@ -104,8 +104,7 @@
             (click)="drawerNavigation = false"
             routerLinkActive="dark:bg-gray-700 bg-gray-200 "
             routerLink="/customers/view-all"
-            class="flex items-center p-2 w-full"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
           >
             <span class="flex-1 text-left">
               <i class="pi pi-users px-2"></i>
@@ -121,7 +120,7 @@
             routerLink="/followup/todays"
             class="flex items-center p-2 w-full"
             (click)="toggleMenu('followup')"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
           >
             <span class="flex-1 text-left">
               <i class="pi pi-replay px-2"></i>
@@ -138,7 +137,7 @@
             routerLink="/products/view-all"
             class="flex items-center p-2 w-full"
             (click)="toggleMenu('products')"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
           >
             <span class="flex-1 text-left">
               <i class="pi pi-database px-2"></i>
@@ -155,7 +154,7 @@
             routerLink="/videos/view-all"
             class="flex items-center p-2 w-full"
             (click)="toggleMenu('videos')"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
           >
             <span class="flex-1 text-left">
               <i class="pi pi-video px-2"></i>
@@ -175,7 +174,7 @@
             routerLinkActive="dark:bg-gray-700 bg-gray-200 "
             class="flex items-center p-2 w-full"
             (click)="toggleMenu('soldItems')"
-            class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
           >
             <span class="flex-1 text-left">
               <i class="pi pi-chart-scatter px-2"></i>
@@ -191,7 +190,7 @@
               routerLink="footfall/show-footfall"
               routerLinkActive="dark:bg-gray-700 bg-gray-200 "
               class="flex items-center p-2 w-full"
-              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-arrow-right-arrow-left px-2"></i>
@@ -201,19 +200,19 @@
           </li>
         }
         <li>
-            <a
-              (click)="drawerNavigation = false"
-              routerLink="orders/order-dashboard"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-              class="flex items-center p-2 w-full"
-              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+          <a
+            (click)="drawerNavigation = false"
+            routerLink="orders/order-dashboard"
+            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+            class="flex items-center p-2 w-full"
+            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
+          >
+            <span class="flex-1 text-left">
+              <i class="pi pi-inbox px-2"></i>
+              Orders</span
             >
-              <span class="flex-1 text-left">
-                <i class="pi pi-inbox px-2"></i>
-                Orders</span
-              >
-            </a>
-          </li>
+          </a>
+        </li>
         <!--users items  -->
         @if (userRole == "superadmin") {
           <li>
@@ -223,7 +222,7 @@
               routerLink="/all-users"
               class="flex items-center p-2 w-full"
               (click)="toggleMenu('users')"
-              class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-user px-2"></i>
