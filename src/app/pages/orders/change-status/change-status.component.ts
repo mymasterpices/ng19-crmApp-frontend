@@ -147,7 +147,17 @@ export class ChangeStatusComponent implements OnInit {
 
   orderStatusListfunc() {
     this._orderService.getStatusList().subscribe({
-      next: (res: any) => (this.orderStatuslist = res),
+      next: (res: any[]) => {
+        // 1. Define what to exclude
+        const toExclude = ['WIP', 'dispatched'];
+
+        // 2. Filter and store in your property
+        this.orderStatuslist = res.filter(
+          (status) => !toExclude.includes(status.name.toLowerCase()),
+        );
+
+        console.log('Filtered Statuses:', this.orderStatuslist);
+      },
       error: (err) => console.log('Status list error', err),
     });
   }

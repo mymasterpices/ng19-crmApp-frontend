@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { SharevideosService } from '../../services/sharevideos.service';
 import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
 import { HttpParams } from '@angular/common/http';
+import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
 
 interface FootEntry {
   username: string;
@@ -28,6 +29,7 @@ interface FootEntry {
     ChartModule,
     RouterLink,
     FootfaloverviewComponent,
+    KarigarDashboardComponent,
   ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
@@ -47,7 +49,7 @@ export class OverviewComponent implements OnInit {
   chartOptions: any;
   seriousnessChartData: any;
 
-  //count today's followup
+//count today's followup
   todaysFollow = '';
   missedFollow = '';
   failedCount = '';
@@ -58,17 +60,19 @@ export class OverviewComponent implements OnInit {
   selectionCount = '';
 
   ngOnInit(): void {
-    this.loadCustomers();
-    this.createSeriousnessChart();
+    if (this.userRole != 'karigar') {
+      this.loadCustomers();
+      this.createSeriousnessChart();
 
-    //missed customer
-    this.countMissedFollowup();
-    this.countTodaysfollowUp();
+      //missed customer
+      this.countMissedFollowup();
+      this.countTodaysfollowUp();
 
-    //video
-    this.countVideoFunc();
-    this.countShareFunc();
-    this.countSelectionFunc();
+      //video
+      this.countVideoFunc();
+      this.countShareFunc();
+      this.countSelectionFunc();
+    }
   }
 
   //missed's follow

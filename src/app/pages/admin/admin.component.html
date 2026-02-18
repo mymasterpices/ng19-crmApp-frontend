@@ -83,153 +83,142 @@
   >
     <div class="py-5 px-3 h-full bg-white dark:bg-gray-950">
       <ul class="space-y-2">
-        @if (userRole !== "user") {
+        @if (userRole === "karigar") {
           <li>
             <a
               (click)="drawerNavigation = false"
-              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
+              routerLink="/karigar/karigar-dashboard"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-th-large px-2"></i> Dashboard
+              </span>
+            </a>
+          </li>
+        } @else {
+          <li>
+            <a
+              (click)="drawerNavigation = false"
               routerLink="/overview"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
             >
               <span class="flex-1 text-left">
-                <i class="pi pi-th-large px-2"></i>
-                Overview</span
-              >
+                <i class="pi pi-th-large px-2"></i> Overview
+              </span>
             </a>
           </li>
-        }
-        <!-- Customers -->
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            routerLink="/customers/view-all"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-users px-2"></i>
-              Customers</span
-            >
-          </a>
-        </li>
-        <!-- follow up link -->
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            routerLink="/followup/todays"
-            class="flex items-center p-2 w-full"
-            (click)="toggleMenu('followup')"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-replay px-2"></i>
-              Follow-up</span
-            >
-          </a>
-        </li>
-
-        <!--prodcuts  -->
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            routerLink="/products/view-all"
-            class="flex items-center p-2 w-full"
-            (click)="toggleMenu('products')"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-database px-2"></i>
-              Products</span
-            >
-          </a>
-        </li>
-
-        <!--videos shared  -->
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            routerLink="/videos/view-all"
-            class="flex items-center p-2 w-full"
-            (click)="toggleMenu('videos')"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-video px-2"></i>
-              Videos</span
-            >
-          </a>
-        </li>
-      </ul>
-      <ul
-        class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700"
-      >
-        <!--sold items  -->
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLink="sold-items/sold-items"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            class="flex items-center p-2 w-full"
-            (click)="toggleMenu('soldItems')"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-chart-scatter px-2"></i>
-              Sold Items</span
-            >
-          </a>
-        </li>
-
-        @if (userRole !== "user") {
           <li>
             <a
               (click)="drawerNavigation = false"
-              routerLink="footfall/show-footfall"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-              class="flex items-center p-2 w-full"
-              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
+              routerLink="/customers/view-all"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
             >
               <span class="flex-1 text-left">
-                <i class="pi pi-arrow-right-arrow-left px-2"></i>
-                Footfall</span
-              >
+                <i class="pi pi-users px-2"></i> Customers
+              </span>
             </a>
           </li>
-        }
-        <li>
-          <a
-            (click)="drawerNavigation = false"
-            routerLink="orders/order-dashboard"
-            routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-            class="flex items-center p-2 w-full"
-            class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
-          >
-            <span class="flex-1 text-left">
-              <i class="pi pi-inbox px-2"></i>
-              Orders</span
-            >
-          </a>
-        </li>
-        <!--users items  -->
-        @if (userRole == "superadmin") {
+
           <li>
             <a
-              (click)="drawerNavigation = false"
-              routerLinkActive="dark:bg-gray-700 bg-gray-200 "
-              routerLink="/all-users"
-              class="flex items-center p-2 w-full"
-              (click)="toggleMenu('users')"
-              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 group w-full"
+              (click)="drawerNavigation = false; toggleMenu('followup')"
+              routerLink="/followup/todays"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
             >
               <span class="flex-1 text-left">
-                <i class="pi pi-user px-2"></i>
-                Users</span
-              >
+                <i class="pi pi-replay px-2"></i> Follow-up
+              </span>
             </a>
           </li>
+
+          <li>
+            <a
+              (click)="drawerNavigation = false; toggleMenu('products')"
+              routerLink="/products/view-all"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-database px-2"></i> Products
+              </span>
+            </a>
+          </li>
+
+          <li>
+            <a
+              (click)="drawerNavigation = false; toggleMenu('videos')"
+              routerLink="/videos/view-all"
+              routerLinkActive="dark:bg-gray-700 bg-gray-200"
+              class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-video px-2"></i> Videos
+              </span>
+            </a>
+          </li>
+          <ul
+            class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700"
+          >
+            <li>
+              <a
+                (click)="drawerNavigation = false; toggleMenu('soldItems')"
+                routerLink="sold-items/sold-items"
+                routerLinkActive="dark:bg-gray-700 bg-gray-200"
+                class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              >
+                <span class="flex-1 text-left">
+                  <i class="pi pi-chart-scatter px-2"></i> Sold Items
+                </span>
+              </a>
+            </li>
+
+            @if (userRole !== "user") {
+              <li>
+                <a
+                  (click)="drawerNavigation = false"
+                  routerLink="footfall/show-footfall"
+                  routerLinkActive="dark:bg-gray-700 bg-gray-200"
+                  class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+                >
+                  <span class="flex-1 text-left">
+                    <i class="pi pi-arrow-right-arrow-left px-2"></i> Footfall
+                  </span>
+                </a>
+              </li>
+            }
+
+            <li>
+              <a
+                (click)="drawerNavigation = false"
+                routerLink="orders/order-dashboard"
+                routerLinkActive="dark:bg-gray-700 bg-gray-200"
+                class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+              >
+                <span class="flex-1 text-left">
+                  <i class="pi pi-inbox px-2"></i> Orders
+                </span>
+              </a>
+            </li>
+
+            @if (userRole === "superadmin") {
+              <li>
+                <a
+                  (click)="drawerNavigation = false; toggleMenu('users')"
+                  routerLink="/all-users"
+                  routerLinkActive="dark:bg-gray-700 bg-gray-200"
+                  class="flex items-center p-2 text-base text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group w-full"
+                >
+                  <span class="flex-1 text-left">
+                    <i class="pi pi-user px-2"></i> Users
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
         }
       </ul>
     </div>
@@ -245,7 +234,10 @@
           />
           <div class="username">
             <h2 class="font-bold">Welcome! 👋</h2>
-            <p>{{ userName | titlecase }}</p>
+            <p class="text-sm">
+              {{ userName | titlecase }}-
+              <small class="text-[10px]">{{ userRole | titlecase }}</small>
+            </p>
           </div>
         </div>
         <div class="flex">

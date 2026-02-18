@@ -33,6 +33,7 @@ import { OrderDetailComponent } from './pages/orders/order-detail/order-detail.c
 import { ChangeStatusComponent } from './pages/orders/change-status/change-status.component';
 import { OrderReportComponent } from './pages/orders/order-report/order-report.component';
 import { EditOrderComponent } from './pages/orders/edit-order/edit-order.component';
+import { KarigarDashboardComponent } from './pages/karigar/karigar-dashboard/karigar-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -89,6 +90,13 @@ export const routes: Routes = [
       { path: 'orders/change-status', component: ChangeStatusComponent },
       { path: 'orders/order-report', component: OrderReportComponent },
       { path: 'orders/edit-order/:id', component: EditOrderComponent },
+      //karigar routes
+      {
+        path: 'karigar/karigar-dashboard',
+        component: KarigarDashboardComponent,
+        canActivate: [rolecheckGuard],
+        data: { expectedRole: 'karigar' },
+      },
     ],
   },
   {

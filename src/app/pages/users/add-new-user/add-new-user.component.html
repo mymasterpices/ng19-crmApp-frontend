@@ -1,72 +1,76 @@
-<p-card>
-  <form
-    action=""
-    [formGroup]="addNewSalesman"
-    (ngSubmit)="onSubmit()"
-    class="p-2"
-  >
-    <div class="grid grid-cols-1 gap-4">
-      <p-floatlabel variant="on">
-        <input
-          pInputText
-          id="value3"
-          class="ng-dirty ng-invalid"
-          class="w-full"
-          formControlName="username"
-          autocomplete="off"
-        />
-        <label for="value3">Username</label>
+<form
+  action=""
+  [formGroup]="addNewSalesman"
+  (ngSubmit)="onSubmit()"
+  class="p-2"
+>
+  <div class="grid grid-cols-1 gap-4">
+    <p-floatlabel variant="on">
+      <input
+        pInputText
+        id="value3"
+        class="ng-dirty ng-invalid"
+        class="w-full"
+        formControlName="username"
+        autocomplete="off"
+      />
+      <label for="value3">Username</label>
 
-        @if(addNewSalesman.controls['username'].hasError('required') &&
-        addNewSalesman.controls['username'].touched) {
+      @if (
+        addNewSalesman.controls["username"].hasError("required") &&
+        addNewSalesman.controls["username"].touched
+      ) {
         <small class="text-red-400 pl-1 block relative"
           >Username is required.</small
         >
-        } @if(addNewSalesman.controls['username'].hasError('minlength')){
+      }
+      @if (addNewSalesman.controls["username"].hasError("minlength")) {
         <small class="text-red-400 pl-1 block relative"
           >Username must be at least 3 characters.</small
         >
-        }
-      </p-floatlabel>
-      <p-floatlabel variant="on">
-        <p-password
-          [feedback]="false"
-          toggleMask="true"
-          id="value3"
-          class="w-full"
-          styleClass="w-full "
-          inputStyleClass="w-full"
-          formControlName="password"
-          autocomplete="off"
-        />
-        <label for="value3">Password</label>
-        @if(addNewSalesman.controls['password'].hasError('required') &&
-        addNewSalesman.controls['password'].touched) {
+      }
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-password
+        [feedback]="false"
+        toggleMask="true"
+        id="value3"
+        class="w-full"
+        styleClass="w-full "
+        inputStyleClass="w-full"
+        formControlName="password"
+        autocomplete="off"
+      />
+      <label for="value3">Password</label>
+      @if (
+        addNewSalesman.controls["password"].hasError("required") &&
+        addNewSalesman.controls["password"].touched
+      ) {
         <small class="text-red-400 pl-1 block relative"
           >Password is required.</small
         >
-        } @if(addNewSalesman.controls['password'].hasError('minlength')){
+      }
+      @if (addNewSalesman.controls["password"].hasError("minlength")) {
         <small class="text-red-400 pl-1 block relative"
           >Password must be at least 3 characters.</small
         >
-        }
-      </p-floatlabel>
-      <p-floatlabel>
-        <p-select
-          [options]="roles"
-          optionLabel="name"
-          value="name"
-          formControlName="role"
-          class="w-full"
-        />
-      </p-floatlabel>
-      <p-button
-        label="Save"
-        styleClass="w-full "
-        type="submit"
-        icon="pi pi-save"
-        severity="contrast"
-      ></p-button>
-    </div>
-  </form>
-</p-card>
+      }
+    </p-floatlabel>
+    <p-floatlabel>
+      <p-select
+        [options]="roles"
+        optionLabel="name"
+        value="name"
+        formControlName="role"
+        class="w-full"
+      />
+    </p-floatlabel>
+    <p-button
+      label="Save"
+      styleClass="w-full "
+      type="submit"
+      icon="pi pi-save"
+      severity="contrast"
+    ></p-button>
+  </div>
+</form>

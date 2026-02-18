@@ -1,25 +1,31 @@
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { AccordionModule } from 'primeng/accordion';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { CardModule } from 'primeng/card';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ImageModule } from 'primeng/image';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { OrderServices } from '../../../services/orders/order-services';
-import { HttpParams } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
-import { PopoverModule } from 'primeng/popover';
-import { PaginatorModule } from 'primeng/paginator';
+import { LoginedUserService } from '../../../services/logined-user.service';
 import { MessageService } from 'primeng/api';
-import { __param } from 'tslib';
+import { HttpParams } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
+import { environment } from '../../../../environments/environment';
+import { Card, CardModule } from 'primeng/card';
+import { Paginator, PaginatorModule } from 'primeng/paginator';
+import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import {
+  AccordionContent,
+  AccordionHeader,
+  Accordion,
+  AccordionModule,
+} from 'primeng/accordion';
+import { Popover, PopoverModule } from 'primeng/popover';
+import { Tag, TagModule } from 'primeng/tag';
+import { ButtonModule } from 'primeng/button';
+import { ImageModule } from 'primeng/image';
+import { IconField, IconFieldModule } from 'primeng/iconfield';
+import { InputIcon, InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SharevideosService } from '../../../services/sharevideos.service';
 
 @Component({
-  selector: 'app-all-orders',
+  selector: 'app-karigar-dashboard',
   imports: [
     CommonModule,
     ButtonModule,
@@ -32,17 +38,32 @@ import { ShareOrderService } from '../../../services/orders/share-order.service'
     ImageModule,
     PopoverModule,
     PaginatorModule,
+    DatePipe,
+    TitleCasePipe,
+    PaginatorModule,
   ],
-  templateUrl: './all-orders.component.html',
-  styleUrl: './all-orders.component.css',
+  templateUrl: './karigar-dashboard.component.html',
+  styleUrl: './karigar-dashboard.component.css',
 })
-export class AllOrdersComponent implements OnInit {
+export class KarigarDashboardComponent implements OnInit {
+  //Dependancy injection
+  private _messageService = inject(MessageService);
+  private _logginedUserService = inject(LoginedUserService);
   private _orderServices = inject(OrderServices);
   private _router = inject(Router);
-  private _messageService = inject(MessageService);
+  private _activeRouter = inject(ActivatedRoute);
   private _shareOrderService = inject(ShareOrderService);
 
-  private _route = inject(ActivatedRoute);
+  userRole = this._logginedUserService.getUserRole();
+  userName = this._logginedUserService.getUserName();
+
+  myOrder = signal<any[]>([]);
+
+  // ngOnInit(): void {
+  //   this.getAssignedOrder();
+  // }
+
+  //show all orders with search
 
   orders: any[] = [];
   pagedOrders: any[] = [];
@@ -53,16 +74,8 @@ export class AllOrdersComponent implements OnInit {
   totalrecords: number = 0;
 
   ngOnInit() {
-    // Single source of truth: Listen to route params
-    this._route.paramMap.subscribe((params?) => {
-      const status = params?.get('status');
-      let httpParams = new HttpParams();
-
-      if (status) {
-        httpParams = httpParams.set('status', status);
-      }
-      this.fetchOrders(httpParams);
-    });
+    const params = new HttpParams().set('karigari', this.userName);
+    this.fetchOrders(params);
 
     this.orderStatusListfunc();
   }
@@ -76,13 +89,12 @@ export class AllOrdersComponent implements OnInit {
   orderStatusListfunc() {
     this._orderServices.getStatusList().subscribe({
       next: (res: any[]) => {
-        // Use all lowercase here
-        const toExclude = ['wip', 'dispatched'];
+        // 1. Define what to exclude
+        const toExclude = ['hold', 'issued', 'received', 'cancelled'];
 
+        // 2. Filter and store in your property
         this.orderStatuslist = res.filter(
-          (status) =>
-            // Now both sides are lowercase, so they match perfectly
-            !toExclude.includes(status.name.toLowerCase()),
+          (status) => !toExclude.includes(status.name.toLowerCase()),
         );
 
         console.log('Filtered Statuses:', this.orderStatuslist);
@@ -165,7 +177,8 @@ export class AllOrdersComponent implements OnInit {
 
         // 3. RELOAD DATA
         // We grab the current route status to ensure we stay on the filtered view if one exists
-        const currentFilter = this._route.snapshot.paramMap.get('status');
+        const currentFilter =
+          this._activeRouter.snapshot.paramMap.get('status');
         let params = new HttpParams();
         if (currentFilter) {
           params = params.set('status', currentFilter);
@@ -184,6 +197,7 @@ export class AllOrdersComponent implements OnInit {
     });
   }
 
+  //download pdf file
   getPDF(orderId: any) {
     const params = new HttpParams().set('id', orderId);
 

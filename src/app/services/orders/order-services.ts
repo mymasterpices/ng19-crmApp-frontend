@@ -26,7 +26,10 @@ export class OrderServices {
   //edit/update existing order
   updateOrder(id: string, formData: any) {
     // Use a slash before the ID, NOT a question mark
-    return this.http.put(`${environment.API_URL}/api/orders/edit/${id}`, formData);
+    return this.http.put(
+      `${environment.API_URL}/api/orders/edit/${id}`,
+      formData,
+    );
   }
 
   //create karigar
@@ -67,7 +70,7 @@ export class OrderServices {
 
   //get status
   getStatusList() {
-    return this.http.get(environment.API_URL + '/api/orders/status/get');
+    return this.http.get<any[]>(environment.API_URL + '/api/orders/status/get');
   }
 
   //update order status
