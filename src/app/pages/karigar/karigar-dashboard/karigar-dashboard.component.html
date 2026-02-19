@@ -14,10 +14,14 @@
     />
   </p-iconfield>
 
-  <!-- 
-  <p-button icon="pi pi-filter" label="Filter" size="small" severity="contrast"> 
-  </p-button>
-  -->
+  <p-select
+    [options]="orderStatuslist"
+    [(ngModel)]="selectedStatus"
+    (onChange)="onStatusChange($event)"
+    optionLabel="name"
+    placeholder="Apply Filter"
+    showClear="true"
+  />
 </section>
 
 <section class="surface-ground min-h-screen p-3">

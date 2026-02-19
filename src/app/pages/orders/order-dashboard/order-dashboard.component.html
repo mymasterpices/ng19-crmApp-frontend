@@ -118,34 +118,11 @@
   <div class="card">
     <p-tabs value="0">
       <p-tablist>
-        <p-tab value="0">Add Karigar</p-tab>
         <p-tab value="1">Add Category</p-tab>
         <p-tab value="2">Add SalesPerson</p-tab>
       </p-tablist>
       <p-tabpanels class="!p-0 mt-1">
-        <p-tabpanel value="0" styleClass="!p-0 !m-0">
-          <p-floatlabel variant="on" class="my-4">
-            <input
-              pInputText
-              #karigarInput
-              id="value3"
-              class="w-full"
-              styleClass="w-full"
-            />
-            <label for="value3">Add karigar</label>
-          </p-floatlabel>
-          <p-button
-            label="Save"
-            size="small"
-            severity="contrast"
-            class="w-full"
-            styleClass="w-30"
-            [loading]="saveLoading"
-            (onClick)="saveNewkarigar(karigarInput)"
-          >
-          </p-button>
-        </p-tabpanel>
-        <p-tabpanel value="1">
+        <p-tabpanel value="0">
           <p-floatlabel variant="on" class="my-4">
             <input
               pInputText
@@ -169,7 +146,7 @@
           </p-button>
         </p-tabpanel>
 
-        <p-tabpanel value="2">
+        <p-tabpanel value="1">
           <p-floatlabel variant="on" class="my-4">
             <input
               pInputText

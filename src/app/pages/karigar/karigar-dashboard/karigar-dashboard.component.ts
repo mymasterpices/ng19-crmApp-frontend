@@ -23,6 +23,8 @@ import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIcon, InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SharevideosService } from '../../../services/sharevideos.service';
+import { Select, SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-karigar-dashboard',
@@ -41,6 +43,8 @@ import { SharevideosService } from '../../../services/sharevideos.service';
     DatePipe,
     TitleCasePipe,
     PaginatorModule,
+    SelectModule,
+    FormsModule,
   ],
   templateUrl: './karigar-dashboard.component.html',
   styleUrl: './karigar-dashboard.component.css',
@@ -54,16 +58,11 @@ export class KarigarDashboardComponent implements OnInit {
   private _activeRouter = inject(ActivatedRoute);
   private _shareOrderService = inject(ShareOrderService);
 
+  //Declear variables
   userRole = this._logginedUserService.getUserRole();
   userName = this._logginedUserService.getUserName();
 
-  myOrder = signal<any[]>([]);
-
-  // ngOnInit(): void {
-  //   this.getAssignedOrder();
-  // }
-
-  //show all orders with search
+  selectedStatus: any;
 
   orders: any[] = [];
   pagedOrders: any[] = [];
@@ -74,7 +73,9 @@ export class KarigarDashboardComponent implements OnInit {
   totalrecords: number = 0;
 
   ngOnInit() {
-    const params = new HttpParams().set('karigari', this.userName);
+    const params = new HttpParams()
+      .set('karigari', this.userName)
+      .set('status', 'issued');
     this.fetchOrders(params);
 
     this.orderStatusListfunc();
@@ -105,6 +106,22 @@ export class KarigarDashboardComponent implements OnInit {
     });
   }
 
+  onStatusChange(event: any) {
+    // Start with the base parameter (the Karigar's name)
+    let params = new HttpParams().set('karigari', this.userName);
+
+    // If event.value exists, the user selected a status.
+    // If event.value is null (cleared), we skip this block and send only 'karigari'.
+    if (event.value && event.value.name) {
+      params = params.set('status', event.value.name);
+      console.log('Filtering by:', event.value.name);
+    } else {
+      console.log('Filter cleared, fetching all orders for:', this.userName);
+    }
+
+    // Call your existing fetch function with the updated params
+    this.fetchOrders(params);
+  }
   // FIXED: Matches your API strings exactly (hold, issued, received, etc.)
   getStatusSeverity(
     status: string,
@@ -153,7 +170,17 @@ export class KarigarDashboardComponent implements OnInit {
   fetchOrders(params: HttpParams) {
     this._orderServices.getOrders(params).subscribe({
       next: (res: any) => {
-        this.orders = Array.isArray(res) ? res : [];
+        // 1. Ensure we have an array
+        const rawOrders = Array.isArray(res) ? res : [];
+
+        // 2. Sort by deliveryDate (Earliest/Soonest first)
+        this.orders = rawOrders.sort((a, b) => {
+          const dateA = new Date(a.deliveryDate).getTime();
+          const dateB = new Date(b.deliveryDate).getTime();
+          return dateA - dateB;
+        });
+
+        // 3. Update records and pagination
         this.totalrecords = this.orders.length;
         this.updatePageData();
       },

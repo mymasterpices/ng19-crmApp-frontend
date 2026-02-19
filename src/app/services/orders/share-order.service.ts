@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as QRCode from 'qrcode'; // Standard library for generating QR codes
+import * as QRCode from 'qrcode';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -13,8 +13,7 @@ export class ShareOrderService {
   constructor() {}
 
   /**
-   * Generates a professional Jewelry Job Card PDF with QR Code and Product Image
-   * @param orders Array of order objects (e.g., RK0119)
+   * Generates a Jewelry Job Card PDF matching the RK Jewellers sample layout
    */
   public async generateOrderPdf(orders: any[]) {
     const doc = new jsPDF({
@@ -27,11 +26,13 @@ export class ShareOrderService {
       const order = orders[i];
       if (i > 0) doc.addPage();
 
-      // --- 1. GENERATE QR CODE ---
-      // This creates a QR code image representing the Order Number
+      // --- 1. QR CODE GENERATION ---
       let qrCodeDataUrl = '';
       try {
-        qrCodeDataUrl = await QRCode.toDataURL(order.orderNumber || 'N/A', {
+        // Generates QR based on Order Number [cite: 2, 3]
+        const orderIDwithURL = `${this.backendUrl}/api/orders/get?orderNumber=${order.orderNumber}`;
+
+        qrCodeDataUrl = await QRCode.toDataURL(orderIDwithURL || 'N/A', {
           margin: 1,
           width: 150,
           color: { dark: '#000000', light: '#ffffff' },
@@ -40,138 +41,144 @@ export class ShareOrderService {
         console.error('QR Generation Error:', err);
       }
 
-      // --- 2. HEADER & BRANDING ---
+      // --- 2. HEADER SECTION ---
       doc.setFontSize(20);
       doc.setTextColor(40, 40, 40);
-      doc.text('RK Jewellers', 14, 20);
+      doc.text('RK Jewellers', 14, 20); // Brand Name [cite: 1]
 
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text('Order Receipt', 14, 26);
+      doc.text('Order Receipt', 14, 26); // Subtitle [cite: 1]
 
-      // --- 3. PLACE QR CODE (Top Middle) ---
+      // QR Code Placement (Center-Top)
       if (qrCodeDataUrl) {
-        doc.addImage(qrCodeDataUrl, 'PNG', 85, 10, 25, 25);
+        doc.addImage(qrCodeDataUrl, 'PNG', 14, 33, 24, 24);
         doc.setFontSize(7);
-        doc.text('SCAN TO UPDATE', 87, 38);
+        doc.setTextColor(0);
+        doc.text('SCAN TO UPDATE', 15, 59); // Instruction [cite: 2]
       }
 
-      // --- 4. PRODUCT IMAGE (Top Right) ---
+      // --- 3. PRODUCT IMAGE (Top Right) ---
       if (order.imageProduct) {
         try {
           const imageUrl = `${this.backendUrl}/${order.imageProduct}`;
           const base64Img = await this.getBase64ImageFromURL(imageUrl);
-          doc.addImage(base64Img, 'JPEG', 145, 10, 45, 45);
+          doc.addImage(base64Img, 'JPEG', 100, 14, 94.83, 120.69); // Image placeholder [cite: 6]
         } catch (e) {
           doc.setDrawColor(200);
-          doc.rect(145, 10, 45, 45);
+          doc.rect(100, 14, 100, 40);
           doc.setFontSize(8);
-          doc.text('Image Not Found', 155, 33);
+          doc.text('Image Not Found', 158, 35);
         }
       }
 
-      // --- 5. PRIMARY ORDER INFO ---
+      // --- 4. PRIMARY ORDER INFO ---
       doc.setFontSize(11);
       doc.setTextColor(0);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Order No: ${order.orderNumber || 'N/A'}`, 14, 42);
+      doc.text(`Order No: ${order.orderNumber || 'N/A'}`, 14, 80); // [cite: 3]
 
       doc.setFont('helvetica', 'normal');
-      const odDate = order.timestamp || order.deliveryDate;
-      doc.text(
-        `OD Date: ${odDate ? new Date(odDate).toLocaleDateString() : 'N/A'}`,
-        14,
-        48,
-      );
-      doc.text(
-        `Delivery Date: ${order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}`,
-        14,
-        54,
-      );
+      // Format dates to DD/MM/YYYY as per sample [cite: 4, 5]
+      const odDate = order.timestamp
+        ? new Date(order.timestamp).toLocaleDateString('en-GB')
+        : 'N/A';
+      const delDate = order.deliveryDate
+        ? new Date(order.deliveryDate).toLocaleDateString('en-GB')
+        : 'N/A';
 
-      // --- 6. SPECIFICATIONS TABLE ---
-      autoTable(doc, {
-        startY: 62,
-        theme: 'grid',
-        head: [['Specification', 'Details']],
-        body: [
-          ['Order No. :', order.orderNumber || 'N/A'],
-          [
-            'Order Date :',
-            order.timestamp
-              ? new Date(order.timestamp).toLocaleDateString()
-              : 'N/A',
-          ],
-          [
-            'Delivery Date :',
-            order.deliveryDate
-              ? new Date(order.deliveryDate).toLocaleDateString()
-              : 'N/A',
-          ],
-          ['Sales Person :', order.salesperson || 'N/A'],
-          [
-            'Gold Weight :',
-            order.goldWeight ? `${order.goldWeight} gm` : 'N/A',
-          ],
-          ['Karigar :', order.karigari || 'N/A'], // Mapped from karigari
-          ['Party Order No :', order.gatiOrderNo || 'N/A'], // Mapped from gatiOrderNo
-          ['Item Category :', order.itemCategory || 'N/A'],
-          ['Purity :', order.purity || 'N/A'],
-          ['Gold Colour :', order.goldColor || 'N/A'],
-          ['Diamond Details :', order.diamondDetails || '0.00'],
-          ['Stone Details :', order.stoneDetails || '0.00'],
-          ['Product Code :', order.productCode || 'N/A'],
-          ['Size :', order.size || 'N/A'],
+      doc.text(`OD Date: ${odDate}`, 14, 85); // [cite: 4]
+      doc.text(`Delivery Date: ${delDate}`, 14, 90); // [cite: 5]
+
+      // --- 5. SPECIFICATIONS TABLE (2-Column Grid / 4-Column Layout) ---
+      // This maps data into the left and right detail columns
+      const tableBody = [
+        [
+          'Order No.:',
+          order.orderNumber || 'N/A',
+          'Gold Weight:',
+          order.goldWeight ? `${order.goldWeight} gm` : 'N/A',
         ],
+        ['Order Date:', odDate, 'Purity:', order.purity || 'N/A'],
+        ['Delivery Date:', delDate, 'Gold Colour:', order.goldColor || 'N/A'],
+        [
+          'Sales Person:',
+          order.salesperson || 'N/A',
+          'Diamond Details:',
+          order.diamondDetails || 'N/A',
+        ],
+        [
+          'Item Category:',
+          order.itemCategory || 'N/A',
+          'Stone Details:',
+          order.stoneDetails || 'N/A',
+        ],
+        ['Karigar:', order.karigari || 'N/A', 'Size:', order.size || 'N/A'],
+        [
+          'Party Order No:',
+          order.partyOrderNo || 'N/A',
+          'Product Code:',
+          order.productCode || 'N/A',
+        ],
+      ];
+
+      autoTable(doc, {
+        startY: 145,
+        theme: 'grid',
+        head: [['Specification', 'Details', 'Specification', 'Details']], //
+        body: tableBody,
         headStyles: {
-          fillColor: [40, 40, 40],
+          fillColor: [10, 10, 10],
           textColor: 255,
-          halign: 'center',
+          halign: 'left',
         },
         columnStyles: {
-          0: { cellWidth: 45, fontStyle: 'bold', fillColor: [245, 245, 245] },
-          1: { cellWidth: 'auto' },
+          0: { cellWidth: 35, fontStyle: 'bold', fillColor: [245, 245, 245] },
+          1: { cellWidth: 55 },
+          2: { cellWidth: 35, fontStyle: 'bold', fillColor: [245, 245, 245] },
+          3: { cellWidth: 'auto' },
         },
-        styles: { fontSize: 10, cellPadding: 3.5 },
+        styles: { fontSize: 9, cellPadding: 3 },
       });
 
-      // --- 7. REMARKS ---
-      const finalY = (doc as any).lastAutoTable.finalY || 180;
+      // --- 6. REMARKS SECTION ---
+      const finalY = (doc as any).lastAutoTable.finalY || 160;
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('Special Remarks:', 14, finalY + 12);
+      doc.text('Special Remarks:', 14, finalY + 12); //
 
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(220, 0, 0); // Highlight in Red
+      doc.setTextColor(200, 0, 0); // Red highlight for remarks
       doc.text(
-        order.remarks || 'No special instructions provided.',
+        order.remarks || 'No special instructions', //
         14,
         finalY + 19,
       );
 
-      // --- 8. FOOTER ---
+      // --- 7. FOOTER ---
       const pageHeight = doc.internal.pageSize.height;
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setTextColor(150);
       doc.text(
-        `Manifest generated on: ${new Date().toLocaleString()}`,
+        `Manifest generated on: ${new Date().toLocaleString('en-GB')}`, // [cite: 8]
         14,
         pageHeight - 10,
       );
       doc.text(
-        `Page ${doc.getNumberOfPages()}`,
+        `Page ${doc.getNumberOfPages()}`, // [cite: 9]
         doc.internal.pageSize.width - 25,
         pageHeight - 10,
       );
     }
 
-    const docName =
-      orders.length === 1 ? orders[0].orderNumber : 'Jewelry_Report';
-    doc.save(`${docName}_Export.pdf`);
+    // Save PDF
+    const fileName =
+      orders.length === 1 ? orders[0].orderNumber : 'RK_Jewellers_Orders';
+    doc.save(`${fileName}_Receipt.pdf`);
   }
 
   /**
-   * Helper: URL to Base64
+   * Helper: Converts Image URL to Base64 for jsPDF
    */
   private getBase64ImageFromURL(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
