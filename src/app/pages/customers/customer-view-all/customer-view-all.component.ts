@@ -78,6 +78,7 @@ export class CustomerViewAllComponent implements OnInit {
   ngOnInit(): void {
     this.userRole = this.loginedUserService.getUserRole();
     this.loginUser = this.loginedUserService.getLoginedUser();
+
     this.getAllcustomers();
     this.getSalespersonOptions();
   }

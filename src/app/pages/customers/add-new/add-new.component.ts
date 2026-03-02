@@ -11,6 +11,7 @@ import {
   FormControl,
   Validators,
   ReactiveFormsModule,
+  FormsModule,
 } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
@@ -24,8 +25,9 @@ import { SelectModule } from 'primeng/select';
 import { FileUpload } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { jwtDecode } from 'jwt-decode';
-import { RouterLink } from '@angular/router';
+import { CheckboxModule } from 'primeng/checkbox';
 import { ApiService } from '../../../services/api.service';
+import { LoginedUserService } from '../../../services/logined-user.service';
 
 interface FileWithPreview {
   files: File[];
@@ -47,6 +49,7 @@ interface FileWithPreview {
     SelectModule,
     FileUpload,
     ButtonModule,
+    CheckboxModule,
   ],
 })
 export class AddNewComponent implements OnInit {
@@ -54,11 +57,13 @@ export class AddNewComponent implements OnInit {
 
   private messageService = inject(MessageService);
   private loginService = inject(ApiService);
+  private loginedUserService = inject(LoginedUserService);
 
   status = [{ name: 'Open' }, { name: 'Cold' }, { name: 'Close' }];
   seriousness = [{ name: 'High' }, { name: 'Low' }, { name: 'Neutral' }];
 
   selectedFile: File | null = null;
+  checked: boolean = false;
 
   customerForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -66,6 +71,7 @@ export class AddNewComponent implements OnInit {
     productName: new FormControl('', Validators.required),
     price: new FormControl(null, Validators.required),
     nextFollowUpDate: new FormControl<Date | null>(null, Validators.required),
+    newcustomer: new FormControl(''),
     status: new FormControl(null, Validators.required),
     seriousness: new FormControl(null, Validators.required),
     conversation: new FormControl('', Validators.required),
@@ -73,7 +79,9 @@ export class AddNewComponent implements OnInit {
     salesperson: new FormControl<string | null>(null, Validators.required),
   });
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.userID = this.loginedUserService.getUserId();
+  }
 
   onFileSelected(event: FileWithPreview) {
     this.selectedFile = event.files[0];
@@ -86,7 +94,8 @@ export class AddNewComponent implements OnInit {
   }
 
   isSaving = signal(<boolean>false);
-  userName = '';
+  userName: string = '';
+  userID: string = '';
 
   getUserName() {
     const token = localStorage.getItem('RkJewellersUser');
@@ -97,15 +106,17 @@ export class AddNewComponent implements OnInit {
       this.customerForm.patchValue({ salesperson: this.userName });
     }
   }
+
   onSubmit() {
     this.getUserName();
     const userName = this.userName;
+    const userId = this.userID;
 
-    if (!userName) {
+    if (!userName && !userId) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'User not found',
+        detail: 'User or userid not found',
       });
       return;
     }
@@ -127,11 +138,12 @@ export class AddNewComponent implements OnInit {
 
     formData.append('name', formValue.name as string);
     formData.append('mobile', String(formValue.mobile));
+    formData.append('newcustomer', String(formValue.newcustomer));
     formData.append('productName', formValue.productName as string);
     formData.append('price', String(formValue.price));
     formData.append(
       'nextFollowUpDate',
-      new Date(formValue.nextFollowUpDate!).toISOString()
+      new Date(formValue.nextFollowUpDate!).toISOString(),
     );
 
     // Convert status and seriousness to string
@@ -139,12 +151,13 @@ export class AddNewComponent implements OnInit {
     formData.append('seriousness', (formValue.seriousness as any).name);
     formData.append('conversation', formValue.conversation as string);
     formData.append('salesperson', userName);
+    formData.append('userId', userId);
 
     if (this.selectedFile) {
       formData.append(
         'productImage',
         this.selectedFile,
-        this.selectedFile.name
+        this.selectedFile.name,
       );
     }
 

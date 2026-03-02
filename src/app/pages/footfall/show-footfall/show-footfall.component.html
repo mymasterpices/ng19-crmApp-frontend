@@ -39,83 +39,84 @@
       tooltipPosition="left"
       size="small"
     ></p-button>
-    @if(loginedUser == 'admin'){
-    <p-button
-      icon=" pi pi-upload"
-      class="right-3"
-      severity="contrast"
-      size="small"
-      outlined="true"
-      (click)="uploadVisible = true"
-    ></p-button>
+    @if (loginedUser == "admin") {
+      <p-button
+        icon=" pi pi-upload"
+        class="right-3"
+        severity="contrast"
+        size="small"
+        outlined="true"
+        (click)="uploadVisible = true"
+      ></p-button>
     }
   </div>
 </div>
 
 <!-- Footfall Table -->
-@if(allFootfallEntries().length > 0){
-<p-card>
-  <p-table
-    [value]="allFootfallEntries()"
-    [paginator]="true"
-    [rows]="20"
-    stripedRows
-    size="small"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th>#</th>
-        <th pSortableColumn="username">
-          Sales Staff
-          <p-sortIcon field="username" />
-        </th>
-        <th>Total Footfall</th>
-        <th>Total Conversion</th>
-        <th>Conversion Rate (%)</th>
-      </tr>
-    </ng-template>
+@if (allFootfallEntries().length > 0) {
+  <p-card>
+    <p-table
+      [value]="allFootfallEntries()"
+      [paginator]="true"
+      [rows]="20"
+      stripedRows
+      size="small"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th pSortableColumn="username">
+            Sales Staff
+            <p-sortIcon field="username" />
+          </th>
+          <th>Total Footfall</th>
+          <th>Total Conversion</th>
+          <th>Conversion Rate (%)</th>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="body" let-footfall let-i="rowIndex">
-      <tr
-        routerLink="/footfall/view-footfall-entry/{{ footfall.user_id }}"
-        class="cursor-pointer"
-      >
-        <td>{{ i + 1 }}</td>
-        <td>{{ footfall.username | titlecase }}</td>
-        <td>{{ footfall.totalFootfall }}</td>
-        <td>{{ footfall.totalConversion }}</td>
-        <td>
-          <p-tag
-            [value]="
-              footfall.totalFootfall
-                ? ((footfall.totalConversion / footfall.totalFootfall) * 100
-                    | number : '1.0-2') + '%'
-                : '0%'
-            "
-            [severity]="
-              footfall.totalFootfall
-                ? (footfall.totalConversion / footfall.totalFootfall) * 100 < 40
-                  ? 'danger'
-                  : (footfall.totalConversion / footfall.totalFootfall) * 100 <
-                    60
-                  ? 'warning'
-                  : 'success'
-                : 'danger'
-            "
-          ></p-tag>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</p-card>
-
+      <ng-template pTemplate="body" let-footfall let-i="rowIndex">
+        <tr
+          routerLink="/footfall/view-footfall-entry/{{ footfall.user_id }}"
+          class="cursor-pointer"
+        >
+          <td>{{ i + 1 }}</td>
+          <td>{{ footfall.username | titlecase }}</td>
+          <td>{{ footfall.totalFootfall }}</td>
+          <td>{{ footfall.totalConversion }}</td>
+          <td>
+            <p-tag
+              [value]="
+                footfall.totalFootfall
+                  ? ((footfall.totalConversion / footfall.totalFootfall) * 100
+                      | number: '1.0-2') + '%'
+                  : '0%'
+              "
+              [severity]="
+                footfall.totalFootfall
+                  ? (footfall.totalConversion / footfall.totalFootfall) * 100 <
+                    40
+                    ? 'danger'
+                    : (footfall.totalConversion / footfall.totalFootfall) *
+                          100 <
+                        60
+                      ? 'warning'
+                      : 'success'
+                  : 'danger'
+              "
+            ></p-tag>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 } @else {
-<p-card>
-  <div class="flex flex-col justify-center items-center py-5 gap-4">
-    <i class="pi pi-info-circle !text-4xl text-red-600"></i>
-    <span class="font-medium">No footfall entries found.</span>
-  </div>
-</p-card>
+  <p-card>
+    <div class="flex flex-col justify-center items-center py-5 gap-4">
+      <i class="pi pi-info-circle !text-4xl text-red-600"></i>
+      <span class="font-medium">No footfall entries found.</span>
+    </div>
+  </p-card>
 }
 
 <!-- upload bulk  -->

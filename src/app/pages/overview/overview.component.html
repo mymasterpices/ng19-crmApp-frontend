@@ -3,7 +3,7 @@
 <div
   class="rounded-xl md:h-40 h-40 bg-cover w-full bg-fixed my-4 bg-center"
   style="
-    background-image: url(&quot;https://images.unsplash.com/photo-1692045155710-b26bcf5efe5a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170&quot;);
+    background-image: url(&quot;https://cdn.pixabay.com/photo/2025/05/13/12/40/sailboat-9597523_1280.jpg&quot;);
   "
 >
   <div
@@ -173,7 +173,11 @@
       </p-card>
     </div>
   </section>
-  <app-footfaloverview></app-footfaloverview>
 } @else {
   <app-karigar-dashboard></app-karigar-dashboard>
+}
+@if (userRole !== "user") {
+  <!-- customer/sales person reporting -->
+  <app-analytic></app-analytic>
+  <app-footfaloverview></app-footfaloverview>
 }

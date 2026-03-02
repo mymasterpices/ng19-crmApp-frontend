@@ -1,163 +1,178 @@
+<p-card class="">
+  <div class="flex justify-between">
+    <div class="flex flex-col gap-1">
+      <h6 class="text-md font-semibold">
+        {{ customerData?.customerId?.name | titlecase }}
+      </h6>
+
+      <!-- next followUp date -->
+      <div>
+        <div
+          class="gap-1 flex items-center cursor-pointer pb-1"
+          (click)="updateFollowupDate.toggle($event)"
+        >
+          <span class="text-xs font-normal"
+            ><i class="pi pi-calendar"></i
+          ></span>
+          <span
+            >{{ customerContactInfo?.nextFollowUpDate | date: "d,MMM,y" }}
+          </span>
+        </div>
+
+        <p-popover #updateFollowupDate>
+          <div class="header">
+            <span class="text-sm font-semibold opacity-60">Update Date</span>
+            <p-floatlabel variant="on" class="mt-2">
+              <p-datepicker
+                [iconDisplay]="'input'"
+                [showIcon]="true"
+                inputId="icondisplay"
+                [(ngModel)]="followUpDate"
+                (ngModelChange)="updateFollowUpDate($event)"
+                class="w-full mt-2 pt-2"
+              />
+              <label for="icondisplay" class="font-normal"
+                >Next Followup Date</label
+              >
+            </p-floatlabel>
+          </div>
+        </p-popover>
+
+        <!-- product info-price -->
+        <div class="gap-1 flex items-center pb-1">
+          <span class="text-xs font-normal"
+            ><i class="pi pi-indian-rupee"></i
+          ></span>
+          <small>{{ customerContactInfo?.price }} </small>
+        </div>
+
+        <!-- product info-seriousness -->
+        <div class="gap-1 flex items-center pb-1">
+          <span class="text-xs font-normal"
+            ><i class="pi pi-face-smile"></i
+          ></span>
+          <small>{{ customerContactInfo?.seriousness }} </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col items-center gap-2">
+      <div class="flex justify-between items-center gap-2">
+        <!-- make a phone call -->
+        <div class="flex gap-2">
+          <a [href]="'tel:' + customerData?.customerId?.mobile">
+            <p-button
+              class="text-xs font-normal"
+              icon="pi pi-phone"
+              pTooltip="{{ customerData?.customerId?.mobile }}"
+              tooltipPosition="left"
+              [text]="true"
+              [rounded]="true"
+              severity="contrast"
+            />
+          </a>
+        </div>
+
+        <!-- product image -->
+        <p-avatar
+          [image]="backedAppUrl + `/${customerContactInfo?.productImage}`"
+          [shape]="'circle'"
+          class="mr-1"
+          (click)="viewLargeProductImage()"
+          class="cursor-pointer"
+        ></p-avatar>
+      </div>
+
+      <!-- manage customer status  -->
+      <div
+        class="flex items-center cursor-pointer"
+        (click)="isOpen = !isOpen; status.toggle($event)"
+      >
+        <div
+          class="px-2 py-1 rounded-2xl text-white text-xs flex justify-center gap-1"
+          [ngClass]="{
+            'bg-blue-500': customerContactInfo?.status === 'Open',
+            'bg-yellow-500': customerContactInfo?.status === 'Cold',
+            'bg-green-500': customerContactInfo?.status === 'Close',
+            'bg-red-500': customerContactInfo?.status === 'Failed',
+          }"
+        >
+          {{ customerContactInfo?.status }}
+
+          <span class="text-white-300">
+            <i
+              class="pi"
+              [ngClass]="isOpen ? 'pi-angle-up' : 'pi-angle-down'"
+            ></i
+          ></span>
+        </div>
+
+        <p-popover #status>
+          <div class="header">
+            <span class="text-sm font-semibold opacity-60">Update Status</span>
+          </div>
+
+          <div class="flex gap-2">
+            <p-button
+              icon="pi pi-circle-on"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              (click)="updateStatus('Open')"
+              class="w-full"
+              pTooltip="Open"
+              tooltipPosition="bottom"
+            >
+            </p-button>
+            <p-button
+              icon="pi pi-circle-on"
+              [rounded]="true"
+              [text]="true"
+              severity="warn"
+              (click)="updateStatus('Cold')"
+              class="w-full"
+              pTooltip="Cold"
+              tooltipPosition="bottom"
+            >
+            </p-button>
+            <p-button
+              icon="pi pi-circle-on"
+              [rounded]="true"
+              [text]="true"
+              severity="success"
+              (click)="updateStatus('Close')"
+              class="w-full"
+              pTooltip="Close"
+              tooltipPosition="bottom"
+            >
+            </p-button>
+            <p-button
+              icon="pi pi-circle-on"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              (click)="updateStatus('Failed')"
+              class="w-full"
+              pTooltip="Failed"
+              tooltipPosition="bottom"
+            >
+            </p-button>
+          </div>
+        </p-popover>
+      </div>
+
+      <!-- product info-seriousness -->
+      <div class="gap-1 flex items-center pb-1">
+        <span class="text-xs font-normal"><i class="pi pi-gift"></i></span>
+        <small>{{ customerContactInfo?.productName | uppercase }} </small>
+      </div>
+    </div>
+  </div>
+</p-card>
+
 <div class="mb-[5rem] mt-2 h-screen">
   <!-- Customer Chat History Card -->
   <p-card>
-    <ng-template pTemplate="header">
-      <div class="flex justify-between items-center w-full px-4 pt-2">
-        <span class="text-lg font-semibold">
-          {{ customerData?.customerId?.name | titlecase }}
-        </span>
-
-        <div class="flex items-center gap-2">
-          <p-avatar
-            [image]="backedAppUrl + `/${customerContactInfo?.productImage}`"
-            [shape]="'square'"
-            class="mr-1"
-            (click)="viewLargeProductImage()"
-          ></p-avatar>
-          <button
-            type="button"
-            pButton
-            icon="pi pi-ellipsis-h"
-            class="p-button-text p-button-plain"
-            rounded="true"
-            (click)="toggle($event)"
-          ></button>
-        </div>
-      </div>
-      <p-popover #op>
-        <div class="flex flex-col gap-4">
-          <div>
-            <span class="block mb-2 font-semibold opacity-60">Details</span>
-            <div class="customerInfor">
-              <div class="flex flex-col items-start gap-2 justify-between">
-                <div class="gap-2 flex items-center">
-                  <span class="text-xs font-normal"
-                    ><i class="pi pi-phone"></i
-                  ></span>
-                  <a href="tel:{{ customerData?.customerId?.mobile }}">{{
-                    customerData?.customerId?.mobile
-                  }}</a>
-                </div>
-                <div
-                  class="gap-2 flex items-center cursor-pointer"
-                  (click)="updateFollowupDate.toggle($event)"
-                >
-                  <span class="text-xs font-normal"
-                    ><i class="pi pi-calendar"></i
-                  ></span>
-                  <span
-                    >{{
-                      customerContactInfo?.nextFollowUpDate | date: "d MMM, y"
-                    }}
-                  </span>
-                </div>
-
-                <p-popover #updateFollowupDate>
-                  <div class="header">
-                    <span class="text-sm font-semibold opacity-60"
-                      >Update Date</span
-                    >
-                    <p-floatlabel variant="on" class="mt-2">
-                      <p-datepicker
-                        [iconDisplay]="'input'"
-                        [showIcon]="true"
-                        inputId="icondisplay"
-                        [(ngModel)]="followUpDate"
-                        (ngModelChange)="updateFollowUpDate($event)"
-                        class="w-full mt-2 pt-2"
-                      />
-                      <label for="icondisplay" class="font-normal"
-                        >Next Followup Date</label
-                      >
-                    </p-floatlabel>
-                  </div>
-                </p-popover>
-                <div
-                  class="gap-2 flex items-center cursor-pointer"
-                  (click)="isOpen = !isOpen; status.toggle($event)"
-                >
-                  <span class="text-xs font-normal"
-                    ><i class="pi pi-objects-column"></i
-                  ></span>
-                  <div
-                    class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs"
-                    [ngClass]="{
-                      'bg-blue-500': customerContactInfo?.status === 'Open',
-                      'bg-yellow-500': customerContactInfo?.status === 'Cold',
-                      'bg-green-500': customerContactInfo?.status === 'Close',
-                      'bg-red-500': customerContactInfo?.status === 'Failed',
-                    }"
-                  >
-                    {{ customerContactInfo?.status }}
-                  </div>
-                  <span class="text-indigo-300">
-                    <i
-                      class="pi"
-                      [ngClass]="isOpen ? 'pi-chevron-up' : 'pi-chevron-down'"
-                    ></i
-                  ></span>
-
-                  <p-popover #status>
-                    <div class="header">
-                      <span class="text-sm font-semibold opacity-60"
-                        >Update Status</span
-                      >
-                    </div>
-                    <div class="flex gap-2">
-                      <p-button
-                        icon="pi pi-circle-on"
-                        [rounded]="true"
-                        [text]="true"
-                        severity="info"
-                        (click)="updateStatus('Open')"
-                        class="w-full"
-                        pTooltip="Open"
-                        tooltipPosition="bottom"
-                      >
-                      </p-button>
-                      <p-button
-                        icon="pi pi-circle-on"
-                        [rounded]="true"
-                        [text]="true"
-                        severity="warn"
-                        (click)="updateStatus('Cold')"
-                        class="w-full"
-                        pTooltip="Cold"
-                        tooltipPosition="bottom"
-                      >
-                      </p-button>
-                      <p-button
-                        icon="pi pi-circle-on"
-                        [rounded]="true"
-                        [text]="true"
-                        severity="success"
-                        (click)="updateStatus('Close')"
-                        class="w-full"
-                        pTooltip="Close"
-                        tooltipPosition="bottom"
-                      >
-                      </p-button>
-                      <p-button
-                        icon="pi pi-circle-on"
-                        [rounded]="true"
-                        [text]="true"
-                        severity="danger"
-                        (click)="updateStatus('Failed')"
-                        class="w-full"
-                        pTooltip="Failed"
-                        tooltipPosition="bottom"
-                      >
-                      </p-button>
-                    </div>
-                  </p-popover>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </p-popover>
-    </ng-template>
-
     @for (chat of customerData?.messages; track chat._id) {
       <div
         class="bg-gray-200 text-emerald-50 dark:bg-gray-950 px-3 py-3 mb-2 rounded-xl shadow-sm dark:border-none"

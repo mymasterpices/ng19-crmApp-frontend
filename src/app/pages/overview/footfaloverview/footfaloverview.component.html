@@ -1,6 +1,6 @@
 <div class="grid gap-4">
   <!-- TOP KPI CARDS -->
-    <h3 class="text-lg font-semibold mt-2">Footfalls</h3>
+  <h3 class="text-lg font-semibold mt-2">Footfalls</h3>
   <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
     <p-card styleClass="shadow-sm">
       <div class="flex flex-col gap-2">
@@ -12,11 +12,11 @@
           class="text-xs"
           [ngClass]="{
             'text-green-500': footfallDelta >= 0,
-            'text-red-500': footfallDelta < 0
+            'text-red-500': footfallDelta < 0,
           }"
         >
           {{ footfallDelta >= 0 ? "▲" : "▼" }}
-          {{ footfallDelta | number : "1.0-1" }}% vs last period
+          {{ footfallDelta | number: "1.0-1" }}% vs last period
         </span>
       </div>
     </p-card>
@@ -25,17 +25,17 @@
       <div class="flex flex-col gap-2">
         <span class="text-sm text-gray-500">Conversion Rate</span>
         <span class="text-3xl font-semibold">
-          {{ conversionRate | number : "1.0-2" }}%
+          {{ conversionRate | number: "1.0-2" }}%
         </span>
         <span
           class="text-xs"
           [ngClass]="{
             'text-green-500': conversionRateDelta >= 0,
-            'text-red-500': conversionRateDelta < 0
+            'text-red-500': conversionRateDelta < 0,
           }"
         >
           {{ conversionRateDelta >= 0 ? "▲" : "▼" }}
-          {{ conversionRateDelta | number : "1.0-1" }}% vs last period
+          {{ conversionRateDelta | number: "1.0-1" }}% vs last period
         </span>
       </div>
     </p-card>
@@ -56,7 +56,7 @@
       <div class="flex flex-col gap-2">
         <span class="text-sm text-gray-500">Total PC</span>
         <span class="text-3xl font-semibold">
-          {{ totalPc | number : "1.0-1" }}
+          {{ totalPc | number: "1.0-1" }}
         </span>
         <span class="text-xs text-gray-400"> Sum of valid PC values </span>
       </div>
@@ -113,7 +113,7 @@
         </ng-template>
         <ng-template pTemplate="body" let-day>
           <tr>
-            <td>{{ day.date | date : "mediumDate" }}</td>
+            <td>{{ day.date | date: "mediumDate" }}</td>
             <td>{{ day.footfall }}</td>
             <td>{{ day.conversion }}</td>
           </tr>

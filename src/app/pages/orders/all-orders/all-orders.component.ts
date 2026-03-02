@@ -17,6 +17,8 @@ import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { __param } from 'tslib';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-all-orders',
@@ -32,6 +34,8 @@ import { ShareOrderService } from '../../../services/orders/share-order.service'
     ImageModule,
     PopoverModule,
     PaginatorModule,
+    SelectModule,
+    FormsModule,
   ],
   templateUrl: './all-orders.component.html',
   styleUrl: './all-orders.component.css',
@@ -41,12 +45,12 @@ export class AllOrdersComponent implements OnInit {
   private _router = inject(Router);
   private _messageService = inject(MessageService);
   private _shareOrderService = inject(ShareOrderService);
-
   private _route = inject(ActivatedRoute);
 
   orders: any[] = [];
   pagedOrders: any[] = [];
   backendUrl = environment.API_URL;
+  selectedStatus: any;
 
   first: number = 0;
   rows: number = 10;
@@ -69,6 +73,14 @@ export class AllOrdersComponent implements OnInit {
 
   onEdit(id: string) {
     this._router.navigate(['orders/edit-order', id]);
+  }
+
+  onStatusChange(event: any) {
+    // Start with the base parameter (the Karigar's name)
+    let params = new HttpParams().set('status', event.value.name);
+
+    // Call your existing fetch function with the updated params
+    this.fetchOrders(params);
   }
 
   orderStatuslist: any[] = [];

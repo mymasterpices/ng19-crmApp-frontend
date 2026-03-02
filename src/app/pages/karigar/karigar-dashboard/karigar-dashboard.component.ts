@@ -95,7 +95,8 @@ export class KarigarDashboardComponent implements OnInit {
 
         // 2. Filter and store in your property
         this.orderStatuslist = res.filter(
-          (status) => !toExclude.includes(status.name.toLowerCase()),
+          (status) =>
+            !toExclude.includes(status.name.toLowerCase()),
         );
 
         console.log('Filtered Statuses:', this.orderStatuslist);

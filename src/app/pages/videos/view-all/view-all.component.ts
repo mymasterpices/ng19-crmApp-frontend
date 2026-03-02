@@ -97,7 +97,7 @@ export class ViewAllComponent implements OnInit {
   getSeletedVideOID(selectedVideo: string) {
     if (this.selectedVideoList.includes(selectedVideo)) {
       this.selectedVideoList = this.selectedVideoList.filter(
-        (item) => item !== selectedVideo
+        (item) => item !== selectedVideo,
       );
       this.messageService.add({
         severity: 'error',

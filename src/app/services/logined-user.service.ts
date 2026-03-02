@@ -6,23 +6,22 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class LoginedUserService {
   private userName: string = '';
-  private userRole: string = ''; // Added property for role
+  private userRole: string = '';
+  private userID: string = '';
 
-  /**
-   * Decodes the token and returns the username.
-   * Also updates the internal userRole state.
-   */
   getLoginedUser(): string {
     const token = localStorage.getItem('RkJewellersUser');
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
         this.userName = decodedToken?.username || 'Guest';
-        this.userRole = decodedToken?.role || ''; // ✅ Extracting the role here
+        this.userRole = decodedToken?.role || '';
+        this.userID = decodedToken?.userId || '';
       } catch (error) {
         console.error('Error decoding token:', error);
         this.userName = 'Guest';
         this.userRole = '';
+        this.userID = '';
       }
     }
     return this.userName;
@@ -41,5 +40,9 @@ export class LoginedUserService {
 
   getUserName(): string {
     return this.userName;
+  }
+  //get userId
+  getUserId(): string {
+    return this.userID;
   }
 }

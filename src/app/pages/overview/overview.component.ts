@@ -10,6 +10,7 @@ import { SharevideosService } from '../../services/sharevideos.service';
 import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
 import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
+import { AnalyticComponent } from "./reports/analytic/analytic.component";
 
 interface FootEntry {
   username: string;
@@ -30,7 +31,8 @@ interface FootEntry {
     RouterLink,
     FootfaloverviewComponent,
     KarigarDashboardComponent,
-  ],
+    AnalyticComponent
+],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
 })
