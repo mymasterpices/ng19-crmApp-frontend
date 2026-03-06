@@ -35,6 +35,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { CardModule } from 'primeng/card';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
+import { Tooltip } from "primeng/tooltip";
 
 @Component({
   selector: 'app-admin',
@@ -60,7 +61,8 @@ import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component'
     NgClass,
     FormsModule,
     MobileFooterComponent,
-  ],
+    Tooltip
+],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })

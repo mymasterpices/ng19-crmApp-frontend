@@ -40,10 +40,6 @@ export class AnalyticComponent implements OnInit {
     this.executeFetch();
   }
 
-  /**
-   * FIX: Universal Date Parser
-   * Handles String dates, ISO dates, and MongoDB {$date: ...} objects
-   */
   private parseAnyDate(dateInput: any): number {
     if (!dateInput) return 0;
 
@@ -75,8 +71,7 @@ export class AnalyticComponent implements OnInit {
     }).subscribe({
       next: (res: any) => {
         this.allCustomers = res.customers || [];
-        this.allFootfalls = res.footfalls || [];
-        // Only show users with status 'active'
+        this.allFootfalls = res.footfalls?.data ?? res.footfalls ?? []; // Only show users with status 'active'
         this.activeUsers = (res.users || []).filter(
           (u: any) => u.status === 'active' && u.role === 'user',
         );

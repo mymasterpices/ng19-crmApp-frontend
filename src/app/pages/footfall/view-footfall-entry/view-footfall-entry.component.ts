@@ -49,24 +49,16 @@ export class ViewFootfallEntryComponent implements OnInit {
   private _confirmationService = inject(ConfirmationService);
 
   username = '';
-  userFootfallData: any = null;
   selectedMonth: Date | null = null;
   allFootfallEntries = signal<any[]>([]);
   highlightedRowId = signal<string | null>(null);
-
-  //user id
   userID: string = '';
 
-  toggle(event: any, popover: Popover) {
-    popover.toggle(event);
-  }
+  // Per-row popover form map: entryId -> FormGroup
+  entryForms = new Map<string, FormGroup>();
 
-  highlightRow(id: string) {
-    this.highlightedRowId.set(id);
-    setTimeout(() => {
-      this.highlightedRowId.set(null);
-    }, 3000); // Remove highlight after 3 seconds
-  }
+  // Track which popover reference is currently active
+  activePopover: Popover | null = null;
 
   ngOnInit(): void {
     this.router.paramMap.subscribe((params) => {
@@ -82,14 +74,63 @@ export class ViewFootfallEntryComponent implements OnInit {
 
     this._footfallService.getFootfallEntries(params).subscribe({
       next: (res: any) => {
-        if (res.length > 0) {
-          const person = res[0];
+        // API returns { data: [...] }
+        const list = res?.data ?? res;
+        if (list.length > 0) {
+          const person = list[0];
           this.username = person.username;
-          this.allFootfallEntries.set(person.foot_entry);
+          const entries: any[] = person.foot_entry ?? [];
+          this.allFootfallEntries.set(entries);
+
+          // Build a FormGroup for every entry row
+          this.entryForms.clear();
+          entries.forEach((entry: any) => {
+            this.entryForms.set(
+              entry._id,
+              new FormGroup({
+                ff: new FormControl(null),
+                con: new FormControl(null),
+              }),
+            );
+          });
         }
       },
       error: (err) => console.error(err),
     });
+  }
+
+  /** Returns (or lazily creates) the form for a given entry */
+  getForm(entryId: string): FormGroup {
+    if (!this.entryForms.has(entryId)) {
+      this.entryForms.set(
+        entryId,
+        new FormGroup({
+          ff: new FormControl(null),
+          con: new FormControl(null),
+        }),
+      );
+    }
+    return this.entryForms.get(entryId)!;
+  }
+
+  /** Open the popover for this row and pre-fill values */
+  openEdit(event: any, popover: Popover, entry: any) {
+    // Close the previously open popover (if any) to avoid stacking
+    if (this.activePopover && this.activePopover !== popover) {
+      this.activePopover.hide();
+    }
+    this.activePopover = popover;
+
+    // Pre-fill form with current values
+    const form = this.getForm(entry._id);
+    form.patchValue({ ff: entry.footfall, con: entry.conversion });
+
+    popover.toggle(event);
+  }
+
+  highlightRow(id: string) {
+    this.highlightedRowId.set(id);
+    setTimeout(() => this.highlightedRowId.set(null), 3000);
   }
 
   onMonthChange(event: Date) {
@@ -108,33 +149,20 @@ export class ViewFootfallEntryComponent implements OnInit {
     });
   }
 
-  editFootfallEntry(id: string) {
-    console.log('footfall id', id);
-  }
+  onSubmit(entryId: string, popover: Popover) {
+    const form = this.getForm(entryId);
+    const { ff, con } = form.value;
 
-  update_footefall_entry = new FormGroup({
-    ff: new FormControl(),
-    con: new FormControl(),
-  });
-
-  onSubmit(id: string) {
-    const updatedData = this.update_footefall_entry.value;
-
-    const dataPayload = {
-      entryId: id,
-      footfall: updatedData.ff,
-      conversion: updatedData.con,
-    };
-    console.log('newdata', updatedData);
-    console.log(`User id: ${this.userID}, Data playLoad: ${dataPayload}`);
+    const dataPayload = { entryId, footfall: ff, conversion: con };
 
     this._footfallService
       .updateFootfallEntry(this.userID, dataPayload)
       .subscribe({
         next: (res: any) => {
-          console.log(res);
-          this.update_footefall_entry.reset();
-          this.highlightRow(id);
+          form.reset();
+          popover.hide();
+          this.activePopover = null;
+          this.highlightRow(entryId);
           this.fetchUserFootfall(this.userID);
           this._messageService.add({
             severity: 'success',
@@ -142,17 +170,14 @@ export class ViewFootfallEntryComponent implements OnInit {
             detail: res.message,
           });
         },
-        error: (err) => {
-          console.log(err);
-        },
+        error: (err) => console.error(err),
       });
   }
 
   deleteEntry(id: string) {
-    // console.log(user_id);
     this._confirmationService.confirm({
-      message: 'Are you sure?',
-      header: 'Delete foortfall entry',
+      message: 'Are you sure you want to delete this entry?',
+      header: 'Delete Footfall Entry',
       closable: true,
       closeOnEscape: true,
       icon: 'pi pi-exclamation-triangle',
@@ -163,11 +188,11 @@ export class ViewFootfallEntryComponent implements OnInit {
       },
       acceptButtonProps: {
         label: 'Delete',
+        severity: 'danger',
       },
       accept: () => {
         this._footfallService.deleteFootfallEntry(this.userID, id).subscribe({
           next: (res: any) => {
-            console.log(res);
             this.fetchUserFootfall(this.userID);
             this._messageService.add({
               severity: 'success',
@@ -175,9 +200,7 @@ export class ViewFootfallEntryComponent implements OnInit {
               detail: res.message,
             });
           },
-          error: (err) => {
-            console.log(err);
-          },
+          error: (err) => console.error(err),
         });
       },
     });

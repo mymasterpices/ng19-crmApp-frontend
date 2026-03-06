@@ -10,7 +10,7 @@ import { SharevideosService } from '../../services/sharevideos.service';
 import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
 import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
-import { AnalyticComponent } from "./reports/analytic/analytic.component";
+import { AnalyticComponent } from './reports/analytic/analytic.component';
 
 interface FootEntry {
   username: string;
@@ -31,8 +31,8 @@ interface FootEntry {
     RouterLink,
     FootfaloverviewComponent,
     KarigarDashboardComponent,
-    AnalyticComponent
-],
+    AnalyticComponent,
+  ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
 })
@@ -50,8 +50,9 @@ export class OverviewComponent implements OnInit {
   chartData: any;
   chartOptions: any;
   seriousnessChartData: any;
+  seriousnessChartOptions: any;
 
-//count today's followup
+  //count today's followup
   todaysFollow = '';
   missedFollow = '';
   failedCount = '';
@@ -165,12 +166,13 @@ export class OverviewComponent implements OnInit {
           label: 'Customers by Status',
           data: Object.values(statusCount),
           backgroundColor: [
-            '#42A5F5',
-            '#66BB6A',
-            '#EF5350',
-            '#FFA726',
-            '#AB47BC',
+            '#576E9A',
+            '#618D70',
+            '#A45352',
+            '#BE8A42',
+            '#7565A0',
           ],
+          borderRadius: 12,
         },
       ],
     };
@@ -208,9 +210,25 @@ export class OverviewComponent implements OnInit {
       datasets: [
         {
           data: Object.values(seriousnessCount),
-          backgroundColor: ['#66BB6A', '#FFA726', '#42A5F5'],
+          backgroundColor: ['#576E9A', '#618D70', '#7565A0'],
+          borderRadius: 50,
         },
       ],
+    };
+
+    this.seriousnessChartOptions = {
+      cutout: '85%', // Higher percentage = Thinner ring. Try '85%' for even thinner.
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+          },
+        },
+      },
+
+      maintainAspectRatio: false,
     };
   }
 

@@ -59,16 +59,16 @@
       [value]="allFootfallEntries()"
       [paginator]="true"
       [rows]="20"
+      [totalRecords]="totalRecords()"
+      [lazy]="true"
+      (onLazyLoad)="loadDataLazy($event)"
       stripedRows
       size="small"
     >
       <ng-template pTemplate="header">
         <tr>
           <th>#</th>
-          <th pSortableColumn="username">
-            Sales Staff
-            <p-sortIcon field="username" />
-          </th>
+          <th>Sales Staff</th>
           <th>Total Footfall</th>
           <th>Total Conversion</th>
           <th>Conversion Rate (%)</th>
@@ -77,8 +77,8 @@
 
       <ng-template pTemplate="body" let-footfall let-i="rowIndex">
         <tr
-          routerLink="/footfall/view-footfall-entry/{{ footfall.user_id }}"
-          class="cursor-pointer"
+          [routerLink]="['/footfall/view-footfall-entry', footfall.user_id]"
+          class="cursor-pointer hover:bg-gray-100 transition-colors"
         >
           <td>{{ i + 1 }}</td>
           <td>{{ footfall.username | titlecase }}</td>
@@ -87,24 +87,18 @@
           <td>
             <p-tag
               [value]="
-                footfall.totalFootfall
+                (footfall.totalFootfall
                   ? ((footfall.totalConversion / footfall.totalFootfall) * 100
-                      | number: '1.0-2') + '%'
-                  : '0%'
+                    | number: '1.0-2')
+                  : '0') + '%'
               "
               [severity]="
-                footfall.totalFootfall
-                  ? (footfall.totalConversion / footfall.totalFootfall) * 100 <
-                    40
-                    ? 'danger'
-                    : (footfall.totalConversion / footfall.totalFootfall) *
-                          100 <
-                        60
-                      ? 'warning'
-                      : 'success'
-                  : 'danger'
+                (footfall.totalConversion / footfall.totalFootfall) * 100 < 40
+                  ? 'danger'
+                  : 'success'
               "
-            ></p-tag>
+            >
+            </p-tag>
           </td>
         </tr>
       </ng-template>
