@@ -72,10 +72,10 @@
 </p-drawer>
 
 <!-- ── Page ──────────────────────────────────────────────────────────────── -->
-<div class="max-w-6xl mx-auto p-4">
+<div class="max-w-6xl mx-auto">
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-2xl font-bold">Image Similarity Search</h1>
+    <h1 class="text-2xl font-bold">Similarity Search</h1>
     <p class="text-zinc-500 text-sm mt-1">
       Upload or capture a product image to find similar items or create a new
       order.
@@ -119,6 +119,7 @@
             icon="pi pi-upload"
             severity="secondary"
             styleClass="w-full"
+            size="small"
             (onClick)="openFilePicker()"
           />
           <p-button
@@ -126,6 +127,7 @@
             icon="pi pi-camera"
             severity="secondary"
             styleClass="w-full"
+            size="small"
             (onClick)="openCamera()"
           />
         </div>
@@ -134,7 +136,9 @@
         <div class="flex gap-2 mt-3">
           <p-button
             label="Find Similar"
+            severity="contrast"
             icon="pi pi-search"
+            size="small"
             styleClass="flex-1"
             [disabled]="!selectedFile() || loading()"
             [loading]="loading()"
@@ -226,7 +230,6 @@
             Searching through indexed images…
           </p>
         </div>
-
       } @else if (hasResults()) {
         <div class="flex justify-between items-center mb-3">
           <p class="text-sm text-zinc-500">
@@ -294,7 +297,6 @@
             </div>
           }
         </div>
-
       } @else if (searched() && !loading()) {
         <div
           class="flex flex-col items-center justify-center h-64 gap-3 text-center"
@@ -320,7 +322,6 @@
             />
           </div>
         </div>
-
       } @else {
         <div
           class="flex flex-col items-center justify-center h-64 gap-3 text-center"
