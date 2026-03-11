@@ -14,7 +14,7 @@
         }
       </div>
 
-      <!-- KARIGAR - SIMPLEST -->
+      <!-- KARIGAR -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="karigarList"
@@ -26,11 +26,10 @@
           placeholder="Karigar"
           class="w-full"
           formControlName="karigari"
-        >
-        </p-select>
+        ></p-select>
       </div>
 
-      <!-- SALESPERSON - SIMPLEST -->
+      <!-- SALESPERSON -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="salespersonList"
@@ -42,11 +41,42 @@
           placeholder="Sales Person"
           class="w-full"
           formControlName="salesperson"
-        >
-        </p-select>
+        ></p-select>
       </div>
 
+      <!-- ── IMAGE FIELD ─────────────────────────────────────────────────── -->
       <div class="col-12 field mt-3">
+        <!-- Pre-selected reference image indicator -->
+        @if (imagePreviewUrl() && !userSelectedFile()) {
+          <div
+            class="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+          >
+            <img
+              [src]="imagePreviewUrl()!"
+              alt="pre-selected"
+              class="w-10 h-10 rounded-md object-cover shrink-0 border border-emerald-200"
+            />
+            <div class="flex-1 min-w-0">
+              <p
+                class="text-xs font-medium text-emerald-700 dark:text-emerald-400"
+              >
+                ✓ Image pre-selected
+              </p>
+              <p class="text-xs text-emerald-600/70 truncate">
+                {{ uploadedFile?.name }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="text-emerald-600 hover:text-red-500 transition-colors"
+              (click)="removeImage()"
+              title="Remove"
+            >
+              <i class="pi pi-times text-xs"></i>
+            </button>
+          </div>
+        }
+
         <p-fileupload
           mode="advanced"
           [multiple]="false"
@@ -59,9 +89,9 @@
           chooseLabel="Add Image"
           styleClass="w-full !p-0"
           name="imageProduct"
-        >
-        </p-fileupload>
+        ></p-fileupload>
       </div>
+      <!-- ── END IMAGE FIELD ─────────────────────────────────────────────── -->
 
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
@@ -110,7 +140,6 @@
             pInputText
             id="diamondDetails"
             formControlName="diamondDetails"
-            rows="3"
             class="w-full"
           />
           <label for="diamondDetails">Diamond Details</label>
@@ -123,7 +152,6 @@
             pInputText
             id="stoneDetails"
             formControlName="stoneDetails"
-            rows="3"
             class="w-full"
           />
           <label for="stoneDetails">Stone Details</label>
@@ -161,7 +189,7 @@
         </p-floatlabel>
       </div>
 
-      <!-- CATEGORY - SIMPLEST -->
+      <!-- CATEGORY -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="categoryList"
@@ -173,8 +201,7 @@
           placeholder="Item Category"
           class="w-full"
           formControlName="itemCategory"
-        >
-        </p-select>
+        ></p-select>
       </div>
 
       <div class="col-12 field mt-3">

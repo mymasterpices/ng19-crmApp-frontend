@@ -1,0 +1,336 @@
+<!-- crmApp/app/src/app/pages/image-search/image-search.component.html -->
+
+<!-- Hidden inputs -->
+<input
+  #fileInput
+  type="file"
+  accept="image/jpeg,image/jpg,image/png"
+  hidden
+  (change)="onFileChange($event)"
+/>
+<input
+  #cameraInput
+  type="file"
+  accept="image/*"
+  capture="environment"
+  hidden
+  (change)="onFileChange($event)"
+/>
+
+<!-- ── Lightbox ─────────────────────────────────────────────────────────── -->
+@if (lightbox()) {
+  <div
+    class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+    (click)="closeLightbox()"
+  >
+    <div class="relative max-w-3xl w-full" (click)="$event.stopPropagation()">
+      <img
+        [src]="lightbox()!.imageUrl"
+        [alt]="lightbox()!.filename"
+        class="w-full rounded-xl object-contain max-h-[80vh] shadow-2xl"
+      />
+      <div class="mt-3 flex justify-between items-center px-1">
+        <div>
+          <p class="text-white font-medium truncate">
+            {{ lightbox()!.filename }}
+          </p>
+          <p class="text-white/50 text-sm font-mono">
+            {{ matchLabel(lightbox()!.score) }} —
+            {{ (lightbox()!.score * 100).toFixed(1) }}%
+          </p>
+        </div>
+      </div>
+      <button
+        class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-zinc-800 flex items-center justify-center shadow"
+        (click)="closeLightbox()"
+      >
+        <i class="pi pi-times text-xs"></i>
+      </button>
+    </div>
+  </div>
+}
+
+<!-- ── New Order Drawer ──────────────────────────────────────────────────── -->
+<p-drawer
+  [(visible)]="orderDrawer"
+  position="left"
+  [modal]="true"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+  (onHide)="closeOrderDrawer()"
+>
+  <ng-template pTemplate="header">
+    <span class="font-semibold text-xl">Create New Order</span>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <app-new-order
+      [referenceImageUrl]="orderRefImage()"
+      [referenceImageName]="orderRefName()"
+      (orderCreated)="closeOrderDrawer()"
+    />
+  </ng-template>
+</p-drawer>
+
+<!-- ── Page ──────────────────────────────────────────────────────────────── -->
+<div class="max-w-6xl mx-auto p-4">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Image Similarity Search</h1>
+    <p class="text-zinc-500 text-sm mt-1">
+      Upload or capture a product image to find similar items or create a new
+      order.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- ── LEFT: Upload panel ───────────────────────────────────────────── -->
+    <div class="lg:col-span-1 flex flex-col gap-4">
+      <p-card>
+        <!-- Drop zone -->
+        <div
+          class="border-2 border-dashed rounded-xl transition-all duration-200 flex flex-col items-center justify-center min-h-52 p-6 text-center"
+          [class.border-primary]="isDragging()"
+          [class.bg-blue-50]="isDragging()"
+          [class.border-zinc-300]="!isDragging()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+        >
+          @if (previewUrl()) {
+            <img
+              [src]="previewUrl()"
+              alt="Reference"
+              class="max-h-44 max-w-full rounded-lg object-contain shadow mb-2"
+            />
+            <p class="text-xs text-zinc-400 truncate w-full text-center">
+              {{ selectedFile()?.name }}
+            </p>
+          } @else {
+            <i class="pi pi-image text-5xl text-zinc-200 mb-3"></i>
+            <p class="text-sm text-zinc-500 font-medium">Drop image here</p>
+            <p class="text-xs text-zinc-400 mt-1">or use the buttons below</p>
+          }
+        </div>
+
+        <!-- Upload / Camera -->
+        <div class="grid grid-cols-2 gap-2 mt-4">
+          <p-button
+            label="Upload"
+            icon="pi pi-upload"
+            severity="secondary"
+            styleClass="w-full"
+            (onClick)="openFilePicker()"
+          />
+          <p-button
+            label="Camera"
+            icon="pi pi-camera"
+            severity="secondary"
+            styleClass="w-full"
+            (onClick)="openCamera()"
+          />
+        </div>
+
+        <!-- Search / Clear -->
+        <div class="flex gap-2 mt-3">
+          <p-button
+            label="Find Similar"
+            icon="pi pi-search"
+            styleClass="flex-1"
+            [disabled]="!selectedFile() || loading()"
+            [loading]="loading()"
+            (onClick)="search()"
+          />
+          @if (selectedFile()) {
+            <p-button
+              icon="pi pi-times"
+              severity="danger"
+              [text]="true"
+              pTooltip="Clear"
+              (onClick)="clear()"
+            />
+          }
+        </div>
+
+        <!-- Create Order CTA — shown when no exact match found -->
+        @if (showCreateOrder()) {
+          <div
+            class="mt-4 p-3 rounded-xl border border-dashed border-orange-300 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800"
+          >
+            <p
+              class="text-sm font-medium text-orange-700 dark:text-orange-400 mb-1"
+            >
+              @if (results().length === 0) {
+                No matching product found
+              } @else {
+                No exact match found
+              }
+            </p>
+            <p class="text-xs text-orange-600/70 dark:text-orange-500/70 mb-3">
+              Create a new order using this image as reference.
+            </p>
+            <p-button
+              label="Create Order Now"
+              icon="pi pi-shopping-bag"
+              styleClass="w-full"
+              severity="warn"
+              size="small"
+              (onClick)="openOrderDrawer()"
+            />
+          </div>
+        }
+      </p-card>
+
+      <!-- Filters (shown after search) -->
+      @if (searched()) {
+        <p-card header="Filters">
+          <p class="text-xs text-zinc-500 mb-1">Results to show</p>
+          <div class="flex gap-2 mb-4">
+            @for (n of topKOptions; track n) {
+              <button
+                class="px-3 py-1 rounded-full text-xs border transition-colors"
+                [class.bg-zinc-800]="topK() === n"
+                [class.text-white]="topK() === n"
+                [class.border-zinc-600]="topK() === n"
+                [class.border-zinc-300]="topK() !== n"
+                (click)="setTopK(n)"
+              >
+                {{ n }}
+              </button>
+            }
+          </div>
+          <p class="text-xs text-zinc-500 mb-1">Similarity level</p>
+          <div class="flex gap-2">
+            @for (opt of distanceOptions; track opt.value) {
+              <button
+                class="px-3 py-1 rounded-full text-xs border transition-colors"
+                [class.bg-zinc-800]="maxDistance() === opt.value"
+                [class.text-white]="maxDistance() === opt.value"
+                [class.border-zinc-600]="maxDistance() === opt.value"
+                [class.border-zinc-300]="maxDistance() !== opt.value"
+                (click)="setDistance(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </p-card>
+      }
+    </div>
+
+    <!-- ── RIGHT: Results ─────────────────────────────────────────────────── -->
+    <div class="lg:col-span-2">
+      @if (loading()) {
+        <div class="flex flex-col items-center justify-center h-64 gap-4">
+          <p-progressSpinner strokeWidth="4" animationDuration=".7s" />
+          <p class="text-sm text-zinc-500 animate-pulse">
+            Searching through indexed images…
+          </p>
+        </div>
+
+      } @else if (hasResults()) {
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-sm text-zinc-500">
+            {{ results().length }} similar product(s) found
+          </p>
+          <!-- Order from search results -->
+          @if (showCreateOrder()) {
+            <p-button
+              label="Order Now"
+              icon="pi pi-shopping-bag"
+              size="small"
+              severity="warn"
+              (onClick)="openOrderDrawer()"
+            />
+          }
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          @for (img of results(); track img._id) {
+            <div
+              class="group rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 cursor-pointer bg-white dark:bg-zinc-900 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <!-- Thumbnail -->
+              <div
+                class="relative aspect-square bg-zinc-100 overflow-hidden"
+                (click)="openLightbox(img)"
+              >
+                <img
+                  [src]="img.imageUrl"
+                  [alt]="img.filename"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+                <span
+                  class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full shadow"
+                  [ngClass]="matchBadge(img.score)"
+                >
+                  {{ matchLabel(img.score) }}
+                </span>
+                <div
+                  class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors duration-200"
+                >
+                  <i
+                    class="pi pi-expand text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  ></i>
+                </div>
+              </div>
+
+              <!-- Meta -->
+              <div class="p-2">
+                <p
+                  class="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate"
+                >
+                  {{ img.filename }}
+                </p>
+                <p class="text-xs text-zinc-400 font-mono mt-0.5">
+                  {{ (img.score * 100).toFixed(1) }}% match
+                  @if (img.subfolder) {
+                    <span class="ml-1 text-zinc-300"
+                      >· {{ img.subfolder }}</span
+                    >
+                  }
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+
+      } @else if (searched() && !loading()) {
+        <div
+          class="flex flex-col items-center justify-center h-64 gap-3 text-center"
+        >
+          <i class="pi pi-search text-4xl text-zinc-300"></i>
+          <p class="text-zinc-500 font-medium">No similar images found</p>
+          <p class="text-zinc-400 text-sm">
+            Try switching to "Loose" similarity.
+          </p>
+          <div class="flex gap-2 mt-1">
+            <p-button
+              label="Try Loose"
+              severity="secondary"
+              size="small"
+              (onClick)="setDistance(20); search()"
+            />
+            <p-button
+              label="Create Order"
+              icon="pi pi-shopping-bag"
+              severity="warn"
+              size="small"
+              (onClick)="openOrderDrawer()"
+            />
+          </div>
+        </div>
+
+      } @else {
+        <div
+          class="flex flex-col items-center justify-center h-64 gap-3 text-center"
+        >
+          <i class="pi pi-images text-5xl text-zinc-200"></i>
+          <p class="text-zinc-400 text-sm max-w-xs">
+            Upload or take a photo of a product to find visually similar items.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

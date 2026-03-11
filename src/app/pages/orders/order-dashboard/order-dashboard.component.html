@@ -103,7 +103,7 @@
     <span class="font-semibold text-xl">Create New Order</span>
   </ng-template>
   <ng-template pTemplate="content">
-    <app-new-order />
+    <app-new-order (orderCreated)="drawerVisible = false" />
   </ng-template>
 </p-drawer>
 

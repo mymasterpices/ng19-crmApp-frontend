@@ -34,6 +34,7 @@ import { ChangeStatusComponent } from './pages/orders/change-status/change-statu
 import { OrderReportComponent } from './pages/orders/order-report/order-report.component';
 import { EditOrderComponent } from './pages/orders/edit-order/edit-order.component';
 import { KarigarDashboardComponent } from './pages/karigar/karigar-dashboard/karigar-dashboard.component';
+import { ImageSearchComponent } from './pages/image-search/image-search.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -64,6 +65,7 @@ export const routes: Routes = [
       { path: 'view-details/:jewel_code', component: ViewDetailsComponent },
       { path: 'videos/view-all', component: ViewAllComponent },
       { path: 'videos/shared-links', component: SharedLinksComponent },
+      { path: 'image-search', component: ImageSearchComponent },
       {
         path: 'products/compare',
         component: CompareComponent,
