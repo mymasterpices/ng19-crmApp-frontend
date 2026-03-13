@@ -64,7 +64,7 @@ export class FootfaloverviewComponent {
   loadData() {
     this.footfallService.getFootfallEntries().subscribe({
       next: (res: any) => {
-        const users = res as FootfallUser[];
+        const users = res.data as FootfallUser[];
 
         const flat: FootEntry[] = [];
         users.forEach((u) => {
@@ -123,7 +123,7 @@ export class FootfaloverviewComponent {
     this.totalFootfall = entries.reduce((sum, e) => sum + (e.footfall || 0), 0);
     this.totalConversion = entries.reduce(
       (sum, e) => sum + (e.conversion || 0),
-      0
+      0,
     );
     this.conversionRate = this.totalFootfall
       ? (this.totalConversion / this.totalFootfall) * 100
@@ -247,7 +247,7 @@ export class FootfaloverviewComponent {
 
     const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const data = labels.map((_, idx) =>
-      counts[idx] ? sums[idx] / counts[idx] : 0
+      counts[idx] ? sums[idx] / counts[idx] : 0,
     );
 
     this.dailyPerformanceData = {

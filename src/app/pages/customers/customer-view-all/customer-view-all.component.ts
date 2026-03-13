@@ -86,7 +86,13 @@ export class CustomerViewAllComponent implements OnInit {
   getSalespersonOptions() {
     this.loginService.getAllSalespersons().subscribe({
       next: (res: any) => {
-        const unique = [...new Set(res.map((u: any) => u.username))];
+        const unique = [
+          ...new Set(
+            res
+              .filter((u: any) => u.status === 'active' && u.role === 'user')
+              .map((u: any) => u.username),
+          ),
+        ];
         this.salespersonOptions.set(
           unique.map((name) => ({ label: name, value: name })),
         );

@@ -152,7 +152,7 @@ export class ImageSearchComponent {
         this.msg.add({
           severity: 'error',
           summary: 'Search failed',
-          detail: 'Make sure the Python service is running on port 8001.',
+          detail: 'Make sure the Python service is running on port 8002.',
         });
       },
     });
