@@ -18,15 +18,16 @@
       <div class="col-12 field mt-3">
         <p-select
           [options]="karigarList"
-          optionLabel="name"
-          optionValue="name"
+          optionLabel="username"
+          optionValue="_id"
           [filter]="true"
-          filterBy="name"
+          filterBy="username"
           [showClear]="true"
-          placeholder="Karigar"
+          placeholder="Select a Karigar"
           class="w-full"
           formControlName="karigari"
-        ></p-select>
+        >
+        </p-select>
       </div>
 
       <!-- SALESPERSON -->

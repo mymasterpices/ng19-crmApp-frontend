@@ -187,7 +187,9 @@ export class NewOrderComponent implements OnInit, OnChanges {
 
   getKarigarName(id: string): string {
     if (!id) return '';
-    return this.karigarList.find((k) => k._id === id)?.name || id;
+    // Match by _id and return the username
+    const karigar = this.karigarList.find((k) => k._id === id);
+    return karigar ? karigar.username : id;
   }
 
   getSalespersonList() {
