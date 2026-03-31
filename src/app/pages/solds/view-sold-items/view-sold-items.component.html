@@ -1,287 +1,118 @@
-@if (viewSoldItem) {
-  <div class="mt-4">
-    <p-card>
-      <div class="imageCarsuel">
-        @if (viewSoldItem.products.length == 1) {
-          <div class="flex justify-center items-center gap-3">
-            <p-image
-              [src]="appUrl + '/' + viewSoldItem.products[0].soldupload"
-              preview="true"
-              [styleClass]="'w-auto h-30 object-cover rounded'"
-            />
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  @if (viewSoldItem) {
+    <p-card header="Customer info">
+      <div class="flex justify-between items-start gap-3 py-2">
+        <div class="flex gap-2 items-center">
+          <p-avatar
+            label="{{ viewSoldItem.full_name.charAt(0) | uppercase }}"
+            styleClass="mr-2"
+            size="large"
+            shape="circle"
+          />
+          <div class="div">
+            <h5 class="font-semibold">
+              {{ viewSoldItem.full_name | titlecase }}
+            </h5>
+            <p class="font-light">{{ viewSoldItem.mobile }}</p>
           </div>
-        } @else {
-          <p-carousel
-            [value]="viewSoldItem.products"
-            [numVisible]="1"
-            [numScroll]="1"
-            [circular]="true"
-            [autoplayInterval]="3000"
-            [showIndicators]="false"
-            [responsiveOptions]="[
-              { breakpoint: '1024px', numVisible: 4, numScroll: 1 },
-              { breakpoint: '600px', numVisible: 3, numScroll: 1 },
-              { breakpoint: '480px', numVisible: 1, numScroll: 1 },
-            ]"
-          >
-            <ng-template let-product pTemplate="item">
-              <img
-                [src]="appUrl + '/' + product.soldupload"
-                previewGroup="productsGallery"
-                class="w-full h-48 object-cover rounded-lg"
-              />
-              <p class="text-center opacity-75">
-                {{ product.tag | uppercase }}
-              </p>
-            </ng-template>
-          </p-carousel>
-        }
-      </div>
-      @if (user === "admin" || user === "superadmin") {
-        <div class="flex justify-between items-center gap-3 mt-3">
-          <h5 class="flex">Sales Person</h5>
-          <p class="italic">{{ viewSoldItem.sales_staff | titlecase }}</p>
         </div>
-      }
+        <div class="ml-auto">
+          <h3 class="font-semibold">
+            {{ viewSoldItem.sales_staff | titlecase }}
+          </h3>
+        </div>
+      </div>
+      <div class="imageCarsuel"></div>
+      @if (user === "admin" || user === "superadmin") {}
       <div class="flex justify-between items-center gap-3 mt-3">
-        <h5 class="flex-none">Personal Details</h5>
-        <p class="italic">{{ viewSoldItem.createdAt | date }}</p>
+        <h5 class="font-semibold">Sold on:</h5>
+        <p>{{ viewSoldItem.createdAt | date }}</p>
       </div>
 
-      <div class="flex gap-3">
+      <div
+        class="flex gap-3 border border-gray-300 dark:border-gray-600 rounded-lg p-3 mt-3"
+      >
         <div class="flex-1">
           <div class="flex justify-between gap-4">
-            <strong>{{ viewSoldItem.full_name | titlecase }}</strong>
-            <strong>{{ viewSoldItem.mobile }}</strong>
-          </div>
-
-          <div class="flex justify-between gap-4 ">
-            <span>Birthday</span>
+            <span>Birthday:</span>
             <span>{{ viewSoldItem.birthday | date }}</span>
           </div>
-          <div class="flex justify-between gap-4 ">
-            <span>Anniversary</span>
+          <div class="flex justify-between gap-4">
+            <span>Anniversary:</span>
             <span>{{ viewSoldItem.anniversary | date }}</span>
           </div>
-          <div class="flex justify-between gap-4 ">
+          <div class="flex justify-between gap-4">
             <span>Email:</span>
             <span>{{ viewSoldItem.email }}</span>
           </div>
         </div>
       </div>
-
-      <p-divider></p-divider>
-
-      <h5 class="flex-none">Product Info</h5>
-      <div class="flex gap-6 flex-col md:flex-row">
-        @for (product of viewSoldItem.products; track $index) {
-          <p-accordion [value]="['0']" [multiple]="true">
-            <p-accordion-panel value="$index">
-              <p-accordion-header class="!p-0 !pt-2 !pb-2">{{
-                product.tag | uppercase
-              }}</p-accordion-header>
-              <p-accordion-content>
-                <div class="container">
-                  <div class="flex justify-between">
-                    <span>Tag:</span>
-                    <span>{{ product.tag | uppercase }}</span>
-                  </div>
-                  <div class="flex justify-between gap-4 ">
-                    <span>Gold wt.:</span>
-                    <span>{{ product.gold_wt }} Gms</span>
-                  </div>
-                  <div class="flex justify-between gap-4 ">
-                    <span>Dia wt.:</span>
-                    <span>{{ product.dia_wt }} Cts</span>
-                  </div>
-                  <div class="flex justify-between gap-4 ">
-                    <span>Stn wt.:</span>
-                    <span>{{ product.stn_wt }} Cts</span>
-                  </div>
-                  <div class="flex justify-between gap-4 ">
-                    <span>Price:</span>
-                    <span>{{
-                      product.amount | currency: "INR" : "symbol"
-                    }}</span>
-                  </div>
-                </div>
-              </p-accordion-content>
-            </p-accordion-panel>
-          </p-accordion>
-        }
-      </div>
     </p-card>
+  }
+  <p-card>
+    <div class="imageCarsuel">
+      @if (viewSoldItem.products.length == 1) {
+        <div class="flex justify-center items-center gap-3">
+          <p-image
+            [src]="appUrl + '/' + viewSoldItem.products[0].soldupload"
+            preview="true"
+            [styleClass]="'w-auto h-30 object-cover rounded'"
+          />
+        </div>
+      } @else {
+        <p-carousel
+          [value]="viewSoldItem.products"
+          [circular]="true"
+          [numVisible]="1"
+          [numScroll]="1"
+          [circular]="true"
+          [autoplayInterval]="3000"
+          [showIndicators]="false"
+          [responsiveOptions]="responsiveOptions"
+        >
+          <ng-template let-product pTemplate="item">
+            <img
+              [src]="appUrl + '/' + product.soldupload"
+              previewGroup="productsGallery"
+              class="w-full h-70 object-contain rounded-lg"
+            />
+            <p class="text-center opacity-75">
+              {{ product.tag | uppercase }}
+            </p>
+          </ng-template>
+        </p-carousel>
+      }
+    </div>
+  </p-card>
+</div>
+
+@if (viewSoldItem) {
+  <h4 class="font-semibold text-xl mt-4">Product List</h4>
+  <div class="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 mb-4">
+    @for (product of viewSoldItem.products; track $index) {
+      <p-card class="relative">
+        <p-badge value="{{ $index + 1 }}" class="absolute top-0 left-0" severity="secondary" />
+        <div class="flex justify-between pt-2">
+          <p class="font-medium">Tag:</p>
+          <span>{{ product.tag | uppercase }}</span>
+        </div>
+        <div class="flex justify-between gap-4 mt-2">
+          <span>Gold wt.:</span>
+          <span>{{ product.gold_wt }} Gms</span>
+        </div>
+        <div class="flex justify-between gap-4">
+          <span>Dia wt.:</span>
+          <span>{{ product.dia_wt }} Cts</span>
+        </div>
+        <div class="flex justify-between gap-4">
+          <span>Stn wt.:</span>
+          <span>{{ product.stn_wt }} Cts</span>
+        </div>
+        <div class="flex justify-between gap-4">
+          <span>Price:</span>
+          <span>{{ product.amount | currency: "INR" : "symbol" }}</span>
+        </div>
+      </p-card>
+    }
   </div>
 }
-
-<!-- Update Sold Item Dialog -->
-<p-dialog
-  header="Update Sold Item"
-  [(visible)]="visible"
-  [modal]="true"
-  class="w-96"
->
-  <form
-    enctype="multipart/form-data"
-    [formGroup]="soldEntryFrom"
-    (ngSubmit)="onSubmit()"
-  >
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <input
-          pInputText
-          autocomplete="off"
-          class="w-full"
-          formControlName="full_name"
-        />
-        <label for="full_name">Full Name</label>
-      </p-floatlabel>
-      @if (
-        soldEntryFrom.controls["full_name"].errors?.["required"] &&
-        soldEntryFrom.controls["full_name"].touched
-      ) {
-        <small class="text-red-500">Full name is required</small>
-      }
-      @if (soldEntryFrom.controls["full_name"].errors?.["minlength"]) {
-        <small class="text-red-500">Minimum 3 characters required</small>
-      }
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <input pInputText formControlName="mobile" class="w-full" />
-        <label for="mobile">Mobile</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <input
-          pInputText
-          formControlName="email"
-          autocomplete="off"
-          class="w-full"
-        />
-        <label for="email">Email</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <p-datepicker
-          inputId="birthday"
-          formControlName="birthday"
-          styleClass="w-full"
-        />
-        <label for="birthday">Birthday</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <p-datepicker
-          inputId="anniversary"
-          formControlName="anniversary"
-          styleClass="w-full"
-        />
-        <label for="anniversary">Anniversary</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <textarea
-          pTextarea
-          id="address"
-          rows="3"
-          cols="30"
-          class="w-full"
-          formControlName="address"
-        ></textarea>
-        <label for="address">Address</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <input
-          pInputText
-          formControlName="purity"
-          autocomplete="off"
-          class="w-full"
-          [value]="viewSoldItem?.purity"
-        />
-        <label for="purity">Purity</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="flex gap-2 justify-between">
-      <div class="mt-2 w-full">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            formControlName="gold_wt"
-            autocomplete="off"
-            class="w-full"
-          />
-          <label for="gold_wt">Gold wt.</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="mt-2 w-full">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            formControlName="dia_wt"
-            autocomplete="off"
-            class="w-full"
-          />
-          <label for="dia_wt">Dia wt.</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="mt-2 w-full">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            formControlName="stn_wt"
-            autocomplete="off"
-            class="w-full"
-          />
-          <label for="stn_wt">Stn wt.</label>
-        </p-floatlabel>
-      </div>
-    </div>
-
-    <div class="mt-2">
-      <p-floatlabel variant="on">
-        <p-inputnumber
-          inputId="amount"
-          mode="decimal"
-          [minFractionDigits]="2"
-          class="w-full"
-          formControlName="amount"
-        ></p-inputnumber>
-        <label for="amount">Amount</label>
-      </p-floatlabel>
-    </div>
-
-    <div class="mt-2">
-      <p-fileupload
-        mode="basic"
-        name="file"
-        chooseIcon="pi pi-upload"
-        [customUpload]="true"
-        accept="image/*"
-        styleClass="w-full"
-        [auto]="true"
-        chooseLabel="Browse image"
-        (onSelect)="onBasicUploadAuto($event)"
-      ></p-fileupload>
-    </div>
-
-    <div class="flex pt-6 justify-between w-full max-w-[40rem] mx-auto">
-      <p-button type="submit" label="Update" icon="pi pi-save"></p-button>
-    </div>
-  </form>
-</p-dialog>

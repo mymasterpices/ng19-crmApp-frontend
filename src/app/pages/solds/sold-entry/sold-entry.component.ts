@@ -78,10 +78,10 @@ export class SoldEntryComponent implements OnInit {
     return this.fb.group({
       tag: ['', [Validators.required, Validators.minLength(4)]],
       purity: [''],
-      gold_wt: [''],
+      gold_wt: ['', Validators.required],
       dia_wt: [''],
       stn_wt: [''],
-      amount: [''],
+      amount: ['', Validators.required],
       soldupload: <File | null>null,
     });
   }
@@ -156,7 +156,7 @@ export class SoldEntryComponent implements OnInit {
             detail: 'Failed to add sold entry. Please try again.',
           });
           console.error('Error adding sold entry:', error);
-        }
+        },
       );
     } else {
       this.messageService.add({

@@ -1,7 +1,7 @@
 <!-- Floating Add Button -->
 <div class="flex justify-between items-center">
   <div class="wrapper flex justify-between gap-3">
-    <h2 class="text-xl font-semibold max-md:hidden" >Sold List</h2>
+    <h2 class="text-xl font-semibold max-md:hidden">Sold List</h2>
     <p-floatlabel variant="on">
       <input
         #searchInput
@@ -15,7 +15,7 @@
   </div>
   <p-button
     icon="pi pi-plus"
-    class=" right-3"
+    class="right-3"
     routerLink="/sold-items/sold-entry"
     severity="contrast"
     label="Add New"
@@ -47,6 +47,7 @@
           @if (userRole !== "user") {
             <th>Action</th>
           }
+          <th>Sales</th>
         </tr>
       </ng-template>
 
@@ -130,6 +131,8 @@
               <span>{{
                 item.products[0]?.amount | currency: "INR" : "symbol"
               }}</span>
+            } @else {
+              <span>N/A</span>
             }
           </td>
           <td>
@@ -143,6 +146,11 @@
                 (onClick)="deleteSoldItem(item._id)"
               >
               </p-button>
+            }
+          </td>
+          <td>
+            @if (item.sales_staff) {
+              {{ item.sales_staff }}
             }
           </td>
         </tr>

@@ -95,54 +95,13 @@ export class ShowFootfallComponent implements OnInit {
     this._footfallService.getAllSalesPersons().subscribe({
       next: (res: any) => {
         // keep only users with status === 'active'
-        this.salesPerson = res.filter((user: any) => user.status === 'active');
+        this.salesPerson = res.filter((user: any) => {
+          return user.status === 'active' && user.role === 'user';
+        });
       },
       error: (err) => console.error(err),
     });
   }
-
-  // getSavedFootfallEntries(search: string = '') {
-  //   let params = new HttpParams();
-  //   if (search.trim())
-  //     params = params.set('username', this.toTitleCase(search.trim()));
-
-  //   this._footfallService.getFootfallEntries(params).subscribe({
-  //     next: (res: any) => {
-  //       const updated = res.map((person: any) => {
-  //         let entries = person.foot_entry;
-
-  //         if (this.selectedMonth) {
-  //           const month = this.selectedMonth.getMonth();
-  //           const year = this.selectedMonth.getFullYear();
-  //           entries = entries.filter((e: any) => {
-  //             const date = new Date(e.timestamp);
-  //             return date.getFullYear() === year && date.getMonth() === month;
-  //           });
-  //         }
-
-  //         const totalFootfall = entries.reduce(
-  //           (sum: number, e: any) => sum + e.footfall,
-  //           0,
-  //         );
-  //         const totalConversion = entries.reduce(
-  //           (sum: number, e: any) => sum + e.conversion,
-  //           0,
-  //         );
-
-  //         return {
-  //           ...person,
-  //           foot_entry: entries,
-  //           totalFootfall,
-  //           totalConversion,
-  //         };
-  //       });
-
-  //       this.allFootfallEntries.set(updated);
-  //     },
-  //     error: (err) => console.error(err),
-  //   });
-  // }
-
 
   loadDataLazy(event: TableLazyLoadEvent) {
     this.loading.set(true);
@@ -157,7 +116,6 @@ export class ShowFootfallComponent implements OnInit {
     this.getSavedFootfallEntries(this.searchTerm, page, limit);
   }
 
-  
   getSavedFootfallEntries(
     search: string = '',
     page: number = 1,
@@ -214,7 +172,6 @@ export class ShowFootfallComponent implements OnInit {
       },
     });
   }
-
 
   private toTitleCase(str: string): string {
     return str.replace(

@@ -29,6 +29,8 @@ import { DividerModule } from 'primeng/divider';
 import { CarouselModule } from 'primeng/carousel';
 import { LoginedUserService } from '../../../services/logined-user.service';
 import { AccordionModule } from 'primeng/accordion';
+import { AvatarModule } from 'primeng/avatar';
+import { BadgeModule } from "primeng/badge";
 
 interface UploadEvent {
   files: File[];
@@ -46,9 +48,6 @@ interface UploadEvent {
     CardModule,
     DialogModule,
     FileUploadModule,
-    InputNumber,
-    FloatLabel,
-    DatePicker,
     ReactiveFormsModule,
     InputTextModule,
     TextareaModule,
@@ -57,7 +56,9 @@ interface UploadEvent {
     ImageModule,
     CarouselModule,
     AccordionModule,
-  ],
+    AvatarModule,
+    BadgeModule
+],
   templateUrl: './view-sold-items.component.html',
   styleUrl: './view-sold-items.component.css',
 })
@@ -76,6 +77,12 @@ export class ViewSoldItemsComponent implements OnInit {
   showDialog() {
     this.visible = true;
   }
+
+  responsiveOptions = [
+    { breakpoint: '480px', numVisible: 1, numScroll: 1 },
+    { breakpoint: '600px', numVisible: 3, numScroll: 1 },
+    { breakpoint: '1024px', numVisible: 4, numScroll: 1 },
+  ];
 
   soldEntryFrom = new FormGroup({
     full_name: new FormControl('', [
@@ -187,7 +194,7 @@ export class ViewSoldItemsComponent implements OnInit {
             detail: 'Failed to add sold entry.',
           });
           console.error('Error:', error);
-        }
+        },
       );
     } else {
       console.warn('Form is invalid', this.soldEntryFrom.errors);

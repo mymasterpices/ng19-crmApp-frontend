@@ -38,9 +38,11 @@
                     />
                     <label for="full_name">Full Name</label>
                   </p-floatLabel>
-                  @if(soldEntryFrom.controls['full_name'].errors?.['required']
-                  && soldEntryFrom.controls['full_name'].touched) {
-                  <small class="text-red-500">Full name is required</small>
+                  @if (
+                    soldEntryFrom.controls["full_name"].errors?.["required"] &&
+                    soldEntryFrom.controls["full_name"].touched
+                  ) {
+                    <small class="text-red-500">Full name is required</small>
                   }
                 </div>
                 <div class="mb-4">
@@ -111,6 +113,7 @@
                   iconPos="right"
                   (onClick)="activateCallback(2)"
                   severity="contrast"
+                  size="small"
                 />
               </div>
             </ng-template>
@@ -122,117 +125,136 @@
               let-activateCallback="activateCallback"
             >
               <div formArrayName="products">
-                @for(product of products.controls; track product; let i =
-                $index) {
-                <div [formGroupName]="i">
-                  <div class="mb-4">
-                    <p-floatLabel variant="on">
-                      <input
-                        pInputText
-                        formControlName="tag"
-                        id="tag{{ i }}"
-                        class="w-full"
-                      />
-                      <label for="tag{{ i }}">Tag Number</label>
-                    </p-floatLabel>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-3">
+                @for (
+                  product of products.controls;
+                  track product;
+                  let i = $index
+                ) {
+                  <div [formGroupName]="i">
                     <div class="mb-4">
                       <p-floatLabel variant="on">
                         <input
                           pInputText
-                          formControlName="purity"
-                          id="purity{{ i }}"
+                          formControlName="tag"
+                          id="tag{{ i }}"
                           class="w-full"
                         />
-                        <label for="purity{{ i }}">Purity</label>
+                        <label for="tag{{ i }}">Tag Number</label>
                       </p-floatLabel>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                      <div class="mb-4">
+                        <p-floatLabel variant="on">
+                          <input
+                            pInputText
+                            formControlName="purity"
+                            id="purity{{ i }}"
+                            class="w-full"
+                          />
+                          <label for="purity{{ i }}">Purity</label>
+                        </p-floatLabel>
+                      </div>
+
+                      <div class="mb-4">
+                        <p-floatLabel variant="on">
+                          <input
+                            pInputText
+                            formControlName="gold_wt"
+                            id="gold_wt{{ i }}"
+                            class="w-full"
+                          />
+                          <label for="gold_wt{{ i }}">Gold Wt.</label>
+                        </p-floatLabel>
+                        @if (
+                          products.at(i).get("gold_wt")?.invalid &&
+                          products.at(i).get("gold_wt")?.touched
+                        ) {
+                          <small class="text-red-500"
+                            >Gold weight is required</small
+                          >
+                        }
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div class="mb-4">
+                        <p-floatLabel variant="on">
+                          <input
+                            pInputText
+                            formControlName="dia_wt"
+                            id="dia_wt{{ i }}"
+                            class="w-full"
+                          />
+                          <label for="dia_wt{{ i }}">Dia Wt.</label>
+                        </p-floatLabel>
+                      </div>
+
+                      <div class="mb-4">
+                        <p-floatLabel variant="on">
+                          <input
+                            pInputText
+                            formControlName="stn_wt"
+                            id="stn_wt{{ i }}"
+                            class="w-full"
+                          />
+                          <label for="stn_wt{{ i }}">Stn Wt.</label>
+                        </p-floatLabel>
+                      </div>
                     </div>
 
                     <div class="mb-4">
                       <p-floatLabel variant="on">
-                        <input
-                          pInputText
-                          formControlName="gold_wt"
-                          id="gold_wt{{ i }}"
+                        <p-inputnumber
+                          formControlName="amount"
+                          inputId="amount{{ i }}"
+                          mode="decimal"
+                          [minFractionDigits]="2"
                           class="w-full"
-                        />
-                        <label for="gold_wt{{ i }}">Gold Wt.</label>
+                        ></p-inputnumber>
+                        <label for="amount{{ i }}">Amount</label>
                       </p-floatLabel>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div class="mb-4">
-                      <p-floatLabel variant="on">
-                        <input
-                          pInputText
-                          formControlName="dia_wt"
-                          id="dia_wt{{ i }}"
-                          class="w-full"
-                        />
-                        <label for="dia_wt{{ i }}">Dia Wt.</label>
-                      </p-floatLabel>
+                      @if (
+                        products.at(i).get("amount")?.invalid &&
+                        products.at(i).get("amount")?.touched
+                      ) {
+                        <small class="text-red-500">Amount is required</small>
+                      }
                     </div>
 
-                    <div class="mb-4">
-                      <p-floatLabel variant="on">
-                        <input
-                          pInputText
-                          formControlName="stn_wt"
-                          id="stn_wt{{ i }}"
-                          class="w-full"
-                        />
-                        <label for="stn_wt{{ i }}">Stn Wt.</label>
-                      </p-floatLabel>
+                    <div class="flex justify-between items-center mb-4 gap-3">
+                      <p-fileupload
+                        mode="basic"
+                        name="file"
+                        [customUpload]="true"
+                        accept="image/*"
+                        (onSelect)="onBasicUploadAuto($event, i)"
+                        chooseIcon="pi pi-upload"
+                        chooseLabel="Browse image"
+                        [auto]="true"
+                      ></p-fileupload>
+                      <div class="flex gap-2">
+                        <button
+                          pButton
+                          type="button"
+                          [text]="true"
+                          icon="pi pi-times"
+                          severity="danger"
+                          size="small"
+                          (click)="removeProduct(i)"
+                          *ngIf="products.length > 1"
+                        ></button>
+                        <p-button
+                          pTooltip="Add more"
+                          type="button"
+                          [text]="true"
+                          (click)="addProduct()"
+                          icon="pi pi-plus"
+                          severity="contrast"
+                          size="small"
+                        ></p-button>
+                      </div>
                     </div>
                   </div>
-
-                  <div class="mb-4">
-                    <p-floatLabel variant="on">
-                      <p-inputnumber
-                        formControlName="amount"
-                        inputId="amount{{ i }}"
-                        mode="decimal"
-                        [minFractionDigits]="2"
-                        class="w-full"
-                      ></p-inputnumber>
-                      <label for="amount{{ i }}">Amount</label>
-                    </p-floatLabel>
-                  </div>
-
-                  <div class="flex justify-between items-center mb-4 gap-3">
-                    <p-fileupload
-                      mode="basic"
-                      name="file"
-                      [customUpload]="true"
-                      accept="image/*"
-                      (onSelect)="onBasicUploadAuto($event, i)"
-                      chooseIcon="pi pi-upload"
-                      chooseLabel="Browse image"
-                      [auto]="true"
-                    ></p-fileupload>
-                    <div class="flex gap-2">
-                      <button
-                        pButton
-                        type="button"
-                        [text]="true"
-                        icon="pi pi-times"
-                        severity="danger"
-                        (click)="removeProduct(i)"
-                        *ngIf="products.length > 1"
-                      ></button>
-                      <p-button
-                        pTooltip="Add more"
-                        type="button"
-                        [text]="true"
-                        (click)="addProduct()"
-                        icon="pi pi-plus"
-                        severity="contrast"
-                      ></p-button>
-                    </div>
-                  </div>
-                </div>
                 }
               </div>
 
@@ -243,12 +265,14 @@
                   icon="pi pi-arrow-left"
                   (click)="activateCallback(1)"
                   outlined="true"
+                  size="small"
                 ></p-button>
                 <button
                   pButton
                   type="submit"
                   label="Submit"
                   severity="contrast"
+                  size="small"
                 ></button>
               </div>
             </ng-template>

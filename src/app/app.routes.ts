@@ -35,6 +35,7 @@ import { OrderReportComponent } from './pages/orders/order-report/order-report.c
 import { EditOrderComponent } from './pages/orders/edit-order/edit-order.component';
 import { KarigarDashboardComponent } from './pages/karigar/karigar-dashboard/karigar-dashboard.component';
 import { ImageSearchComponent } from './pages/image-search/image-search.component';
+import { ManageTargetComponent } from './pages/manage-target/manage-target.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -92,6 +93,7 @@ export const routes: Routes = [
       { path: 'orders/change-status', component: ChangeStatusComponent },
       { path: 'orders/order-report', component: OrderReportComponent },
       { path: 'orders/edit-order/:id', component: EditOrderComponent },
+      { path: 'manage-targets', component: ManageTargetComponent },
       //karigar routes
       {
         path: 'karigar/karigar-dashboard',

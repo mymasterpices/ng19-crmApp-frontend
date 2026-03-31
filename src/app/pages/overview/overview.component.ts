@@ -11,6 +11,7 @@ import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.comp
 import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
 import { AnalyticComponent } from './reports/analytic/analytic.component';
+import { TargetViewComponent } from "../target-view/target-view.component";
 
 interface FootEntry {
   username: string;
@@ -32,7 +33,8 @@ interface FootEntry {
     FootfaloverviewComponent,
     KarigarDashboardComponent,
     AnalyticComponent,
-  ],
+    TargetViewComponent
+],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
 })
