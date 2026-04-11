@@ -19,6 +19,8 @@ import { __param } from 'tslib';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
+import { DrawerModule } from 'primeng/drawer';
+import { NewOrderComponent } from '../new-order/new-order.component';
 
 @Component({
   selector: 'app-all-orders',
@@ -36,6 +38,8 @@ import { FormsModule } from '@angular/forms';
     PaginatorModule,
     SelectModule,
     FormsModule,
+    DrawerModule,
+    NewOrderComponent,
   ],
   templateUrl: './all-orders.component.html',
   styleUrl: './all-orders.component.css',
@@ -55,6 +59,9 @@ export class AllOrdersComponent implements OnInit {
   first: number = 0;
   rows: number = 10;
   totalrecords: number = 0;
+
+  drawerVisible: boolean = false;
+  // masterdrawerVisible: boolean = false;
 
   ngOnInit() {
     // Single source of truth: Listen to route params
