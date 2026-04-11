@@ -24,6 +24,7 @@ import { SelectModule } from 'primeng/select';
 
 import { OrderServices } from '../../../services/orders/order-services';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
+import { CardModule } from "primeng/card";
 
 @Component({
   selector: 'app-edit-order',
@@ -41,7 +42,8 @@ import { ShareOrderService } from '../../../services/orders/share-order.service'
     FileUploadModule,
     SelectModule,
     FormsModule,
-  ],
+    CardModule
+],
   templateUrl: './edit-order.component.html',
   styleUrl: './edit-order.component.css',
 })

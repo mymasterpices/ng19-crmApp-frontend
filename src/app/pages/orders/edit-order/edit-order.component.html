@@ -1,238 +1,246 @@
-<div class="card pb-6 mb-6">
-  <div class="flex justify-between items-center gap-4">
-    <h2 class="text-lg font-semibold pb-2">
-      Edit Order #{{ editOrderNum() }}
-    </h2>
-    <p-button
-      icon="pi pi-share-alt"
-      [text]="true"
-      size="small"
-      severity="contrast"
-    >
-    </p-button>
-  </div>
-  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-    <div class="">
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="party" formControlName="party" class="w-full" />
-          <label for="party">Party Name</label>
-        </p-floatlabel>
-      </div>
-
-      <!-- KARIGAR - SIMPLEST -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="karigarList()"
-          optionLabel="name"
-          optionValue="name"
-          [filter]="true"
-          filterBy="name"
-          [showClear]="true"
-          placeholder="Karigar"
-          class="w-full"
-          formControlName="karigari"
-        >
-        </p-select>
-      </div>
-
-      <!-- SALESPERSON - SIMPLEST -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="salespersonList()"
-          optionLabel="name"
-          optionValue="name"
-          [filter]="true"
-          filterBy="name"
-          [showClear]="true"
-          placeholder="Sales Person"
-          class="w-full"
-          formControlName="salesperson"
-        >
-        </p-select>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-fileupload
-          mode="advanced"
-          [multiple]="false"
-          accept="image/*"
-          maxFileSize="1000000"
-          [customUpload]="true"
-          (onSelect)="onFileSelect($event)"
-          (onRemove)="onFileRemove()"
-          [showUploadButton]="false"
-          [showCancelButton]="true"
-          chooseLabel="Add Image"
-          styleClass="w-full"
-          name="imageProduct"
-        >
-        </p-fileupload>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <p-datepicker
-            id="deliveryDate"
-            formControlName="deliveryDate"
-            dateFormat="dd/mm/yy"
-            [showIcon]="true"
-            styleClass="w-full"
-            class="w-full"
-          ></p-datepicker>
-          <label for="deliveryDate">Delivery Date</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <p-inputNumber
-            id="quantity"
-            formControlName="quantity"
-            [showButtons]="true"
-            class="w-full"
-            min="1"
-          ></p-inputNumber>
-          <label for="quantity">Quantity</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="goldweight"
-            formControlName="goldWeight"
-            class="w-full"
-          />
-          <label for="goldWeight">Gold Weight (g)</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="diamondDetails"
-            formControlName="diamondDetails"
-            rows="3"
-            class="w-full"
-          />
-          <label for="diamondDetails">Diamond Details</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="stoneDetails"
-            formControlName="stoneDetails"
-            rows="3"
-            class="w-full"
-          />
-          <label for="stoneDetails">Stone Details</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="purity"
-            formControlName="purity"
-            class="w-full"
-          />
-          <label for="purity">Purity*</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="goldColor"
-            formControlName="goldColor"
-            class="w-full"
-          />
-          <label for="goldColor">Gold Color</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input pInputText id="size" formControlName="size" class="w-full" />
-          <label for="size">Size</label>
-        </p-floatlabel>
-      </div>
-
-      <!-- CATEGORY - SIMPLEST -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="categoryList()"
-          optionLabel="name"
-          optionValue="name"
-          [filter]="true"
-          filterBy="name"
-          [showClear]="true"
-          placeholder="Item Category"
-          class="w-full"
-          formControlName="itemCategory"
-        >
-        </p-select>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="gatiOrderNo"
-            formControlName="gatiOrderNo"
-            class="w-full"
-          />
-          <label for="gatiOrderNo">Gati Order No</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <input
-            pInputText
-            id="productCode"
-            formControlName="productCode"
-            class="w-full"
-          />
-          <label for="productCode">Product Code</label>
-        </p-floatlabel>
-      </div>
-
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
-          <textarea
-            pTextarea
-            id="remarks"
-            formControlName="remarks"
-            rows="2"
-            class="w-full"
-          ></textarea>
-          <label for="remarks">Remarks*</label>
-        </p-floatlabel>
-      </div>
-
-      <div
-        class="col-12 mt-3 fixed bottom-0 left-0 right-0 p-3 flex justify-center items-center w-full"
+<p-card>
+  <div class="card pb-6 mb-6">
+    <div class="flex justify-between items-center gap-4">
+      <h2 class="text-lg font-semibold pb-2">
+        Edit Order #{{ editOrderNum() }}
+      </h2>
+      <p-button
+        icon="pi pi-share-alt"
+        [text]="true"
+        size="small"
+        severity="contrast"
+        [rounded]="true"
       >
-        <p-button
-          label="Update Order"
-          icon="pi pi-shopping-cart"
-          type="submit"
-          size="small"
-          severity="contrast"
-          styleClass="w-full"
-          [loading]="isSaving()"
-          [disabled]="productForm.invalid"
-        ></p-button>
-      </div>
+      </p-button>
     </div>
-  </form>
-</div>
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="">
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="party"
+              formControlName="party"
+              class="w-full"
+            />
+            <label for="party">Party Name</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- KARIGAR - SIMPLEST -->
+        <div class="col-12 field mt-3">
+          <p-select
+            [options]="karigarList()"
+            optionLabel="name"
+            optionValue="name"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true"
+            placeholder="Karigar"
+            class="w-full"
+            formControlName="karigari"
+          >
+          </p-select>
+        </div>
+
+        <!-- SALESPERSON - SIMPLEST -->
+        <div class="col-12 field mt-3">
+          <p-select
+            [options]="salespersonList()"
+            optionLabel="name"
+            optionValue="name"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true"
+            placeholder="Sales Person"
+            class="w-full"
+            formControlName="salesperson"
+          >
+          </p-select>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-fileupload
+            mode="advanced"
+            [multiple]="false"
+            accept="image/*"
+            maxFileSize="1000000"
+            [customUpload]="true"
+            (onSelect)="onFileSelect($event)"
+            (onRemove)="onFileRemove()"
+            [showUploadButton]="false"
+            [showCancelButton]="true"
+            chooseLabel="Add Image"
+            styleClass="w-full"
+            name="imageProduct"
+          >
+          </p-fileupload>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <p-datepicker
+              id="deliveryDate"
+              formControlName="deliveryDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              styleClass="w-full"
+              class="w-full"
+            ></p-datepicker>
+            <label for="deliveryDate">Delivery Date</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <p-inputNumber
+              id="quantity"
+              formControlName="quantity"
+              [showButtons]="true"
+              class="w-full"
+              min="1"
+            ></p-inputNumber>
+            <label for="quantity">Quantity</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="goldweight"
+              formControlName="goldWeight"
+              class="w-full"
+            />
+            <label for="goldWeight">Gold Weight (g)</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="diamondDetails"
+              formControlName="diamondDetails"
+              rows="3"
+              class="w-full"
+            />
+            <label for="diamondDetails">Diamond Details</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="stoneDetails"
+              formControlName="stoneDetails"
+              rows="3"
+              class="w-full"
+            />
+            <label for="stoneDetails">Stone Details</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="purity"
+              formControlName="purity"
+              class="w-full"
+            />
+            <label for="purity">Purity*</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="goldColor"
+              formControlName="goldColor"
+              class="w-full"
+            />
+            <label for="goldColor">Gold Color</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input pInputText id="size" formControlName="size" class="w-full" />
+            <label for="size">Size</label>
+          </p-floatlabel>
+        </div>
+
+        <!-- CATEGORY - SIMPLEST -->
+        <div class="col-12 field mt-3">
+          <p-select
+            [options]="categoryList()"
+            optionLabel="name"
+            optionValue="name"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true"
+            placeholder="Item Category"
+            class="w-full"
+            formControlName="itemCategory"
+          >
+          </p-select>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="gatiOrderNo"
+              formControlName="gatiOrderNo"
+              class="w-full"
+            />
+            <label for="gatiOrderNo">Gati Order No</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              id="productCode"
+              formControlName="productCode"
+              class="w-full"
+            />
+            <label for="productCode">Product Code</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-12 field mt-3">
+          <p-floatlabel variant="on">
+            <textarea
+              pTextarea
+              id="remarks"
+              formControlName="remarks"
+              rows="2"
+              class="w-full"
+            ></textarea>
+            <label for="remarks">Remarks*</label>
+          </p-floatlabel>
+        </div>
+
+        <div
+          class="col-12 mt-3 bottom-0 left-0 right-0 flex justify-start items-start w-full"
+        >
+          <p-button
+            label="Update Order"
+            icon="pi pi-shopping-cart"
+            type="submit"
+            size="small"
+            severity="contrast"
+            styleClass="w-full"
+            [loading]="isSaving()"
+            [disabled]="productForm.invalid"
+          ></p-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</p-card>

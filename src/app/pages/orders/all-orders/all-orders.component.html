@@ -263,6 +263,10 @@
     <span class="font-semibold text-xl">Create New Order</span>
   </ng-template>
   <ng-template pTemplate="content">
-    <app-new-order (orderCreated)="drawerVisible = false" />
+    <app-new-order
+      (orderCreated)="
+        this.searchByOrderNum({ target: { value: '' } }); drawerVisible = false
+      "
+    />
   </ng-template>
 </p-drawer>

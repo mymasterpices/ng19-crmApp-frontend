@@ -91,7 +91,7 @@ export class AllOrdersComponent implements OnInit {
   }
 
   orderStatuslist: any[] = [];
-  //get orderStatus
+  //get orderStatus 
   orderStatusListfunc() {
     this._orderServices.getStatusList().subscribe({
       next: (res: any[]) => {
@@ -169,7 +169,6 @@ export class AllOrdersComponent implements OnInit {
   }
 
   //update order status
-
   updateOrderStatus(orderId: string, newStatus: string) {
     // 1. Logic check: simple logging
 

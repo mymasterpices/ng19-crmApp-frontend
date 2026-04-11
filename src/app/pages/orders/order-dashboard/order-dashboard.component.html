@@ -51,7 +51,6 @@
           {{ totalKarigarWeight }} <span class="text-sm font-normal">gms</span>
         </h4>
       </div>
-
     </div>
   </div>
 </section>
@@ -95,7 +94,7 @@
     <span class="font-semibold text-xl">Create New Order</span>
   </ng-template>
   <ng-template pTemplate="content">
-    <app-new-order (orderCreated)="drawerVisible = false" />
+    <app-new-order (orderCreated)="getAllorders(); drawerVisible = false" />
   </ng-template>
 </p-drawer>
 
