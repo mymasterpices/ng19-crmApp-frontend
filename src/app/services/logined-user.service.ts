@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginedUserService {
+  private _router = inject(Router);
+
   private userName: string = '';
   private userRole: string = '';
   private userID: string = '';
@@ -19,9 +22,7 @@ export class LoginedUserService {
         this.userID = decodedToken?.userId || '';
       } catch (error) {
         console.error('Error decoding token:', error);
-        this.userName = 'Guest';
-        this.userRole = '';
-        this.userID = '';
+        this._router.navigate(['/login']);
       }
     }
     return this.userName;

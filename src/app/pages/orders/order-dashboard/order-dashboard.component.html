@@ -119,7 +119,6 @@
     <p-tabs value="0">
       <p-tablist>
         <p-tab value="0">Add Category</p-tab>
-        <p-tab value="1">Add SalesPerson</p-tab>
       </p-tablist>
       <p-tabpanels class="!p-0 mt-1">
         <p-tabpanel value="0">
@@ -142,30 +141,6 @@
             styleClass="w-30"
             [loading]="saveLoading"
             (onClick)="saveNewCategory(categoryInput)"
-          >
-          </p-button>
-        </p-tabpanel>
-
-        <p-tabpanel value="1">
-          <p-floatlabel variant="on" class="my-4">
-            <input
-              pInputText
-              #salespersonInput
-              id="value3"
-              class="w-full"
-              styleClass="w-full"
-            />
-            <label for="value3">Add sales person</label>
-          </p-floatlabel>
-
-          <p-button
-            label="Save"
-            size="small"
-            severity="contrast"
-            class="w-full"
-            styleClass="w-30"
-            [loading]="saveLoading"
-            (onClick)="savenewsalesPerson(salespersonInput)"
           >
           </p-button>
         </p-tabpanel>

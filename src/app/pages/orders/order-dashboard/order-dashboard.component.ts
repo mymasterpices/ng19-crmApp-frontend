@@ -161,9 +161,19 @@ export class OrderDashboardComponent implements OnInit {
 
   //save new category
   saveNewCategory(input: HTMLInputElement) {
-    const categoryName = {
+     const categoryName = {
       name: input.value,
     };
+
+    if (!categoryName.name.trim()) {
+      this._messageService.add({
+        severity: 'error',
+        summary: 'Error!',
+        detail: 'Category name cannot be empty',
+      });
+      return;
+    }
+
     this._orderServices.createCategory(categoryName).subscribe({
       next: (res: any) => {
         console.log(res);
@@ -180,36 +190,10 @@ export class OrderDashboardComponent implements OnInit {
         this._messageService.add({
           severity: 'error',
           summary: 'Error! while saving...',
-          detail: `Internal server error ${error.error.message}`,
+          detail: `${error.error.message}`,
         });
       },
     });
-  }
-
-  //save new salesperson
-  savenewsalesPerson(input: HTMLInputElement) {
-    const salesPerson = {
-      name: input.value,
-    };
-    this._orderServices.createSalesperson(salesPerson).subscribe({
-      next: (res: any) => {
-        console.log(res);
-        this._messageService.add({
-          severity: 'success',
-          summary: 'Saved',
-          detail: 'Sales person saved successfully',
-        });
-        //clear inout filed
-        input.value = '';
-      },
-      error: (error) => {
-        console.log('Something went wrong!', error);
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Error! while saving...',
-          detail: `Internal server error ${error.error.message}`,
-        });
-      },
-    });
-  }
+    }
+  
 }
