@@ -53,6 +53,14 @@
           ></span>
           <small>{{ customerContactInfo?.seriousness }} </small>
         </div>
+        <div class="gap-1 flex items-center pb-1 ">
+          <span class="text-xs font-normal text-zinc-500"
+            ><i class="pi pi-shop"></i
+          ></span>
+          <small class="text-zinc-500"
+            >{{ customerContactInfo?.createdAt | date: "d,MMM,y" }}
+          </small>
+        </div>
       </div>
     </div>
 

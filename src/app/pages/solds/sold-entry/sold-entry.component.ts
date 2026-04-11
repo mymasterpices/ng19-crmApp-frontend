@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { StepperModule } from 'primeng/stepper';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,7 +12,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
-import { Textarea } from 'primeng/textarea';
 import { DatePicker } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FileUpload } from 'primeng/fileupload';
@@ -21,6 +20,8 @@ import { ApiService } from '../../../services/api.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { RouterLink } from '@angular/router';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TableModule } from 'primeng/table';
 
 interface UploadEvent {
   files: File[];
@@ -35,7 +36,6 @@ interface UploadEvent {
     CommonModule,
     FormsModule,
     FloatLabel,
-    Textarea,
     DatePicker,
     InputNumberModule,
     FileUpload,
@@ -43,6 +43,8 @@ interface UploadEvent {
     TooltipModule,
     CardModule,
     RouterLink,
+    CheckboxModule,
+    TableModule,
   ],
   templateUrl: './sold-entry.component.html',
   styleUrl: './sold-entry.component.css',
@@ -55,6 +57,8 @@ export class SoldEntryComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   activeStep: number = 1;
+  // ✅ In .ts — rename to isSwarnteras, starts false
+  isSwarnteras = signal<boolean>(false);
 
   soldEntryFrom = this.fb.group({
     full_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -62,7 +66,8 @@ export class SoldEntryComponent implements OnInit {
     email: [''],
     birthday: [''],
     anniversary: [''],
-    address: [''],
+    isSwarnteras: [false],
+    swanrAmount: [null],
     products: this.fb.array([]),
   });
 
@@ -72,6 +77,12 @@ export class SoldEntryComponent implements OnInit {
 
   ngOnInit(): void {
     this.addProduct();
+
+    this.soldEntryFrom
+      .get('isSwarnteras')
+      ?.valueChanges.subscribe((checked) => {
+        this.isSwarnteras.set(!!checked);
+      });
   }
 
   createProductForm(): FormGroup {
@@ -81,7 +92,6 @@ export class SoldEntryComponent implements OnInit {
       gold_wt: ['', Validators.required],
       dia_wt: [''],
       stn_wt: [''],
-      amount: ['', Validators.required],
       soldupload: <File | null>null,
     });
   }
@@ -116,7 +126,8 @@ export class SoldEntryComponent implements OnInit {
       formData.append('email', formValue.email ?? '');
       formData.append('birthday', formValue.birthday ?? '');
       formData.append('anniversary', formValue.anniversary ?? '');
-      formData.append('address', formValue.address ?? '');
+      formData.append('isSwarnteras', String(formValue.isSwarnteras ?? false));
+      formData.append('swanrAmount', String(formValue.swanrAmount ?? ''));
 
       // Add products without file data
       const productsData = (formValue.products ?? []).map((p: any) => {

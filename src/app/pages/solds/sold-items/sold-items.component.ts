@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ApiService } from '../../../services/api.service';
-import { CurrencyPipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
@@ -15,6 +15,7 @@ import { TableModule } from 'primeng/table';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-sold-items',
@@ -23,7 +24,6 @@ import { InputTextModule } from 'primeng/inputtext';
     CardModule,
     TitleCasePipe,
     UpperCasePipe,
-    CurrencyPipe,
     ButtonModule,
     RouterLink,
     DialogModule,
@@ -33,6 +33,8 @@ import { InputTextModule } from 'primeng/inputtext';
     TableModule,
     FloatLabel,
     InputTextModule,
+    DatePipe,
+    TooltipModule,
   ],
   templateUrl: './sold-items.component.html',
   styleUrl: './sold-items.component.css',
@@ -78,7 +80,7 @@ export class SoldItemsComponent implements OnInit {
 
     // Simply attach the search term if it exists
     if (search.trim()) {
-      params = params.set('full_name', search.trim());
+      params = params.set('sales_staff', search.trim());
     }
     if (this.userName != 'admin' && this.userName != 'superadmin') {
       params = params.set('sales_staff', this.userName);

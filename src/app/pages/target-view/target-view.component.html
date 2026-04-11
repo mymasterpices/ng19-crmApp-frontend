@@ -1,28 +1,13 @@
 <p-toast />
 
-<div class="space-y-6 py-6">
+<div class="space-y-6 pt-6">
   <h2 class="text-xl font-semibold">Store-Wide Target Achievement</h2>
-  <div class="grid grid-cols-1 gap-4">
-    <p-card class="rounded-xl shadow-sm border-l-4 border-purple-500">
-      <label
-        class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
-        >Performance Period</label
-      >
-      <p-datePicker
-        [(ngModel)]="selectedDate"
-        view="month"
-        dateFormat="mm/yy"
-        (onSelect)="onFilterChange()"
-        styleClass="w-full border-none shadow-none"
-      ></p-datePicker>
-    </p-card>
-  </div>
 
   <p-card
     *ngIf="performanceData; else emptyState"
     class="bg-white rounded-3xl overflow-hidden"
   >
-    <div class="flex justify-between items-start">
+    <div class="flex md:flex-row flex-col justify-between items-start">
       <div class="flex items-center gap-4">
         <div
           class="w-14 h-14 rounded-full bg-blue-600 dark:bg-blue-200 text-white dark:text-zinc-700 flex items-center justify-center text-xl font-bold shadow-lg"
@@ -38,56 +23,31 @@
           </div>
         </div>
       </div>
-      <p-tag
-        [value]="performanceData.status | uppercase"
-        [severity]="getStatusSeverity(performanceData.status)"
-        styleClass="text-xs px-3 py-1"
-      ></p-tag>
+      <div class="flex items-center gap-4">
+        <p-tag
+          [value]="performanceData.status | uppercase"
+          [severity]="getStatusSeverity(performanceData.status)"
+          styleClass="text-xs px-3 py-1"
+        ></p-tag>
+
+        <!-- select date range -->
+        <p-card>
+          <label
+            class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+            >Performance Period</label
+          >
+          <p-datePicker
+            [(ngModel)]="selectedDate"
+            view="month"
+            dateFormat="mm/yy"
+            (onSelect)="onFilterChange()"
+            styleClass="w-full border-none shadow-none"
+          ></p-datePicker>
+        </p-card>
+      </div>
     </div>
 
-    <div class="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="rounded-2xl p-5 border border-gray-100 dark:border-gray-600">
-        <div class="flex items-center gap-4 mb-4">
-          <div
-            class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center"
-          >
-            <i class="pi pi-wallet"></i>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-bold text-gray-700 dark:text-gray-200 m-0">
-              Total Sales
-            </p>
-            <p class="text-xs text-gray-400 m-0">INR</p>
-          </div>
-          <span class="text-xl font-bold text-blue-700"
-            >₹{{ performanceData.achievements.sales_amount | number }}</span
-          >
-        </div>
-        <p-progressBar
-          [value]="
-            calculatePercent(
-              performanceData.achievements.sales_amount,
-              performanceData.targets.sales_amount
-            )
-          "
-          [showValue]="false"
-          styleClass="!h-1.5 !bg-gray-200"
-        ></p-progressBar>
-        <div class="flex justify-between mt-2 text-[11px]">
-          <span class="text-gray-400 font-medium"
-            >Target: ₹{{ performanceData.targets.sales_amount | number }}</span
-          >
-          <span class="text-blue-600 font-bold"
-            >{{
-              calculatePercent(
-                performanceData.achievements.sales_amount,
-                performanceData.targets.sales_amount
-              )
-            }}%</span
-          >
-        </div>
-      </div>
-
+    <div class="pt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="rounded-2xl p-5 border border-gray-100 dark:border-gray-600">
         <div class="flex items-center gap-4 mb-4">
           <div
@@ -121,9 +81,7 @@
         <div class="flex justify-between mt-2 text-[11px]">
           <span class="text-gray-400 font-medium"
             >Target:
-            {{
-              (performanceData.targets.gold_weight).toFixed(3)
-            }}kg</span
+            {{ performanceData.targets.gold_weight.toFixed(3) }}kg</span
           >
           <span class="text-yellow-600 font-bold"
             >{{
@@ -150,7 +108,9 @@
             <p class="text-xs text-gray-400 m-0">Cts</p>
           </div>
           <span class="text-xl font-bold text-cyan-600"
-            >{{ performanceData.achievements.diamond_weight.toFixed(3) }}cts</span
+            >{{
+              performanceData.achievements.diamond_weight.toFixed(3)
+            }}cts</span
           >
         </div>
         <p-progressBar
@@ -166,7 +126,8 @@
         ></p-progressBar>
         <div class="flex justify-between mt-2 text-[11px]">
           <span class="text-gray-400 font-medium"
-            >Target: {{ performanceData.targets.diamond_weight.toFixed(3) }}cts</span
+            >Target:
+            {{ performanceData.targets.diamond_weight.toFixed(3) }}cts</span
           >
           <span class="text-cyan-600 font-bold"
             >{{
@@ -209,7 +170,8 @@
         ></p-progressBar>
         <div class="flex justify-between mt-2 text-[11px]">
           <span class="text-gray-400 font-medium"
-            >Target: {{ performanceData.targets.stone_weight.toFixed(3) }}ct</span
+            >Target:
+            {{ performanceData.targets.stone_weight.toFixed(3) }}ct</span
           >
           <span class="text-purple-600 font-bold"
             >{{

@@ -65,6 +65,7 @@ export class ShowFootfallComponent implements OnInit {
 
   visible = false;
   uploadVisible = false;
+  isRefreshing = signal<boolean>(false); // ✅ refresh button state
 
   footfallForm: FormGroup = this.fb.group({
     date: new FormControl<Date | null>(null),
@@ -94,7 +95,6 @@ export class ShowFootfallComponent implements OnInit {
   getSalesPersonName() {
     this._footfallService.getAllSalesPersons().subscribe({
       next: (res: any) => {
-        // keep only users with status === 'active'
         this.salesPerson = res.filter((user: any) => {
           return user.status === 'active' && user.role === 'user';
         });
@@ -105,15 +105,48 @@ export class ShowFootfallComponent implements OnInit {
 
   loadDataLazy(event: TableLazyLoadEvent) {
     this.loading.set(true);
-
     const page =
       typeof event.first === 'number' && typeof event.rows === 'number'
         ? event.first / event.rows + 1
         : 1;
-
     const limit = event.rows ?? this.rowsPerPage;
-
     this.getSavedFootfallEntries(this.searchTerm, page, limit);
+  }
+
+  // ✅ Manual refresh — busts any in-flight cache by forcing fresh params
+  refreshData(): void {
+    this.isRefreshing.set(true);
+    this.searchTerm = '';
+    this.selectedMonth = null;
+
+    const params = new HttpParams()
+      .set('page', '1')
+      .set('limit', this.rowsPerPage.toString())
+      .set('_t', Date.now().toString()); // cache-busting timestamp
+
+    this._footfallService.getFootfallEntries(params).subscribe({
+      next: (res: any) => {
+        const rawData = res.data || [];
+        this.totalRecords.set(res.totalRecords || 0);
+        const mapped = this.mapEntries(rawData);
+        this.allFootfallEntries.set(mapped);
+        this.isRefreshing.set(false);
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Refreshed',
+          detail: 'Latest footfall data loaded.',
+        });
+      },
+      error: (err) => {
+        console.error('Refresh Error:', err);
+        this.isRefreshing.set(false);
+        this._messageService.add({
+          severity: 'error',
+          summary: 'Refresh Failed',
+          detail: 'Could not fetch latest data.',
+        });
+      },
+    });
   }
 
   getSavedFootfallEntries(
@@ -133,43 +166,40 @@ export class ShowFootfallComponent implements OnInit {
       next: (res: any) => {
         const rawData = res.data || [];
         this.totalRecords.set(res.totalRecords || 0);
-
-        const updated = rawData.map((person: any) => {
-          let entries = person.foot_entry || [];
-
-          if (this.selectedMonth) {
-            const month = this.selectedMonth.getMonth();
-            const year = this.selectedMonth.getFullYear();
-            entries = entries.filter((e: any) => {
-              const date = new Date(e.timestamp);
-              return date.getFullYear() === year && date.getMonth() === month;
-            });
-          }
-
-          const totalFootfall = entries.reduce(
-            (sum: number, e: any) => sum + (e.footfall || 0),
-            0,
-          );
-          const totalConversion = entries.reduce(
-            (sum: number, e: any) => sum + (e.conversion || 0),
-            0,
-          );
-
-          return {
-            ...person,
-            foot_entry: entries,
-            totalFootfall,
-            totalConversion,
-          };
-        });
-
-        this.allFootfallEntries.set(updated);
+        const mapped = this.mapEntries(rawData);
+        this.allFootfallEntries.set(mapped);
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Fetch Error:', err);
         this.loading.set(false);
       },
+    });
+  }
+
+  private mapEntries(rawData: any[]): any[] {
+    return rawData.map((person: any) => {
+      let entries = person.foot_entry || [];
+
+      if (this.selectedMonth) {
+        const month = this.selectedMonth.getMonth();
+        const year = this.selectedMonth.getFullYear();
+        entries = entries.filter((e: any) => {
+          const date = new Date(e.timestamp);
+          return date.getFullYear() === year && date.getMonth() === month;
+        });
+      }
+
+      const totalFootfall = entries.reduce(
+        (sum: number, e: any) => sum + (e.footfall || 0),
+        0,
+      );
+      const totalConversion = entries.reduce(
+        (sum: number, e: any) => sum + (e.conversion || 0),
+        0,
+      );
+
+      return { ...person, foot_entry: entries, totalFootfall, totalConversion };
     });
   }
 
@@ -182,7 +212,6 @@ export class ShowFootfallComponent implements OnInit {
 
   onSearchChange(value: string) {
     this.searchTerm = value;
-
     this.getSavedFootfallEntries(this.searchTerm, 1, this.rowsPerPage);
   }
 
@@ -217,9 +246,6 @@ export class ShowFootfallComponent implements OnInit {
     const selectedDate: Date | string | null = formValue.date;
     const rows = formValue.form;
 
-    console.log('Full form value:', formValue);
-    console.log('Selected date:', selectedDate);
-
     this.salesPerson.forEach((person) => {
       const entry = rows.find((f: any) => f.sales_person === person.username);
       if (!entry) return;
@@ -237,12 +263,10 @@ export class ShowFootfallComponent implements OnInit {
             footfall: Number(entry.ff) || 0,
             conversion: Number(entry.con) || 0,
             pc: Number(entry.pc) || null,
-            timestamp, // ✅ will now be what you selected
+            timestamp,
           },
         ],
       };
-
-      console.log('Show the Data payload', payload);
 
       this._footfallService.saveFootfallEntry(person._id, payload).subscribe({
         next: () => console.log(`Saved entry for ${person.username}`),
@@ -268,7 +292,7 @@ export class ShowFootfallComponent implements OnInit {
     this.visible = false;
   }
 
-  //bulk upload footfall data
+  // bulk upload
   selectedFile: File | null = null;
   isUploading = signal('Upload');
 
@@ -280,8 +304,7 @@ export class ShowFootfallComponent implements OnInit {
     const input = event.files[0];
     if (!input) return;
 
-    const file = input;
-    if (!file.name.endsWith('.csv')) {
+    if (!input.name.endsWith('.csv')) {
       this._messageService.add({
         severity: 'error',
         summary: 'Invalid File',
@@ -290,13 +313,13 @@ export class ShowFootfallComponent implements OnInit {
       return;
     }
 
-    this.selectedFile = file;
-    this.csvForm.patchValue({ csv_file: file });
+    this.selectedFile = input;
+    this.csvForm.patchValue({ csv_file: input });
 
     this._messageService.add({
       severity: 'info',
       summary: 'File Selected',
-      detail: file.name,
+      detail: input.name,
     });
   }
 

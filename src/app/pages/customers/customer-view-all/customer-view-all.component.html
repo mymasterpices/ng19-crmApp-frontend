@@ -93,6 +93,9 @@
               {{ customer.status }}
             </span>
           </p>
+          <p class="text-[12px] text-zinc-400 dark:text-zinc-400 pt-1">
+            Visited on: {{ customer.createdAt | date: "d,MMM,y" }}
+          </p>
         </div>
       </div>
 

@@ -47,6 +47,29 @@
           </div>
         </div>
       </div>
+
+      <!-- swarnteras infomation -->
+      @if (viewSoldItem.isSwarnteras) {
+        <div
+          class="flex justify-between gap-4 mt-3 bg-emerald-100 p-2 rounded-xl"
+        >
+          <span class="dark:text-zinc-800 font-semibold"
+            >Swarnteras Amount:</span
+          >
+          <span class="dark:text-zinc-800 font-semibold"
+            >{{
+              viewSoldItem.swanrAmount | currency: "INR" : "symbol"
+            }}
+            p/m</span
+          >
+        </div>
+      } @else {
+        <div class="flex justify-between gap-4 mt-3 bg-rose-100 p-2 rounded-xl">
+          <span class="dark:text-zinc-800 font-semibold"
+            >Not enrolled for <em>Swarnteras</em> scheme</span
+          >
+        </div>
+      }
     </p-card>
   }
   <p-card>
@@ -91,7 +114,11 @@
   <div class="grid md:grid-cols-3 grid-cols-1 gap-4 mt-4 mb-4">
     @for (product of viewSoldItem.products; track $index) {
       <p-card class="relative">
-        <p-badge value="{{ $index + 1 }}" class="absolute top-0 left-0" severity="secondary" />
+        <p-badge
+          value="{{ $index + 1 }}"
+          class="absolute top-0 left-0"
+          severity="secondary"
+        />
         <div class="flex justify-between pt-2">
           <p class="font-medium">Tag:</p>
           <span>{{ product.tag | uppercase }}</span>

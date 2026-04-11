@@ -1,5 +1,5 @@
 <div class="md:flex md:flex-row flex-col justify-between items-center mb-4">
-  <!-- Search Customer -->
+  <!-- Search & Month Filter -->
   <div class="wrapper flex justify-between items-center gap-3">
     <p-floatlabel variant="on">
       <input
@@ -11,7 +11,9 @@
       />
       <label>Sales Staff</label>
     </p-floatlabel>
-<span class="text-sm">OR</span>
+
+    <span class="text-sm">OR</span>
+
     <p-floatlabel variant="on">
       <p-datepicker
         [(ngModel)]="selectedMonth"
@@ -28,9 +30,9 @@
     </p-floatlabel>
   </div>
 
-  <!-- Month Picker -->
+  <!-- Action Buttons -->
   <div class="max-sm:mt-2 flex gap-3 items-center">
-    <!-- New Entry Button -->
+    <!-- New Entry -->
     <p-button
       icon="pi pi-plus"
       (click)="openDialog()"
@@ -38,18 +40,32 @@
       pTooltip="New Entry"
       tooltipPosition="left"
       size="small"
-      
     ></p-button>
+
+    <!-- Bulk Upload (admin only) -->
     @if (loginedUser == "admin") {
       <p-button
-        icon=" pi pi-upload"
-        class="right-3"
+        icon="pi pi-upload"
         severity="contrast"
         size="small"
-        outlined="true"
+        [outlined]="true"
+        pTooltip="Bulk Upload CSV"
+        tooltipPosition="left"
         (click)="uploadVisible = true"
       ></p-button>
     }
+
+    <!-- ✅ Refresh Button -->
+    <p-button
+      icon="pi pi-refresh"
+      severity="secondary"
+      size="small"
+      [outlined]="true"
+      [loading]="isRefreshing()"
+      pTooltip="Refresh Data"
+      tooltipPosition="left"
+      (click)="refreshData()"
+    ></p-button>
   </div>
 </div>
 
@@ -63,6 +79,7 @@
       [totalRecords]="totalRecords()"
       [lazy]="true"
       (onLazyLoad)="loadDataLazy($event)"
+      [loading]="loading()"
       stripedRows
       size="small"
     >
@@ -98,8 +115,7 @@
                   ? 'danger'
                   : 'success'
               "
-            >
-            </p-tag>
+            ></p-tag>
           </td>
         </tr>
       </ng-template>
@@ -114,14 +130,13 @@
   </p-card>
 }
 
-<!-- upload bulk  -->
+<!-- Bulk Upload Dialog -->
 <p-dialog
   header="Import footfall data"
   [(visible)]="uploadVisible"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="5 / 7"
 >
   <form [formGroup]="csvForm" (ngSubmit)="onBulkUpload()" class="w-full">
     <div class="flex flex-col justify-start items-start gap-4">
@@ -140,7 +155,7 @@
         [label]="isUploading()"
         iconPos="right"
         severity="contrast"
-        [disabled]="!selectedFile || isUploading() === 'Uploading...'"
+        [disabled]="!selectedFile || isUploading() === 'Processing...'"
       ></p-button>
     </div>
   </form>
@@ -169,13 +184,13 @@
         formControlName="date"
       />
     </p-floatlabel>
+
     <div formArrayName="form" class="space-y-4 py-4">
       <div
         *ngFor="let person of form.controls; let i = index"
         [formGroupName]="i"
         class="flex gap-4 flex-row"
       >
-        <!-- Sales Person (readonly) -->
         <p-floatlabel variant="on">
           <input
             pInputText
@@ -186,19 +201,16 @@
           <label>Sales Person</label>
         </p-floatlabel>
 
-        <!-- Footfall -->
         <p-floatlabel variant="on">
           <input pInputText formControlName="ff" class="max-sm:w-25" />
           <label>FF</label>
         </p-floatlabel>
 
-        <!-- Conversion -->
         <p-floatlabel variant="on">
           <input pInputText formControlName="con" class="max-sm:w-25" />
           <label>CO</label>
         </p-floatlabel>
 
-        <!-- PC -->
         <p-floatlabel variant="on">
           <input pInputText formControlName="pc" class="max-sm:w-25" />
           <label>PC</label>

@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SelectModule } from 'primeng/select';
 import { HttpParams } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
@@ -51,6 +51,7 @@ export class CustomerViewAllComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private loginedUserService = inject(LoginedUserService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute); // ✅ read query params
 
   customers = signal<any[]>([]);
   salespersonOptions = signal<any[]>([]);
@@ -79,8 +80,46 @@ export class CustomerViewAllComponent implements OnInit {
     this.userRole = this.loginedUserService.getUserRole();
     this.loginUser = this.loginedUserService.getLoginedUser();
 
-    this.getAllcustomers();
     this.getSalespersonOptions();
+
+    // ✅ Check if analytic component passed query params
+    const qp = this.route.snapshot.queryParams;
+
+    if (qp['startDate'] || qp['endDate'] || qp['salesperson']) {
+      // Build params from what analytic sent
+      this.fetchWithAnalyticParams(
+        qp['salesperson'] ?? '',
+        qp['startDate'] ?? '',
+        qp['endDate'] ?? '',
+      );
+    } else {
+      // Normal load
+      this.getAllcustomers();
+    }
+  }
+
+  // ✅ Called when navigated from analytic component
+  private fetchWithAnalyticParams(
+    salesperson: string,
+    startDate: string,
+    endDate: string,
+  ): void {
+    const isPrivileged =
+      this.userRole === 'admin' || this.userRole === 'superadmin';
+
+    let params = new HttpParams();
+
+    // Security: non-admins can only see their own customers
+    if (!isPrivileged) {
+      params = params.set('salesperson', this.loginUser);
+    } else if (salesperson) {
+      params = params.set('salesperson', salesperson);
+    }
+
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+
+    this.executeFetch(params);
   }
 
   getSalespersonOptions() {
@@ -101,27 +140,22 @@ export class CustomerViewAllComponent implements OnInit {
     });
   }
 
-  // ✅ Fixed: Only accepts name search + security restriction
   getSearchCustomer(search: string = '') {
     const isPrivileged =
       this.userRole === 'admin' || this.userRole === 'superadmin';
     let params = new HttpParams();
 
-    // 1. Mandatory Security: Ensure non-admins only search THEIR own customers
     if (!isPrivileged) {
       params = params.set('salesperson', this.loginUser);
     }
 
-    // 2. Name Search: Only apply the name parameter
     if (search.trim()) {
       params = params.set('name', search.trim());
     }
 
-    // 3. Execute
     this.executeFetch(params);
   }
 
-  // ✅ Fixed: Now combines form filters with role security
   searchCustomer(): void {
     const isPrivileged =
       this.userRole === 'admin' || this.userRole === 'superadmin';
@@ -139,7 +173,6 @@ export class CustomerViewAllComponent implements OnInit {
     this.executeFetch(params);
   }
 
-  // ✅ Fixed: Standard load respecting roles
   getAllcustomers(): void {
     const isPrivileged =
       this.userRole === 'admin' || this.userRole === 'superadmin';
@@ -152,7 +185,6 @@ export class CustomerViewAllComponent implements OnInit {
     this.executeFetch(params);
   }
 
-  // Helper to prevent code duplication
   private executeFetch(params: HttpParams) {
     this.loginService.getAllcustomers(params).subscribe({
       next: (res: any) => {

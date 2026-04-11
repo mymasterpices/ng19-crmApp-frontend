@@ -94,16 +94,37 @@
                 </div>
               </div>
 
-              <div class="mb-4">
-                <p-floatLabel variant="on">
-                  <textarea
-                    pTextarea
-                    formControlName="address"
-                    id="address"
-                    class="w-full"
-                  ></textarea>
-                  <label for="address">Address</label>
-                </p-floatLabel>
+              <!-- ✅ Checkbox: no [(ngModel)], purely reactive -->
+              <div class="mb-4 flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <p-checkbox
+                    formControlName="isSwarnteras"
+                    [binary]="true"
+                    inputId="isSwarnteras"
+                  >
+                  </p-checkbox>
+                  <label for="isSwarnteras" class="cursor-pointer"
+                    >Enrolled for Swarnteras?</label
+                  >
+                </div>
+
+                <!-- ✅ Shown/hidden based on signal driven by valueChanges -->
+
+                @if (isSwarnteras()) {
+                  <div class="flex-1">
+                    <p-floatLabel variant="on">
+                      <p-inputnumber
+                        formControlName="swanrAmount"
+                        inputId="swanrAmount"
+                        mode="decimal"
+                        [minFractionDigits]="2"
+                        styleClass="w-full"
+                      >
+                      </p-inputnumber>
+                      <label for="swanrAmount">Swarnteras Amount</label>
+                    </p-floatLabel>
+                  </div>
+                }
               </div>
 
               <div class="flex pt-6 justify-end">
@@ -200,25 +221,6 @@
                           <label for="stn_wt{{ i }}">Stn Wt.</label>
                         </p-floatLabel>
                       </div>
-                    </div>
-
-                    <div class="mb-4">
-                      <p-floatLabel variant="on">
-                        <p-inputnumber
-                          formControlName="amount"
-                          inputId="amount{{ i }}"
-                          mode="decimal"
-                          [minFractionDigits]="2"
-                          class="w-full"
-                        ></p-inputnumber>
-                        <label for="amount{{ i }}">Amount</label>
-                      </p-floatLabel>
-                      @if (
-                        products.at(i).get("amount")?.invalid &&
-                        products.at(i).get("amount")?.touched
-                      ) {
-                        <small class="text-red-500">Amount is required</small>
-                      }
                     </div>
 
                     <div class="flex justify-between items-center mb-4 gap-3">

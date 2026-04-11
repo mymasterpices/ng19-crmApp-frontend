@@ -71,29 +71,8 @@
         Target Metrics
       </h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-2">
         <!-- Sales Amount -->
-        <div class="flex flex-col gap-1">
-          <p-floatlabel variant="on">
-            <p-inputNumber
-              id="sales_amount"
-              formControlName="sales_amount"
-              mode="currency"
-              currency="INR"
-              locale="en-IN"
-              [min]="0"
-              styleClass="w-full"
-            >
-            </p-inputNumber>
-            <label for="sales_amount">Sales Amount (INR)</label>
-          </p-floatlabel>
-          @if (
-            targetForm.get("targets.sales_amount")?.invalid &&
-            targetForm.get("targets.sales_amount")?.touched
-          ) {
-            <small class="text-red-500 ml-1">Amount is required</small>
-          }
-        </div>
 
         <!-- Gold Weight -->
         <div class="flex flex-col gap-1">
@@ -159,31 +138,31 @@
           }
         </div>
       </div>
-    </p-card>
 
-    <!-- Actions -->
-    <div class="flex justify-end gap-3">
-      <p-button
-        label="Cancel"
-        severity="secondary"
-        variant="text"
-        (onClick)="targetForm.reset()"
-        size="small"
-      >
-      </p-button>
-      <p-button
-        type="submit"
-        label="Save Target"
-        size="small"
-        icon="pi pi-check"
-        [loading]="isSaving"
-        [disabled]="targetForm.invalid"
-        severity="contrast"
-        styleClass="rounded-xl px-8"
-      >
-      </p-button>
-    </div>
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 pt-4">
+        <p-button
+          label="Cancel"
+          severity="secondary"
+          variant="text"
+          (onClick)="targetForm.reset()"
+          size="small"
+        >
+        </p-button>
+        <p-button
+          type="submit"
+          label="Save Target"
+          size="small"
+          icon="pi pi-check"
+          [loading]="isSaving"
+          [disabled]="targetForm.invalid"
+          severity="contrast"
+          styleClass="rounded-xl px-8"
+        >
+        </p-button>
+      </div>
+    </p-card>
   </form>
 </div>
-<hr class="mb-0 mt-5 border-gray-400 text-center mx-auto" />
+<hr class="mb-0 mt-6 border-gray-300 dark:border-gray-700 text-center mx-auto" />
 <app-target-view></app-target-view>

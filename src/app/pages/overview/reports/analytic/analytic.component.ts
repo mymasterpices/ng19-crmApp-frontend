@@ -5,6 +5,8 @@ import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { Router } from '@angular/router';
 import { ApiService } from '../../../../services/api.service';
 import { FootfallService } from '../../../../services/footfall/footfall.service';
 import { forkJoin } from 'rxjs';
@@ -19,6 +21,7 @@ import { forkJoin } from 'rxjs';
     DatePickerModule,
     TableModule,
     CardModule,
+    TagModule,
   ],
   templateUrl: './analytic.component.html',
   styleUrl: './analytic.component.css',
@@ -26,15 +29,21 @@ import { forkJoin } from 'rxjs';
 export class AnalyticComponent implements OnInit {
   private _apiService = inject(ApiService);
   private _footfallService = inject(FootfallService);
+  private _router = inject(Router);
 
   private allCustomers: any[] = [];
   private allFootfalls: any[] = [];
   private activeUsers: any[] = [];
 
   summaryTable: any[] = [];
-  totals = { footfall: 0, conversion: 0, customers: 0 };
+  totals = { footfall: 0, conversion: 0, customers: 0, missed: 0 };
   selectedDateRange: Date[] | undefined;
   activeFilter: string = 'weekly';
+  dateRangeLabel: string = '';
+
+  // ✅ Store active start/end so navigation can use them
+  private activeStart: Date = new Date();
+  private activeEnd: Date = new Date();
 
   ngOnInit() {
     this.executeFetch();
@@ -42,25 +51,25 @@ export class AnalyticComponent implements OnInit {
 
   private parseAnyDate(dateInput: any): number {
     if (!dateInput) return 0;
-
-    // If it's the MongoDB object format: { "$date": "..." }
-    if (dateInput.$date) {
-      return new Date(dateInput.$date).getTime();
-    }
-
-    // If it's a string like "5/6/2024" or ISO string
-    const timestamp = Date.parse(dateInput);
-    return isNaN(timestamp) ? 0 : timestamp;
+    if (dateInput.$date) return new Date(dateInput.$date).getTime();
+    const ts = Date.parse(dateInput);
+    return isNaN(ts) ? 0 : ts;
   }
 
-  /**
-   * FIX: Robust Name Matcher
-   * Cleans trailing spaces and handles case sensitivity
-   */
   private compareNames(name1: string, name2: string): boolean {
     const n1 = (name1 || '').trim().toLowerCase();
     const n2 = (name2 || '').trim().toLowerCase();
     return n1 === n2 && n1 !== '';
+  }
+
+  private formatRangeLabel(start: Date, end: Date): string {
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    return `${start.toLocaleDateString('en-IN', opts)} – ${end.toLocaleDateString('en-IN', opts)}`;
+  }
+
+  // ✅ Format date as YYYY-MM-DD for query params
+  private toQueryDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   executeFetch() {
@@ -71,12 +80,10 @@ export class AnalyticComponent implements OnInit {
     }).subscribe({
       next: (res: any) => {
         this.allCustomers = res.customers || [];
-        this.allFootfalls = res.footfalls?.data ?? res.footfalls ?? []; // Only show users with status 'active'
+        this.allFootfalls = res.footfalls?.data ?? res.footfalls ?? [];
         this.activeUsers = (res.users || []).filter(
           (u: any) => u.status === 'active' && u.role === 'user',
         );
-
-        // Default view: Weekly
         this.applyFilter('weekly');
       },
       error: (err) => console.error('Data Load Error:', err),
@@ -102,6 +109,9 @@ export class AnalyticComponent implements OnInit {
       end = this.selectedDateRange[1];
     }
 
+    this.activeStart = new Date(start);
+    this.activeEnd = new Date(end);
+    this.dateRangeLabel = this.formatRangeLabel(start, end);
     this.calculateSummary(start, end);
   }
 
@@ -109,12 +119,11 @@ export class AnalyticComponent implements OnInit {
     const startTime = start.setHours(0, 0, 0, 0);
     const endTime = end.setHours(23, 59, 59, 999);
 
-    this.totals = { footfall: 0, conversion: 0, customers: 0 };
+    this.totals = { footfall: 0, conversion: 0, customers: 0, missed: 0 };
 
     this.summaryTable = this.activeUsers.map((user) => {
       const staffName = user.username || user.name;
 
-      // 1. Calculate Customers (Check both 'createdAt' and 'timestamps' fields)
       const userCustomers = this.allCustomers.filter((c) => {
         const cDate = this.parseAnyDate(c.createdAt || c.timestamps);
         return (
@@ -124,7 +133,6 @@ export class AnalyticComponent implements OnInit {
         );
       });
 
-      // 2. Calculate Footfalls & Conversions
       const userFootfallRecord = this.allFootfalls.find((f) =>
         this.compareNames(f.username, staffName),
       );
@@ -142,17 +150,31 @@ export class AnalyticComponent implements OnInit {
         });
       }
 
-      // Update grand totals
+      const missed = Math.max(fSum - cSum, 0);
+
       this.totals.footfall += fSum;
       this.totals.conversion += cSum;
       this.totals.customers += userCustomers.length;
+      this.totals.missed += missed;
 
       return {
         salesperson: staffName,
         footfall: fSum,
         conversion: cSum,
         customers: userCustomers.length,
+        missed,
       };
+    });
+  }
+
+  // ✅ Navigate to /customers/view-all with salesperson + date range as query params
+  viewLeads(salesperson: string) {
+    this._router.navigate(['/customers/view-all'], {
+      queryParams: {
+        salesperson,
+        startDate: this.toQueryDate(this.activeStart),
+        endDate: this.toQueryDate(this.activeEnd),
+      },
     });
   }
 }

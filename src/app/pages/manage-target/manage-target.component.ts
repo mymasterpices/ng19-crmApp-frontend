@@ -52,7 +52,6 @@ export class ManageTargetComponent implements OnInit {
     this.targetForm = this._fb.group({
       targetDate: [new Date(), Validators.required], // Used to extract month/year
       targets: this._fb.group({
-        sales_amount: [, [Validators.required, Validators.min(0)]],
         gold_weight: [, [Validators.required, Validators.min(0)]],
         diamond_weight: [],
         stone_weight: [],
