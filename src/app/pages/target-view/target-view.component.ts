@@ -9,7 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { Card } from 'primeng/card';
+import { CardModule } from 'primeng/card';
 import { TargetService } from '../../services/target/target.service';
 
 @Component({
@@ -23,7 +23,7 @@ import { TargetService } from '../../services/target/target.service';
     TagModule,
     ButtonModule,
     ToastModule,
-    Card,
+    CardModule,
   ],
   providers: [MessageService],
   templateUrl: './target-view.component.html',

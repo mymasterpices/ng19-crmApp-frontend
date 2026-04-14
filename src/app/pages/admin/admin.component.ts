@@ -21,7 +21,6 @@ import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
 import { CommonModule, NgClass, TitleCasePipe } from '@angular/common';
-
 import {
   FormControl,
   FormGroup,
@@ -29,13 +28,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { LoginedUserService } from '../../services/logined-user.service';
 import { AuthService } from '../../services/auth.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { Popover, PopoverModule } from 'primeng/popover';
+import { PopoverModule } from 'primeng/popover';
 import { CardModule } from 'primeng/card';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
-import { Tooltip } from "primeng/tooltip";
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-admin',
@@ -44,14 +42,12 @@ import { Tooltip } from "primeng/tooltip";
     ButtonModule,
     AvatarModule,
     MenubarModule,
-    AvatarModule,
     InputTextModule,
     MenuModule,
     BadgeModule,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    DrawerModule,
     TitleCasePipe,
     CardModule,
     ReactiveFormsModule,
@@ -61,8 +57,8 @@ import { Tooltip } from "primeng/tooltip";
     NgClass,
     FormsModule,
     MobileFooterComponent,
-    Tooltip
-],
+    Tooltip,
+  ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
 })
@@ -70,35 +66,31 @@ export class AdminComponent implements OnInit {
   @ViewChild('drawerRef') drawerRef!: Drawer;
 
   isDark = signal<boolean>(false);
-  userRole: string = '';
-  userName: string = '';
-
   menuStates: Record<string, boolean> = {};
 
-  toggleMenu(menu: string) {
-    this.menuStates[menu] = !this.menuStates[menu];
-  }
-
-  isOpen(menu: string): boolean {
-    return !!this.menuStates[menu];
-  }
-
-  private loginedUserService = inject(LoginedUserService);
   private router = inject(Router);
-
-  private authService = inject(AuthService);
+  private authService = inject(AuthService); // ✅ single service
 
   items: MenuItem[] | undefined;
   visible: boolean = false;
   drawerNavigation: boolean = false;
 
+  // ✅ Getters — always decoded fresh from token, never stale
+  get userName(): string {
+    return this.authService.getUserName();
+  }
+
+  get userRole(): string {
+    return this.authService.getUserRole();
+  }
+
+  get userId(): string {
+    return this.authService.getUserId();
+  }
+
   constructor() {
-    // Initialize from localStorage
-    console.log('darkMode value', this.isDark());
     const savedTheme = localStorage.getItem('theme') === 'dark';
     this.isDark.set(savedTheme);
-    console.log('Initial theme:', savedTheme ? 'dark' : 'light');
-    // Effect: whenever isDark changes, apply theme + save
     effect(() => {
       const dark = this.isDark();
       document.documentElement.classList.toggle('my-app-dark', dark);
@@ -107,8 +99,15 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userRole = this.loginedUserService.getUserRole();
-    this.userName = this.loginedUserService.getUserName();
+    // ✅ Nothing user-related here anymore
+  }
+
+  toggleMenu(menu: string) {
+    this.menuStates[menu] = !this.menuStates[menu];
+  }
+
+  isOpen(menu: string): boolean {
+    return !!this.menuStates[menu];
   }
 
   toggleDarkMode() {
@@ -140,7 +139,6 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['search', searchTerm]);
       this.searchForm.reset();
     } else {
-      // Handle invalid form case, e.g., show an error message
       console.error('Search form is invalid');
     }
   }
