@@ -23,7 +23,7 @@ import { PopoverModule } from 'primeng/popover';
 import { ImageModule } from 'primeng/image';
 
 import { OrderServices } from '../../../services/orders/order-services';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { ScannerService } from '../../../services/scanner/scanner.service';

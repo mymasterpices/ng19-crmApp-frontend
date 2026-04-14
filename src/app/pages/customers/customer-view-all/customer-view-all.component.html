@@ -3,14 +3,14 @@
     <div class="div w-1/2 max-sm:w-full">
       <form action="" [formGroup]="searchForm" (ngSubmit)="searchCustomer()">
         <div class="card flex justify-center gap-3">
-          <p-select
+          <p-multiselect
             [options]="salespersonOptions()"
             placeholder="Sales Person"
             class="w-full"
             formControlName="salesperson"
             [showClear]="true"
           />
-          <p-select
+          <p-multiselect
             [options]="statusOptions()"
             placeholder="Status"
             class="w-full"

@@ -3,90 +3,91 @@
     <div class="video-container space-y-6">
       <!-- Show content only if videos exist -->
       @if (videoList.length > 0) {
+        <!-- Main Video Section -->
+        @if (videoList[activeIndex()]) {
+          <div class="main-video bg-white">
+            <div class="flex justify-between items-center mb-3">
+              <h2 class="text-xl font-semibold text-gray-800">
+                {{ videoList[activeIndex()]?.tagNumber }}
+              </h2>
+              <p-button
+                [icon]="icons()[videoList[activeIndex()]?._id] || 'pi pi-heart'"
+                severity="secondary"
+                (onClick)="
+                  favoriteVideo(
+                    videoList[activeIndex()]?._id,
+                    videoList[activeIndex()]?.tagNumber
+                  )
+                "
+                pTooltip="Favorite"
+                tooltipPosition="left"
+              ></p-button>
+            </div>
 
-      <!-- Main Video Section -->
-      @if (videoList[activeIndex()]) {
-      <div class="main-video bg-white">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xl font-semibold text-gray-800">
-            {{ videoList[activeIndex()]?.tagNumber }}
-          </h2>
-          <p-button
-            [icon]="icons()[videoList[activeIndex()]?._id] || 'pi pi-heart'"
-            severity="secondary"
-            (onClick)="
-              favoriteVideo(
-                videoList[activeIndex()]?._id,
-                videoList[activeIndex()]?.tagNumber
-              )
-            "
-            pTooltip="Favorite"
-            tooltipPosition="left"
-          ></p-button>
-        </div>
+            <div class="relative aspect-video rounded-lg overflow-hidden">
+              <media-controller class="w-full h-full">
+                <video
+                  slot="media"
+                  #mainVideo
+                  id="my-video"
+                  loop
+                  autoplay
+                  class="w-full h-full object-cover"
+                  [src]="`${siteURL}/${videoList[activeIndex()]._id}`"
+                ></video>
 
-        <div class="relative aspect-video rounded-lg overflow-hidden">
-          <media-controller class="w-full h-full">
-            <video
-              slot="media"
-              #mainVideo
-              id="my-video"
-              loop
-              autoplay
-              class="w-full h-full object-cover"
-              [src]="`${siteURL}/${videoList[activeIndex()]._id}`"
-            ></video>
-
-            <media-control-bar
-              class="absolute bottom-0 left-0 right-0 bg-black/60 text-white"
-            >
-              <media-play-button></media-play-button>
-              <media-mute-button></media-mute-button>
-              <media-time-range></media-time-range>
-              <media-time-display></media-time-display>
-              <media-fullscreen-button></media-fullscreen-button>
-            </media-control-bar>
-          </media-controller>
-        </div>
-      </div>
-      }
-
-      <!-- Video List -->
-      <ul
-        class="video-list grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-      >
-        @for (video of videoList; track video._id; let i = $index) {
-        <li
-          (click)="setActiveIndex(i)"
-          [class]="
-            'cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200 ' +
-            (i === activeIndex()
-              ? 'border-b border-gray-200lue-500'
-              : 'border-gray-200 hover:border-gray-400')
-          "
-        >
-          <div class="relative aspect-video">
-            <media-controller class="w-full h-full">
-              <video
-                slot="media"
-                [src]="`${siteURL}/${video._id}`"
-                type="video/mp4"
-                class="w-full h-full object-cover"
-              >
-                Your browser does not support the video tag.
-              </video>
-            </media-controller>
+                <media-control-bar
+                  class="absolute bottom-0 left-0 right-0 bg-black/60 text-white"
+                >
+                  <media-play-button></media-play-button>
+                  <media-mute-button></media-mute-button>
+                  <media-time-range></media-time-range>
+                  <media-time-display></media-time-display>
+                  <media-fullscreen-button></media-fullscreen-button>
+                </media-control-bar>
+              </media-controller>
+            </div>
           </div>
-          <div class="p-2 text-center">
-            <h4 class="text-sm font-medium text-gray-700 truncate">
-              {{ video.tagNumber }}
-            </h4>
-          </div>
-        </li>
         }
-      </ul>
+
+        <!-- Video List -->
+        <ul
+          class="video-list grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+        >
+          @for (video of videoList; track video._id; let i = $index) {
+            <li
+              (click)="setActiveIndex(i)"
+              [class]="
+                'cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200 ' +
+                (i === activeIndex()
+                  ? 'border-b border-gray-200lue-500'
+                  : 'border-gray-200 hover:border-gray-400')
+              "
+            >
+              <div class="relative aspect-video">
+                <media-controller class="w-full h-full">
+                  <video
+                    slot="media"
+                    [src]="`${siteURL}/${video._id}`"
+                    type="video/mp4"
+                    class="w-full h-full object-cover"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </media-controller>
+              </div>
+              <div class="p-2 text-center">
+                <h4 class="text-sm font-medium text-gray-700 truncate">
+                  {{ video.tagNumber }}
+                </h4>
+              </div>
+            </li>
+          }
+        </ul>
       } @else {
-      <p class="text-center text-gray-500 py-10 text-lg">No videos available</p>
+        <p class="text-center text-gray-500 py-10 text-lg">
+          No videos available
+        </p>
       }
     </div>
   </div>
@@ -103,4 +104,4 @@
   ></p-button>
 </div>
 
-<p-toast></p-toast>
+<p-toast position="bottom-center"></p-toast>

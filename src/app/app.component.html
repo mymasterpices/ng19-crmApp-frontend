@@ -1,10 +1,10 @@
-@if(loader.loading()){
-<p-progressbar
-  mode="indeterminate"
-  [style]="{ height: '6px' }"
-  class="w-full absolute top-0 left-0 z-50"
-/>
+@if (loader.loading()) {
+  <p-progressbar
+    mode="indeterminate"
+    [style]="{ height: '6px' }"
+    class="w-full absolute top-0 left-0 z-50"
+  />
 }
 <router-outlet></router-outlet>
-<p-toast position="top-center"></p-toast>
+<p-toast position="bottom-center"></p-toast>
 <p-confirmdialog />

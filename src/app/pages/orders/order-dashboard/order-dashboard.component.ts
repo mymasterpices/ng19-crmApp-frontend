@@ -13,6 +13,7 @@ import { TabsModule } from 'primeng/tabs';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { LoginedUserService } from '../../../services/logined-user.service';
+import { CardModule } from "primeng/card";
 
 interface StatusTag {
   name: string;
@@ -40,7 +41,8 @@ interface StatusTag {
     TabsModule,
     FloatLabelModule,
     InputTextModule,
-  ],
+    CardModule
+],
   templateUrl: './order-dashboard.component.html',
   styleUrl: './order-dashboard.component.css',
 })

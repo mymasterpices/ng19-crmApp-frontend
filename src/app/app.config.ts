@@ -10,16 +10,20 @@ import { apicallInterceptor } from './interceptor/apicall.interceptor';
 import { loadingInterceptor } from './interceptor/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes),
-  provideHttpClient(withInterceptors([apicallInterceptor, loadingInterceptor])),
-  provideAnimationsAsync(),
-  providePrimeNG({
-    theme: {
-      preset: Aura,
-      options: {
-        darkModeSelector: '.my-app-dark'
-      }
-    }
-  })
-  ]
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient(
+      withInterceptors([apicallInterceptor, loadingInterceptor]),
+    ),
+    provideAnimationsAsync(),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '.my-app-dark',
+        },
+      },
+    }),
+  ],
 };

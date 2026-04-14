@@ -21,6 +21,7 @@ import { AddNewComponent } from '../add-new/add-new.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-customer-view-all',
@@ -40,6 +41,7 @@ import { InputTextModule } from 'primeng/inputtext';
     ConfirmDialogModule,
     FloatLabel,
     InputTextModule,
+    MultiSelectModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './customer-view-all.component.html',
@@ -164,11 +166,17 @@ export class CustomerViewAllComponent implements OnInit {
 
     if (!isPrivileged) {
       params = params.set('salesperson', this.loginUser);
-    } else if (salesperson) {
-      params = params.set('salesperson', salesperson);
+    } else if (salesperson && (salesperson as string[]).length) {
+      (salesperson as string[]).forEach((s) => {
+        params = params.append('salesperson', s); // append, not set
+      });
     }
 
-    if (status) params = params.set('status', status);
+    if (status && (status as string[]).length) {
+      (status as string[]).forEach((s) => {
+        params = params.append('status', s); // append, not set
+      });
+    }
 
     this.executeFetch(params);
   }
