@@ -12,8 +12,8 @@ import { NewOrderComponent } from '../new-order/new-order.component';
 import { TabsModule } from 'primeng/tabs';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { LoginedUserService } from '../../../services/logined-user.service';
-import { CardModule } from "primeng/card";
+import { CardModule } from 'primeng/card';
+import { AuthService } from '../../../services/auth.service';
 
 interface StatusTag {
   name: string;
@@ -41,15 +41,15 @@ interface StatusTag {
     TabsModule,
     FloatLabelModule,
     InputTextModule,
-    CardModule
-],
+    CardModule,
+  ],
   templateUrl: './order-dashboard.component.html',
   styleUrl: './order-dashboard.component.css',
 })
 export class OrderDashboardComponent implements OnInit {
   private _orderServices = inject(OrderServices);
   private _messageService = inject(MessageService);
-  private _loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   userRole: string = '';
 
   tags: StatusTag[] = []; // This will hold our processed status cards
@@ -71,7 +71,7 @@ export class OrderDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.getAllorders();
-    this.userRole = this._loginedUserService.getUserRole();
+    this.userRole = this._authService.getUserRole();
   }
 
   // Logic to map status string to PrimeNG severity types
@@ -163,7 +163,7 @@ export class OrderDashboardComponent implements OnInit {
 
   //save new category
   saveNewCategory(input: HTMLInputElement) {
-     const categoryName = {
+    const categoryName = {
       name: input.value,
     };
 
@@ -196,6 +196,5 @@ export class OrderDashboardComponent implements OnInit {
         });
       },
     });
-    }
-  
+  }
 }

@@ -15,7 +15,6 @@ import { SharevideosService } from '../../../services/sharevideos.service';
 import { UploadNewVideoComponent } from '../upload-new-video/upload-new-video.component';
 import { UpperCasePipe } from '@angular/common';
 import { Checkbox } from 'primeng/checkbox';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import {
   FormControl,
   FormGroup,
@@ -27,6 +26,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { DatePicker } from 'primeng/datepicker';
 import { DrawerModule } from 'primeng/drawer';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-view-all',
@@ -54,10 +54,10 @@ import { environment } from '../../../../environments/environment';
 export class ViewAllComponent implements OnInit {
   private sharedVideosServices = inject(SharevideosService);
   private messageService = inject(MessageService);
-  private logineduserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private confirmationService = inject(ConfirmationService);
 
-  loginUser = this.logineduserService.getUserName();
+  loginUser = this._authService.getUserName();
   videoList = signal<any[]>([]);
   siteURL: string = environment.API_URL;
 

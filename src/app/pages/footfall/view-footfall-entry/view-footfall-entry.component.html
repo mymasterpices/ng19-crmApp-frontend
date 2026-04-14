@@ -3,7 +3,7 @@
     <p-avatar
       [label]="username.charAt(0)"
       shape="circle"
-      class="bg-amber-50 border-1 text-white"
+      class="bg-blue-500 border-1 text-white"
     ></p-avatar>
     {{ username }}
   </h1>
@@ -103,6 +103,7 @@
               [text]="true"
               size="small"
               (onClick)="openEdit($event, rowOp, entry)"
+              [rounded]="true"
             />
 
             <!-- ✅ #rowOp is scoped to this <ng-template> iteration -->
@@ -147,6 +148,7 @@
                     icon="pi pi-check"
                     size="small"
                     (onClick)="onSubmit(entry._id, rowOp)"
+                    [rounded]="true"
                   />
                 </div>
               </div>
@@ -161,6 +163,7 @@
               [text]="true"
               size="small"
               (onClick)="deleteEntry(entry._id)"
+              [rounded]="true"
             />
           </td>
         </tr>
@@ -186,6 +189,7 @@
         [text]="true"
         label="Go to Footfall"
         icon="pi pi-arrow-left"
+        [rounded]="true"
       />
     </div>
   </p-card>

@@ -1,12 +1,12 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { LoginedUserService } from '../services/logined-user.service';
+import { AuthService } from '../services/auth.service';
 
 export const rolecheckGuard: CanActivateFn = (route, state) => {
-  const loginedUser = inject(LoginedUserService);
-  const router = inject(Router);
+  const _authService = inject(AuthService);
+  const _router = inject(Router);
 
-  const userRole = loginedUser.getUserRole(); // e.g., 'admin', 'karigar', 'user'
+  const userRole = _authService.getUserRole(); // e.g., 'admin', 'karigar', 'user'
   const expectedRole = route.data['expectedRole'];
 
   // 1. If no specific role is required for this route, allow access
@@ -21,8 +21,8 @@ export const rolecheckGuard: CanActivateFn = (route, state) => {
 
   // 3. Failure: Redirect based on role
   if (userRole === 'karigar') {
-    return router.createUrlTree(['/karigar/karigar-dashboard']);
+    return _router.createUrlTree(['/karigar/karigar-dashboard']);
   }
 
-  return router.createUrlTree(['/overview']);
+  return _router.createUrlTree(['/overview']);
 };

@@ -81,7 +81,7 @@
         <div class="flex justify-between mt-2 text-[11px]">
           <span class="text-gray-400 font-medium"
             >Target:
-            {{ performanceData.targets.gold_weight.toFixed(3) }}kg</span
+            {{ performanceData.targets.gold_weight.toFixed(3) / 1000 }}kg</span
           >
           <span class="text-yellow-600 font-bold"
             >{{
@@ -199,6 +199,7 @@
         (onClick)="syncData()"
         severity="secondary"
         styleClass="p-button-sm rounded-lg shadow-sm"
+        [rounded]="true"
       ></p-button>
     </div>
   </p-card>
@@ -223,6 +224,7 @@
         class="mt-4"
         severity="contrast"
         size="small"
+        [rounded]="true"
       ></p-button>
     </div>
   </ng-template>

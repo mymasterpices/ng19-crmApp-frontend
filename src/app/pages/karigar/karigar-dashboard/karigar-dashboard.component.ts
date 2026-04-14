@@ -1,30 +1,25 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { OrderServices } from '../../../services/orders/order-services';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { MessageService } from 'primeng/api';
 import { HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { environment } from '../../../../environments/environment';
-import { Card, CardModule } from 'primeng/card';
-import { Paginator, PaginatorModule } from 'primeng/paginator';
+import { CardModule } from 'primeng/card';
+import { PaginatorModule } from 'primeng/paginator';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import {
-  AccordionContent,
-  AccordionHeader,
-  Accordion,
-  AccordionModule,
-} from 'primeng/accordion';
-import { Popover, PopoverModule } from 'primeng/popover';
-import { Tag, TagModule } from 'primeng/tag';
+import { AccordionModule } from 'primeng/accordion';
+import { PopoverModule } from 'primeng/popover';
+import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
-import { IconField, IconFieldModule } from 'primeng/iconfield';
-import { InputIcon, InputIconModule } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SharevideosService } from '../../../services/sharevideos.service';
-import { Select, SelectModule } from 'primeng/select';
+import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-karigar-dashboard',
@@ -52,15 +47,15 @@ import { FormsModule } from '@angular/forms';
 export class KarigarDashboardComponent implements OnInit {
   //Dependancy injection
   private _messageService = inject(MessageService);
-  private _logginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private _orderServices = inject(OrderServices);
   private _router = inject(Router);
   private _activeRouter = inject(ActivatedRoute);
   private _shareOrderService = inject(ShareOrderService);
 
   //Declear variables
-  userRole = this._logginedUserService.getUserRole();
-  userName = this._logginedUserService.getUserName();
+  userRole = this._authService.getUserRole();
+  userName = this._authService.getUserName();
 
   selectedStatus: any;
 
@@ -95,8 +90,7 @@ export class KarigarDashboardComponent implements OnInit {
 
         // 2. Filter and store in your property
         this.orderStatuslist = res.filter(
-          (status) =>
-            !toExclude.includes(status.name.toLowerCase()),
+          (status) => !toExclude.includes(status.name.toLowerCase()),
         );
 
         console.log('Filtered Statuses:', this.orderStatuslist);

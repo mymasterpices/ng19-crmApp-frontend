@@ -27,7 +27,7 @@ import { ButtonModule } from 'primeng/button';
 import { jwtDecode } from 'jwt-decode';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ApiService } from '../../../services/api.service';
-import { LoginedUserService } from '../../../services/logined-user.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface FileWithPreview {
   files: File[];
@@ -57,7 +57,7 @@ export class AddNewComponent implements OnInit {
 
   private messageService = inject(MessageService);
   private loginService = inject(ApiService);
-  private loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
 
   status = [{ name: 'Open' }, { name: 'Cold' }, { name: 'Close' }];
   seriousness = [{ name: 'High' }, { name: 'Low' }, { name: 'Neutral' }];
@@ -80,7 +80,7 @@ export class AddNewComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.userID = this.loginedUserService.getUserId();
+    this.userID = this._authService.getUserId();
   }
 
   onFileSelected(event: FileWithPreview) {

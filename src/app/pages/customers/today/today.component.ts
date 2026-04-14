@@ -7,8 +7,8 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
 import { HttpParams } from '@angular/common/http';
 import { ApiService } from '../../../services/api.service';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-today',
@@ -30,7 +30,7 @@ export class TodayComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
-  private loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
 
   customers = signal<any[]>([]);
 
@@ -40,10 +40,10 @@ export class TodayComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAllcustomers();
-    this.loginUser = this.loginedUserService.getLoginedUser();
+    this.loginUser = this._authService.getUserName();
   }
   getAllcustomers() {
-    const salesperson = this.loginedUserService.getLoginedUser();
+    const salesperson = this._authService.getUserName();
     let params = new HttpParams();
 
     if (salesperson && salesperson !== 'admin') {

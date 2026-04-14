@@ -7,7 +7,6 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { DialogModule } from 'primeng/dialog';
 import { PaginatorModule } from 'primeng/paginator';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { HttpParams } from '@angular/common/http';
 import { ImageModule } from 'primeng/image';
 import { BadgeModule } from 'primeng/badge';
@@ -16,6 +15,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-sold-items',
@@ -44,7 +44,7 @@ export class SoldItemsComponent implements OnInit {
   private apiService = inject(ApiService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
-  private loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   public router = inject(Router);
 
   // Constants
@@ -70,8 +70,8 @@ export class SoldItemsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.userRole = this.loginedUserService.getUserRole();
-    this.userName = this.loginedUserService.getUserName();
+    this.userRole = this._authService.getUserRole();
+    this.userName = this._authService.getUserName();
     this.getAllSoldItems();
   }
 

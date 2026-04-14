@@ -27,10 +27,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { CarouselModule } from 'primeng/carousel';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { AccordionModule } from 'primeng/accordion';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from "primeng/badge";
+import { AuthService } from '../../../services/auth.service';
 
 interface UploadEvent {
   files: File[];
@@ -66,7 +66,7 @@ export class ViewSoldItemsComponent implements OnInit {
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
-  private loginedUser = inject(LoginedUserService);
+  private _authService = inject(AuthService);
 
   appUrl = environment.API_URL;
   visible: boolean = false;
@@ -114,7 +114,7 @@ export class ViewSoldItemsComponent implements OnInit {
     });
 
     // Get the logged-in user's name
-    this.user = this.loginedUser.getLoginedUser();
+    this.user = this._authService.getUserName();
   }
 
   getSoldItemId(id: string) {

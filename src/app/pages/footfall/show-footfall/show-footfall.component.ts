@@ -22,9 +22,9 @@ import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { DatePicker } from 'primeng/datepicker';
 import { Card } from 'primeng/card';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { FileUpload } from 'primeng/fileupload';
 import { Tooltip } from 'primeng/tooltip';
+import { AuthService } from '../../../services/auth.service';
 
 interface UploadEvent {
   files: File[];
@@ -58,10 +58,10 @@ interface UploadEvent {
 export class ShowFootfallComponent implements OnInit {
   private _footfallService = inject(FootfallService);
   private _messageService = inject(MessageService);
-  private _loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
-  loginedUser = this._loginedUserService.getLoginedUser();
+  loginedUser = this._authService.getUserName();
 
   visible = false;
   uploadVisible = false;

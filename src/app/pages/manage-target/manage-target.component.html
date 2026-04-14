@@ -80,13 +80,13 @@
             <p-inputNumber
               id="gold_weight"
               formControlName="gold_weight"
-              suffix=" kg"
+              suffix="Kg"
               [min]="0"
               [maxFractionDigits]="3"
               styleClass="w-full"
             >
             </p-inputNumber>
-            <label for="gold_weight">Gold Weight (KG)</label>
+            <label for="gold_weight">Gold Weight (Kg)</label>
           </p-floatlabel>
           @if (
             targetForm.get("targets.gold_weight")?.invalid &&
@@ -147,6 +147,7 @@
           variant="text"
           (onClick)="targetForm.reset()"
           size="small"
+          [rounded]="true"
         >
         </p-button>
         <p-button
@@ -158,6 +159,7 @@
           [disabled]="targetForm.invalid"
           severity="contrast"
           styleClass="rounded-xl px-8"
+          [rounded]="true"
         >
         </p-button>
       </div>

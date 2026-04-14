@@ -24,8 +24,8 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 // Services & Scanner
 import { ApiService } from '../../../services/api.service';
-import { LoginedUserService } from './../../../services/logined-user.service';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../services/auth.service';
 
 interface UploadEvent {
   files: File[];
@@ -57,7 +57,7 @@ interface UploadEvent {
 export class ProductsViewAllComponent {
   // --- Dependency Injection ---
   private _apiService = inject(ApiService);
-  private _loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private _messageService = inject(MessageService);
 
   // --- State Management (Signals) ---
@@ -68,7 +68,7 @@ export class ProductsViewAllComponent {
   isUploading = signal<string>('Upload');
 
   // --- Component Variables ---
-  loginedUser = this._loginedUserService.getUserName();
+  loginedUser = this._authService.getUserName();
   visible: boolean = false; // CSV upload dialog
   selectedFile: File | null = null;
   lastScanned: string | null = null;

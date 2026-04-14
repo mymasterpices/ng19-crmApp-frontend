@@ -1,0 +1,45 @@
+<div
+  class="flex align-items-center justify-content-center min-h-screen p-4 bg-layout-secondary"
+>
+  <p-card
+    class="shadow-4 text-center"
+    [style]="{ 'max-width': '450px', 'border-radius': '12px' }"
+  >
+    <div class="flex flex-column align-items-center gap-4">
+      <div
+        class="bg-primary-reverse border-circle flex align-items-center justify-content-center"
+        style="width: 100px; height: 100px"
+      >
+        <i class="pi pi-exclamation-circle text-primary text-6xl"></i>
+      </div>
+
+      <div>
+        <h1 class="text-900 font-bold text-5xl mb-2 mt-0">404</h1>
+        <p class="text-700 text-xl font-medium mb-1">Page Not Found</p>
+        <p class="text-600 line-height-3 m-0">
+          The resource you are looking for does not exist or has been moved to a
+          different location.
+        </p>
+      </div>
+
+      <div class="flex flex-column sm:flex-row gap-3 w-full">
+        <p-button
+          label="Go to Dashboard"
+          icon="pi pi-home"
+          class="flex-1"
+          styleClass="w-full"
+          routerLink="/"
+        />
+
+        <p-button
+          label="Contact Support"
+          icon="pi pi-envelope"
+          severity="secondary"
+          variant="outlined"
+          class="flex-1"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+  </p-card>
+</div>

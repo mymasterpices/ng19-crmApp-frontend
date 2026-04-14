@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { LoginedUserService } from '../../services/logined-user.service';
 import { DatePipe } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { ChartModule } from 'primeng/chart';
@@ -12,6 +11,8 @@ import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
 import { AnalyticComponent } from './reports/analytic/analytic.component';
 import { TargetViewComponent } from "../target-view/target-view.component";
+import { AuthService } from '../../services/auth.service';
+
 
 interface FootEntry {
   username: string;
@@ -19,7 +20,7 @@ interface FootEntry {
   footfall: number;
   conversion: number;
   pc?: string | null;
-  timestamp: string; // ISO string
+  timestamp: string; 
 }
 
 @Component({
@@ -39,13 +40,13 @@ interface FootEntry {
   styleUrl: './overview.component.css',
 })
 export class OverviewComponent implements OnInit {
-  private _logginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private _apiServices = inject(ApiService);
   private _shareVideoService = inject(SharevideosService);
 
   //Declear variabes
-  userName = this._logginedUserService.getUserName();
-  userRole = this._logginedUserService.getUserRole();
+  userName = this._authService.getUserName();
+  userRole = this._authService.getUserRole();
   today: Date = new Date();
 
   customers: any = [];

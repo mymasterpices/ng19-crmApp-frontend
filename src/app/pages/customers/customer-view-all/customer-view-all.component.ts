@@ -14,7 +14,6 @@ import { HttpParams } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { PaginatorModule } from 'primeng/paginator';
 import { ApiService } from '../../../services/api.service';
-import { LoginedUserService } from '../../../services/logined-user.service';
 import { environment } from '../../../../environments/environment';
 import { DrawerModule } from 'primeng/drawer';
 import { AddNewComponent } from '../add-new/add-new.component';
@@ -22,6 +21,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-customer-view-all',
@@ -51,7 +51,7 @@ export class CustomerViewAllComponent implements OnInit {
   private loginService = inject(ApiService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-  private loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute); // ✅ read query params
 
@@ -79,8 +79,8 @@ export class CustomerViewAllComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.userRole = this.loginedUserService.getUserRole();
-    this.loginUser = this.loginedUserService.getLoginedUser();
+    this.userRole = this._authService.getUserRole();
+    this.loginUser = this._authService.getUserName();
 
     this.getSalespersonOptions();
 

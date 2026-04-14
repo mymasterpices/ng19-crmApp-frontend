@@ -20,6 +20,7 @@
     severity="contrast"
     label="Add New"
     size="small"
+    [rounded]="true"
   >
   </p-button>
 </div>
@@ -61,12 +62,14 @@
             <div class="flex-none relative">
               <p-image
                 [src]="backendUrl + '/' + item.products[0]?.soldupload"
-                styleClass="h-auto object-cover rounded"
+                styleClass="h-auto object-cover !rounded"
                 preview="true"
-                width="40"
+                width="70"
               />
               @if (item.products.length > 1) {
                 <p-badge
+                  severity="contrast"
+                  size="small"
                   [value]="'+' + (item.products.length - 1)"
                   class="absolute top-0 left-0"
                 />
@@ -159,6 +162,7 @@
                 severity="danger"
                 size="small"
                 (onClick)="deleteSoldItem(item._id)"
+                [rounded]="true"
               >
               </p-button>
             }
@@ -169,9 +173,8 @@
   } @else {
     <!-- Empty state -->
     <div class="flex flex-col items-center justify-center py-3">
-        <i class="pi pi-info-circle !text-3xl text-red-500 mr-2"></i>
-        <span class="text-red-500">No sold items found.</span>
-      
+      <i class="pi pi-info-circle !text-3xl text-red-500 mr-2"></i>
+      <span class="text-red-500">No sold items found.</span>
     </div>
   }
 </p-card>

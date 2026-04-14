@@ -5,11 +5,12 @@
     label="New Order"
     size="small"
     severity="contrast"
+    [rounded]="true"
     (click)="drawerVisible = true"
   />
 </section>
 
-<p-card class=" rounded-lg p-2 md:p-4 surface-border">
+<p-card class="rounded-lg p-2 md:p-4 surface-border">
   <div class="order-status mb-4">
     <h3 class="font-semibold mb-2">Order Status</h3>
     <p-carousel
@@ -28,6 +29,7 @@
             [routerLink]="'/orders/all-orders/' + tag.name.toLowerCase()"
             [label]="tag.name | titlecase"
             class="px-3 py-2"
+            [rounded]="true"
           >
           </p-button>
         </div>
@@ -64,21 +66,26 @@
       size="small"
       severity="contrast"
       routerLink="/orders/all-orders"
+      [rounded]="true"
     />
     <p-button
       icon="pi pi-qrcode"
       label="Change Status"
       size="small"
+      [outlined]="true"
       severity="contrast"
       routerLink="/orders/change-status"
+      [rounded]="true"
     />
     @if (userRole === "superadmin") {
       <p-button
         icon="pi pi-user-edit"
         label="Masters"
         size="small"
+        [outlined]="true"
         severity="contrast"
         (onClick)="masterdrawerVisible = true"
+        [rounded]="true"
       />
     }
   </div>

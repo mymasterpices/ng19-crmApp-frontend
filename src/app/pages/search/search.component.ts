@@ -7,7 +7,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CardModule } from 'primeng/card';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
-import { LoginedUserService } from '../../services/logined-user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-search',
@@ -30,7 +30,7 @@ export class SearchComponent implements OnInit {
   private router = inject(Router);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-  private loginedUserService = inject(LoginedUserService);
+  private _authService = inject(AuthService);
 
   searchCustomer: string = '';
   // searchResults: any[] = [];
@@ -58,7 +58,7 @@ export class SearchComponent implements OnInit {
     });
 
     //set logged-in user
-    this.loginUser = this.loginedUserService.getLoginedUser();
+    this.loginUser = this._authService.getUserName();
   }
 
   viewCustomer(customer_id: string) {
@@ -100,7 +100,7 @@ export class SearchComponent implements OnInit {
               summary: 'Error',
               detail: error.error.message,
             });
-          }
+          },
         );
       },
     });
