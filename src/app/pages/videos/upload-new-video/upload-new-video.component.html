@@ -4,62 +4,62 @@
   class="p-fluid"
   enctype="multipart/form-data"
 >
-  <p-card class="w-full">
-    <div class="flex justify-start items-start flex-col gap-4 w-full">
-      <div class="flex justify-between items-center w-full gap-4">
-        <p-floatlabel variant="on" class="flex-1">
-          <input
-            type="text"
-            formControlName="tagNumber"
-            pInputText
-            class="w-full"
-          />
-          <label for="on_label">Tag number</label>
-        </p-floatlabel>
-        <p-fileUpload
-          id="videoUpload"
-          url="#"
-          name="videoUpload"
-          [customUpload]="true"
-          mode="basic"
-          (uploadHandler)="onUpload($event)"
-          accept="video/*"
-          [auto]="true"
-          chooseLabel="Choose Video"
-          chooseIcon="pi pi-upload"
-        >
-        </p-fileUpload>
-      </div>
-      <p-select
-        [options]="categories"
-        optionLabel="name"
-        placeholder="Choose a category"
-        class="w-full"
-        id="category"
-        formControlName="category"
-        (onChange)="onChangeCategory($event.value.name)"
-      />
-      <p-multiselect
-        [options]="tag"
-        [filter]="true"
-        optionLabel="name"
-        placeholder="Add Tags"
-        [maxSelectedLabels]="5"
-        styleClass="w-full mt-3"
-        formControlName="tags"
-      />
+  <div class="flex justify-start items-start flex-col gap-4 w-full py-3">
+    <div class="flex justify-between items-center w-full gap-4">
+      <p-floatlabel variant="on" class="flex-1">
+        <input
+          type="text"
+          formControlName="tagNumber"
+          pInputText
+          class="w-full"
+        />
+        <label for="on_label">Tag number</label>
+      </p-floatlabel>
+      <p-fileUpload
+        id="videoUpload"
+        url="#"
+        name="videoUpload"
+        [customUpload]="true"
+        mode="basic"
+        (uploadHandler)="onUpload($event)"
+        accept="video/*"
+        [auto]="true"
+        chooseLabel="Choose Video"
+        chooseIcon="pi pi-upload"
+      >
+      </p-fileUpload>
     </div>
-    <div class="pt-3 pb-3">
-      <p-button
-        [label]="isUploading()"
-        icon="pi pi-save"
-        iconPos="right"
-        class="w-full"
-        severity="contrast"
-        #submitBtn
-        (onClick)="onSubmit()"
-        [disabled]="addVideoForm.invalid"
-      ></p-button>
-    </div>
-  </p-card>
+    <p-select
+      [options]="categories"
+      optionLabel="name"
+      placeholder="Choose a category"
+      class="w-full"
+      id="category"
+      formControlName="category"
+      (onChange)="onChangeCategory($event.value.name)"
+    />
+    <p-multiselect
+      [options]="tag"
+      [filter]="true"
+      optionLabel="name"
+      placeholder="Add Tags"
+      [maxSelectedLabels]="5"
+      styleClass="w-full"
+      formControlName="tags"
+    />
+  </div>
+  <div class="pt-1">
+    <p-button
+      [label]="isUploading()"
+      icon="pi pi-save"
+      iconPos="right"
+      class="w-full"
+      severity="contrast"
+      #submitBtn
+      (onClick)="onSubmit()"
+      [disabled]="addVideoForm.invalid"
+      [rounded]="true"
+      size="small"
+    ></p-button>
+  </div>
 </form>
