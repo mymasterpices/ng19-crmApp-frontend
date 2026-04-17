@@ -15,12 +15,11 @@
   </div>
   <p-button
     icon="pi pi-plus"
-    class=" right-3"
+    class="right-3"
     severity="contrast"
     label="Add New"
     size="small"
     (onClick)="displayBasic = true"
-    [rounded]="true"
   ></p-button>
 </div>
 
@@ -74,7 +73,6 @@
                 [text]="true"
                 severity="contrast"
                 icon="pi pi-ellipsis-h"
-                [rounded]="true"
                 pTooltip="Action"
                 tooltipPosition="bottom"
                 (click)="selectUserForPasswordChange(user._id)"
@@ -123,7 +121,6 @@
         icon="pi pi-trash"
         [text]="true"
         severity="danger"
-        [rounded]="true"
         pTooltip="Delete"
         tooltipPosition="bottom"
         (click)="deleteCustomer(selectedUserId)"
@@ -134,7 +131,6 @@
         <p-button
           severity="contrast"
           label="Update"
-          [rounded]="true"
           type="submit"
           [disabled]="changePasswordForm.invalid"
         ></p-button>

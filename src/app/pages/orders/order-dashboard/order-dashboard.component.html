@@ -5,7 +5,6 @@
     label="New Order"
     size="small"
     severity="contrast"
-    [rounded]="true"
     (click)="drawerVisible = true"
   />
 </section>
@@ -29,7 +28,6 @@
             [routerLink]="'/orders/all-orders/' + tag.name.toLowerCase()"
             [label]="tag.name | titlecase"
             class="px-3 py-2"
-            [rounded]="true"
           >
           </p-button>
         </div>
@@ -66,7 +64,6 @@
       size="small"
       severity="contrast"
       routerLink="/orders/all-orders"
-      [rounded]="true"
     />
     <p-button
       icon="pi pi-qrcode"
@@ -75,7 +72,6 @@
       [outlined]="true"
       severity="contrast"
       routerLink="/orders/change-status"
-      [rounded]="true"
     />
     @if (userRole === "superadmin") {
       <p-button
@@ -85,7 +81,6 @@
         [outlined]="true"
         severity="contrast"
         (onClick)="masterdrawerVisible = true"
-        [rounded]="true"
       />
     }
   </div>

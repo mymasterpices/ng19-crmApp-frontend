@@ -53,7 +53,7 @@
           ></span>
           <small>{{ customerContactInfo?.seriousness }} </small>
         </div>
-        <div class="gap-1 flex items-center pb-1 ">
+        <div class="gap-1 flex items-center pb-1">
           <span class="text-xs font-normal text-zinc-500"
             ><i class="pi pi-shop"></i
           ></span>
@@ -75,7 +75,6 @@
               pTooltip="{{ customerData?.customerId?.mobile }}"
               tooltipPosition="left"
               [text]="true"
-              [rounded]="true"
               severity="contrast"
             />
           </a>
@@ -123,7 +122,6 @@
           <div class="flex gap-2">
             <p-button
               icon="pi pi-circle-on"
-              [rounded]="true"
               [text]="true"
               severity="info"
               (click)="updateStatus('Open')"
@@ -134,7 +132,6 @@
             </p-button>
             <p-button
               icon="pi pi-circle-on"
-              [rounded]="true"
               [text]="true"
               severity="warn"
               (click)="updateStatus('Cold')"
@@ -145,7 +142,6 @@
             </p-button>
             <p-button
               icon="pi pi-circle-on"
-              [rounded]="true"
               [text]="true"
               severity="success"
               (click)="updateStatus('Close')"
@@ -156,7 +152,6 @@
             </p-button>
             <p-button
               icon="pi pi-circle-on"
-              [rounded]="true"
               [text]="true"
               severity="danger"
               (click)="updateStatus('Failed')"
@@ -191,7 +186,6 @@
           </span>
           <p-button
             icon="pi pi-ellipsis-v"
-            [rounded]="true"
             [text]="true"
             severity="contrast"
             class="pr-0 mr-0"
@@ -203,7 +197,6 @@
           <div class="flex flex-col gap-4">
             <p-button
               icon="pi pi-pencil"
-              [rounded]="true"
               [text]="true"
               severity="contrast"
               class="w-full"
@@ -211,7 +204,6 @@
             ></p-button>
             <p-button
               icon="pi pi-trash"
-              [rounded]="true"
               [text]="true"
               class="w-full"
               severity="danger"

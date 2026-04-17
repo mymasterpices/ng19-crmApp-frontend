@@ -3,13 +3,13 @@
     <p-avatar
       [label]="username.charAt(0)"
       shape="circle"
-      class="bg-blue-500 border-1 text-white"
+      class="!bg-zinc-950 border-1 dark:border-zinc-600 !text-white "
     ></p-avatar>
     {{ username }}
   </h1>
 
   <div class="flex items-center gap-2">
-    <p class="text-sm text-gray-500">Filter by Month</p>
+    <p class="text-sm">Filter by Month</p>
     <p-datepicker
       [(ngModel)]="selectedMonth"
       view="month"
@@ -103,7 +103,6 @@
               [text]="true"
               size="small"
               (onClick)="openEdit($event, rowOp, entry)"
-              [rounded]="true"
             />
 
             <!-- ✅ #rowOp is scoped to this <ng-template> iteration -->
@@ -148,7 +147,6 @@
                     icon="pi pi-check"
                     size="small"
                     (onClick)="onSubmit(entry._id, rowOp)"
-                    [rounded]="true"
                   />
                 </div>
               </div>
@@ -163,7 +161,6 @@
               [text]="true"
               size="small"
               (onClick)="deleteEntry(entry._id)"
-              [rounded]="true"
             />
           </td>
         </tr>
@@ -189,7 +186,6 @@
         [text]="true"
         label="Go to Footfall"
         icon="pi pi-arrow-left"
-        [rounded]="true"
       />
     </div>
   </p-card>

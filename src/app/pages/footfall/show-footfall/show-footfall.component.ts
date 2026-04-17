@@ -241,6 +241,8 @@ export class ShowFootfallComponent implements OnInit {
     this.visible = true;
   }
 
+  // show-footfall.component.ts
+
   onSubmit() {
     const formValue = this.footfallForm.value;
     const selectedDate: Date | string | null = formValue.date;
@@ -258,11 +260,12 @@ export class ShowFootfallComponent implements OnInit {
       const payload = {
         username: person.username,
         user_id: person._id,
+        user_status: person.status, // ✅ already available from getSalesPersonName()
         foot_entry: [
           {
             footfall: Number(entry.ff) || 0,
             conversion: Number(entry.con) || 0,
-            pc: Number(entry.pc) || null,
+            pc: entry.pc ? String(entry.pc) : null,
             timestamp,
           },
         ],

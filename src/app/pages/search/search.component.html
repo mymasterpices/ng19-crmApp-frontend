@@ -1,68 +1,67 @@
 <div class="pt-4 grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
   @for (customer of searchResults(); track $index) {
-  <p-card
-    class="rounded-xl shadow-md overflow-hidden relative cursor-pointer bg-white dark:bg-gray-800"
-  >
-    <div
-      class="flex items-start justify-start space-x-5"
-      (click)="viewCustomer(customer._id)"
+    <p-card
+      class="rounded-xl shadow-md overflow-hidden relative cursor-pointer bg-white dark:bg-gray-800"
     >
-      <div class="product-image">
-        <img
-          [src]="backedAppUrl + '/' + customer.productImage"
-          [alt]="customer.productName"
-          class="w-16 h-full object-cover rounded"
-        />
-      </div>
-
-      <div class="text-sm">
-        <div class="flex justify-between gap-4">
-          <p class="font-bold">{{ customer.name | titlecase }}</p>
-          <p>🎧 {{ customer.mobile }}</p>
+      <div
+        class="flex items-start justify-start space-x-5"
+        (click)="viewCustomer(customer._id)"
+      >
+        <div class="product-image">
+          <img
+            [src]="backedAppUrl + '/' + customer.productImage"
+            [alt]="customer.productName"
+            class="w-16 h-full object-cover rounded"
+          />
         </div>
 
-        <p>Product: {{ customer.productName }}</p>
-        <p>
-          Follow-Up:
-          {{ customer.nextFollowUpDate | date : "d MMM, y" }}
-        </p>
-        <p>Sales Staff: {{ customer.salesperson | titlecase }}</p>
+        <div class="text-sm">
+          <div class="flex justify-between gap-4">
+            <p class="font-bold">{{ customer.name | titlecase }}</p>
+            <p>🎧 {{ customer.mobile }}</p>
+          </div>
 
-        <p>
-          Status:
-          <span
-            class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs"
-            [ngClass]="{
-                            'bg-blue-500': customer.status === 'Open',
-                            'bg-yellow-500': customer.status === 'Cold',
-                            'bg-green-500': customer.status === 'Close',
-                            'bg-red-500': customer.status === 'Failed',
-                        }"
-          >
-            {{ customer.status }}
-          </span>
-        </p>
+          <p>Product: {{ customer.productName }}</p>
+          <p>
+            Follow-Up:
+            {{ customer.nextFollowUpDate | date: "d MMM, y" }}
+          </p>
+          <p>Sales Staff: {{ customer.salesperson | titlecase }}</p>
+
+          <p>
+            Status:
+            <span
+              class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs"
+              [ngClass]="{
+                'bg-blue-500': customer.status === 'Open',
+                'bg-yellow-500': customer.status === 'Cold',
+                'bg-green-500': customer.status === 'Close',
+                'bg-red-500': customer.status === 'Failed',
+              }"
+            >
+              {{ customer.status }}
+            </span>
+          </p>
+        </div>
       </div>
-    </div>
 
-    @if (loginUser == 'admin') {
-    <div class="absolute bottom-2 right-2 z-10 flex space-x-2">
-      <p-button
-        icon="pi pi-trash"
-        [rounded]="true"
-        [text]="true"
-        severity="danger"
-        (click)="deleteCustomer(customer._id)"
-      ></p-button>
-    </div>
-    }
-  </p-card>
+      @if (loginUser == "admin") {
+        <div class="absolute bottom-2 right-2 z-10 flex space-x-2">
+          <p-button
+            icon="pi pi-trash"
+            [text]="true"
+            severity="danger"
+            (click)="deleteCustomer(customer._id)"
+          ></p-button>
+        </div>
+      }
+    </p-card>
   } @empty {
-  <div
-    class="bg-white rounded-xl shadow-md overflow-hidden p-4 relative cursor-pointer"
-  >
-    <p>No customers found!</p>
-  </div>
+    <div
+      class="bg-white rounded-xl shadow-md overflow-hidden p-4 relative cursor-pointer"
+    >
+      <p>No customers found!</p>
+    </div>
   }
 </div>
 <p-confirmdialog />
