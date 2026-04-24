@@ -1,6 +1,7 @@
 <div class="card pb-6 mb-6">
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
     <div class="">
+      <!-- Party Name -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input pInputText id="party" formControlName="party" class="w-full" />
@@ -10,11 +11,11 @@
           productForm.controls["party"].invalid &&
           productForm.controls["party"].touched
         ) {
-          <p>Party name is mandatory</p>
+          <p class="text-red-500 text-xs mt-1">Party name is mandatory</p>
         }
       </div>
 
-      <!-- KARIGAR -->
+      <!-- Karigar -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="karigarList"
@@ -26,11 +27,10 @@
           placeholder="Select a Karigar"
           class="w-full"
           formControlName="karigari"
-        >
-        </p-select>
+        ></p-select>
       </div>
 
-      <!-- SALESPERSON -->
+      <!-- Salesperson -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="salespersonList"
@@ -45,55 +45,59 @@
         ></p-select>
       </div>
 
-      <!-- ── IMAGE FIELD ─────────────────────────────────────────────────── -->
+      <!-- ── IMAGE UPLOAD (Multiple) ───────────────────────────── -->
       <div class="col-12 field mt-3">
-        <!-- Pre-selected reference image indicator -->
-        @if (imagePreviewUrl() && !userSelectedFile()) {
-          <div
-            class="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
-          >
-            <img
-              [src]="imagePreviewUrl()!"
-              alt="pre-selected"
-              class="w-10 h-10 rounded-md object-cover shrink-0 border border-emerald-200"
-            />
-            <div class="flex-1 min-w-0">
-              <p
-                class="text-xs font-medium text-emerald-700 dark:text-emerald-400"
+        <!-- Preview grid of selected images -->
+        @if (previewUrls().length > 0) {
+          <div class="flex flex-wrap gap-2 mb-3">
+            @for (img of previewUrls(); track img.name; let i = $index) {
+              <div
+                class="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
               >
-                ✓ Image pre-selected
-              </p>
-              <p class="text-xs text-emerald-600/70 truncate">
-                {{ uploadedFile?.name }}
-              </p>
-            </div>
-            <p-button
-              type="button"
-              class="text-emerald-600 hover:text-red-500 transition-colors"
-              (click)="removeImage()"
-              title="Remove"
-            >
-              <i class="pi pi-times text-xs"></i>
-            </p-button>
+                <img
+                  [src]="img.url"
+                  [alt]="img.name"
+                  class="w-full h-full object-cover"
+                />
+                <!-- Remove button -->
+                <button
+                  type="button"
+                  (click)="removeImage(i)"
+                  class="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  ✕
+                </button>
+              </div>
+            }
           </div>
+
+          <!-- Image count badge -->
+          <p class="text-xs text-gray-500 mb-2">
+            {{ uploadedFiles().length }} image{{
+              uploadedFiles().length !== 1 ? "s" : ""
+            }}
+            selected
+          </p>
         }
 
+        <!-- PrimeNG File Upload -->
         <p-fileupload
           mode="advanced"
-          [multiple]="false"
+          [multiple]="true"
           accept="image/*"
           [customUpload]="true"
           (onSelect)="onFileSelect($event)"
           (onRemove)="onFileRemove()"
           [showUploadButton]="false"
           [showCancelButton]="true"
-          chooseLabel="Add Image"
+          chooseLabel="Add Images"
           styleClass="w-full !p-0"
-          name="imageProduct"
+          name="productImages"
         ></p-fileupload>
       </div>
-      <!-- ── END IMAGE FIELD ─────────────────────────────────────────────── -->
+      <!-- ── END IMAGE UPLOAD ──────────────────────────────────── -->
 
+      <!-- Delivery Date -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <p-datepicker
@@ -110,6 +114,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Quantity -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <p-inputNumber
@@ -123,6 +128,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Gold Weight -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -131,10 +137,11 @@
             formControlName="goldWeight"
             class="w-full"
           />
-          <label for="goldWeight">Gold Weight (g)</label>
+          <label for="goldweight">Gold Weight (g)</label>
         </p-floatlabel>
       </div>
 
+      <!-- Diamond Details -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -147,6 +154,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Stone Details -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -159,6 +167,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Purity -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -171,6 +180,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Gold Color -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -183,6 +193,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Size -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input pInputText id="size" formControlName="size" class="w-full" />
@@ -190,7 +201,7 @@
         </p-floatlabel>
       </div>
 
-      <!-- CATEGORY -->
+      <!-- Category -->
       <div class="col-12 field mt-3">
         <p-select
           [options]="categoryList"
@@ -205,6 +216,7 @@
         ></p-select>
       </div>
 
+      <!-- Gati Order No -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -217,6 +229,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Product Code -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <input
@@ -229,6 +242,7 @@
         </p-floatlabel>
       </div>
 
+      <!-- Remarks -->
       <div class="col-12 field mt-3">
         <p-floatlabel variant="on">
           <textarea
@@ -238,10 +252,11 @@
             rows="2"
             class="w-full"
           ></textarea>
-          <label for="remarks">Remarks*</label>
+          <label for="remarks">Remarks</label>
         </p-floatlabel>
       </div>
 
+      <!-- Submit Button -->
       <div
         class="col-12 mt-3 fixed bottom-0 left-0 right-0 p-3 flex justify-center items-center w-full"
       >
@@ -253,7 +268,7 @@
           severity="contrast"
           styleClass="w-full"
           [loading]="isSaving()"
-          [disabled]="productForm.invalid"
+          [disabled]="productForm.invalid || uploadedFiles().length === 0"
         ></p-button>
       </div>
     </div>

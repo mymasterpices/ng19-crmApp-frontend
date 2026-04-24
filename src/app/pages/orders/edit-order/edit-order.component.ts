@@ -24,7 +24,7 @@ import { SelectModule } from 'primeng/select';
 
 import { OrderServices } from '../../../services/orders/order-services';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
-import { CardModule } from "primeng/card";
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-edit-order',
@@ -42,8 +42,8 @@ import { CardModule } from "primeng/card";
     FileUploadModule,
     SelectModule,
     FormsModule,
-    CardModule
-],
+    CardModule,
+  ],
   templateUrl: './edit-order.component.html',
   styleUrl: './edit-order.component.css',
 })
@@ -52,6 +52,7 @@ export class EditOrderComponent implements OnInit, OnDestroy {
   private _orderServices = inject(OrderServices);
   private _route = inject(ActivatedRoute);
   private _messageService = inject(MessageService);
+  private _shareOrderService = inject(ShareOrderService);
   private fb = inject(FormBuilder);
 
   // --- State Management ---
@@ -205,6 +206,26 @@ export class EditOrderComponent implements OnInit, OnDestroy {
           summary: 'Update Failed',
           detail: err.error?.message || 'Server Error',
         });
+      },
+    });
+  }
+
+  getPDF(orderId: any) {
+    const params = new HttpParams().set('id', orderId);
+
+    this._orderServices.getOrders(params).subscribe({
+      next: (res: any) => {
+        console.log('API Response:', res);
+        const data = Array.isArray(res) ? res : [res];
+
+        if (data.length > 0) {
+          this._shareOrderService.generateOrderPdf(data);
+        } else {
+          console.warn('No order found for this ID');
+        }
+      },
+      error: (err: any) => {
+        console.log('error while fetch data for pdf', err);
       },
     });
   }

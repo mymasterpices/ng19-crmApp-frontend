@@ -8,7 +8,7 @@
         pInputText
         placeholder="Search video"
         class="md:w-80 w-full"
-        (change)="searchVideo()"
+        (input)="searchVideo()"
         [(ngModel)]="searchText"
       />
     </p-iconfield>
@@ -126,7 +126,6 @@
   } @else {
     <p-card class="w-full">
       <div class="flex flex-col justify-center align-items-center">
-        <img src="imagenotfound.jpg" alt="" class="w-[30rem]" />
         <h4 class="text-center my-3">
           😕 No data found for
           <span class="font-semibold">{{ searchText | uppercase }}</span>

@@ -49,14 +49,16 @@ import { HttpParams } from '@angular/common/http';
   styleUrl: './new-order.component.css',
 })
 export class NewOrderComponent implements OnInit, OnChanges {
-  // ── NEW: accept a reference image URL from image-search ──────────────────
-  // When passed, it auto-downloads the image and pre-fills the imageProduct field
   @Input() referenceImageUrl: string | null = null;
   @Input() referenceImageName: string = '';
-  @Output() orderCreated = new EventEmitter<void>(); // emits after successful order
+  @Output() orderCreated = new EventEmitter<void>();
 
-  uploadedFile: File | null = null;
+  // ✅ Multiple files support
+  uploadedFiles = signal<File[]>([]);
+  previewUrls = signal<{ name: string; url: string }[]>([]);
   isSaving = signal<boolean>(false);
+
+  // Keep for backward compat with reference image pre-fill
   imagePreviewUrl = signal<string | null>(null);
   userSelectedFile = signal<boolean>(false);
 
@@ -64,13 +66,13 @@ export class NewOrderComponent implements OnInit, OnChanges {
   private _messageService = inject(MessageService);
   private _shareorderService = inject(ShareOrderService);
   private fb = inject(FormBuilder);
+
   productForm!: FormGroup;
 
   ngOnInit() {
     this.productForm = this.fb.group({
       party: ['', Validators.required],
       karigari: [''],
-      imageProduct: this.fb.control<File | null>(null),
       deliveryDate: [null, Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       salesperson: [''],
@@ -90,13 +92,11 @@ export class NewOrderComponent implements OnInit, OnChanges {
     this.getSalespersonList();
     this.getCategoryList();
 
-    // Pre-fill image if already passed before ngOnInit
     if (this.referenceImageUrl) {
       this.loadReferenceImage(this.referenceImageUrl, this.referenceImageName);
     }
   }
 
-  // ── NEW: watch for referenceImageUrl changes ──────────────────────────────
   ngOnChanges(changes: SimpleChanges) {
     if (changes['referenceImageUrl']?.currentValue) {
       this.loadReferenceImage(
@@ -106,7 +106,7 @@ export class NewOrderComponent implements OnInit, OnChanges {
     }
   }
 
-  // ── NEW: fetch the image URL and convert to File object ───────────────────
+  // ── Reference image pre-fill ───────────────────────────────
   private async loadReferenceImage(url: string, name: string) {
     try {
       const res = await fetch(url);
@@ -116,159 +116,163 @@ export class NewOrderComponent implements OnInit, OnChanges {
         type: blob.type || 'image/jpeg',
       });
 
-      this.uploadedFile = file;
-      this.productForm.patchValue({ imageProduct: file });
-      this.productForm.get('imageProduct')?.updateValueAndValidity();
-
-      // Show preview in custom image field
-      this.imagePreviewUrl.set(
-        url.startsWith('data:') ? url : URL.createObjectURL(blob),
-      );
+      // Add to uploaded files list
+      this.uploadedFiles.update((files) => [...files, file]);
+      this.previewUrls.update((urls) => [
+        ...urls,
+        { name: filename, url: URL.createObjectURL(blob) },
+      ]);
+      this.imagePreviewUrl.set(URL.createObjectURL(blob));
       console.log('✅ Reference image pre-filled:', filename);
     } catch (err) {
       console.warn('⚠️ Could not load reference image:', err);
     }
   }
 
-  // Called by hidden <input type="file"> in the custom image field
-  onHiddenFileChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.uploadedFile = file;
-      this.productForm.patchValue({ imageProduct: file });
-      this.productForm.get('imageProduct')?.updateValueAndValidity();
-      const reader = new FileReader();
-      reader.onload = (e) =>
-        this.imagePreviewUrl.set(e.target?.result as string);
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeImage() {
-    this.uploadedFile = null;
-    this.imagePreviewUrl.set(null);
-    this.productForm.patchValue({ imageProduct: null });
-  }
-
-  // Original p-fileupload handlers
+  // ── PrimeNG p-fileupload handlers ──────────────────────────
   onFileSelect(event: any) {
-    const file = event.currentFiles[0];
-    if (file) {
-      this.uploadedFile = file;
-      this.userSelectedFile.set(true); // hide the pre-selected banner
-      requestAnimationFrame(() => {
-        this.productForm.patchValue({ imageProduct: file });
-      });
-      this.productForm.get('imageProduct')?.updateValueAndValidity();
-    }
+    const newFiles: File[] = event.currentFiles;
+    if (!newFiles?.length) return;
+
+    // Merge new files with existing
+    this.uploadedFiles.update((existing) => {
+      const existingNames = new Set(existing.map((f) => f.name));
+      const unique = newFiles.filter((f) => !existingNames.has(f.name));
+      return [...existing, ...unique];
+    });
+
+    // Generate previews for new files
+    newFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewUrls.update((urls) => {
+          const alreadyExists = urls.some((u) => u.name === file.name);
+          if (alreadyExists) return urls;
+          return [
+            ...urls,
+            { name: file.name, url: e.target?.result as string },
+          ];
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    this.userSelectedFile.set(true);
   }
 
   onFileRemove() {
-    this.uploadedFile = null;
+    // PrimeNG removes one at a time — reset all to stay in sync
+    this.uploadedFiles.set([]);
+    this.previewUrls.set([]);
     this.userSelectedFile.set(false);
-    this.productForm.patchValue({ imageProduct: null });
+    this.imagePreviewUrl.set(null);
   }
 
+  // ✅ Remove a specific image from preview list
+  removeImage(index: number) {
+    this.uploadedFiles.update((files) => files.filter((_, i) => i !== index));
+    this.previewUrls.update((urls) => urls.filter((_, i) => i !== index));
+    if (this.uploadedFiles().length === 0) {
+      this.imagePreviewUrl.set(null);
+      this.userSelectedFile.set(false);
+    }
+  }
+
+  // ── Lists ──────────────────────────────────────────────────
   karigarList: any[] = [];
   salespersonList: any[] = [];
   categoryList: any[] = [];
 
   getkarigarsList() {
     this._orderServices.getkarigarsList().subscribe({
-      next: (res: any) => {
-        this.karigarList = res || [];
-        console.log('Karigars fetched:', this.karigarList);
-      },
-      error: (err) => {
-        console.log('Error fetching karigars:', err.error?.message || err);
-      },
+      next: (res: any) => (this.karigarList = res || []),
+      error: (err) => console.error('Karigars fetch error:', err),
     });
-  }
-
-  getKarigarName(id: string): string {
-    if (!id) return '';
-    // Match by _id and return the username
-    const karigar = this.karigarList.find((k) => k._id === id);
-    return karigar ? karigar.username : id;
   }
 
   getSalespersonList() {
     this._orderServices.getSalespersonList().subscribe({
-      next: (res: any) => {
-        this.salespersonList = res || [];
-      },
+      next: (res: any) => (this.salespersonList = res || []),
     });
-  }
-
-  getSalespersonName(id: string): string {
-    if (!id) return '';
-    return this.salespersonList.find((s) => s._id === id)?.name || id;
   }
 
   getCategoryList() {
     this._orderServices.getCategoryList().subscribe({
-      next: (res: any) => {
-        this.categoryList = res || [];
-      },
+      next: (res: any) => (this.categoryList = res || []),
     });
   }
 
-  getCategoryName(id: string): string {
-    if (!id) return '';
-    return this.categoryList.find((c) => c._id === id)?.name || id;
+  getKarigarName(id: string): string {
+    return this.karigarList.find((k) => k._id === id)?.username || id || '';
   }
 
+  getSalespersonName(id: string): string {
+    return this.salespersonList.find((s) => s._id === id)?.name || id || '';
+  }
+
+  getCategoryName(id: string): string {
+    return this.categoryList.find((c) => c._id === id)?.name || id || '';
+  }
+
+  // ── Submit ─────────────────────────────────────────────────
   onSubmit() {
-    if (this.productForm.valid) {
-      this.isSaving.set(true);
-      const formData = new FormData();
-
-      if (this.uploadedFile) {
-        formData.append(
-          'productImage',
-          this.uploadedFile,
-          this.uploadedFile.name,
-        );
-      }
-
-      Object.keys(this.productForm.controls).forEach((key) => {
-        if (key === 'imageProduct') return;
-        const value = this.productForm.get(key)?.value;
-        if (value === null || value === undefined) return;
-        formData.append(
-          key,
-          value instanceof Date ? value.toISOString() : value.toString(),
-        );
-      });
-
-      this._orderServices.createOrder(formData).subscribe({
-        next: (res: any) => {
-          this.isSaving.set(false);
-          this._messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Order Created Successfully',
-          });
-          this.productForm.reset({ quantity: 1 });
-          this.uploadedFile = null;
-          this.imagePreviewUrl.set(null);
-          this.userSelectedFile.set(false);
-          this.orderCreated.emit(); // tells parent to close drawer
-          console.log('Get saved new order PDF order#: ', res.data._id);
-          this.getPDF(res.data._id);
-        },
-        error: (err) => {
-          this.isSaving.set(false);
-          this._messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: err.error?.message || 'Save Failed',
-          });
-        },
-      });
-    } else {
+    if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
+      return;
     }
+
+    if (this.uploadedFiles().length === 0) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'No Image',
+        detail: 'Please select at least one image',
+      });
+      return;
+    }
+
+    this.isSaving.set(true);
+    const formData = new FormData();
+
+    // ✅ Append all images with same field name "productImages"
+    this.uploadedFiles().forEach((file) => {
+      formData.append('productImages', file, file.name);
+    });
+
+    // Append all other form fields
+    Object.keys(this.productForm.controls).forEach((key) => {
+      const value = this.productForm.get(key)?.value;
+      if (value === null || value === undefined) return;
+      formData.append(
+        key,
+        value instanceof Date ? value.toISOString() : value.toString(),
+      );
+    });
+
+    this._orderServices.createOrder(formData).subscribe({
+      next: (res: any) => {
+        this.isSaving.set(false);
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Order Created Successfully',
+        });
+        this.productForm.reset({ quantity: 1 });
+        this.uploadedFiles.set([]);
+        this.previewUrls.set([]);
+        this.imagePreviewUrl.set(null);
+        this.userSelectedFile.set(false);
+        this.orderCreated.emit();
+        this.getPDF(res.data._id);
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        this._messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.error?.message || 'Save Failed',
+        });
+      },
+    });
   }
 
   getPDF(orderId: any) {
@@ -276,13 +280,9 @@ export class NewOrderComponent implements OnInit, OnChanges {
     this._orderServices.getOrders(params).subscribe({
       next: (res: any) => {
         const data = Array.isArray(res) ? res : [res];
-        if (data.length > 0) {
-          this._shareorderService.generateOrderPdf(data);
-        }
+        if (data.length > 0) this._shareorderService.generateOrderPdf(data);
       },
-      error: (err: any) => {
-        console.log('error while fetch data for pdf', err);
-      },
+      error: (err) => console.error('PDF fetch error:', err),
     });
   }
 }

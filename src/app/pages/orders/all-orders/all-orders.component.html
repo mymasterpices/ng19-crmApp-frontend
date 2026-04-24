@@ -41,12 +41,12 @@
           <div class="flex gap-3">
             <div class="flex-grow-0">
               <p-image
-                [src]="backendUrl + '/' + order.imageProduct"
+                [src]="backendUrl + '/' + order.imageProduct[0]"
                 imageClass="border-round-md object-cover"
                 styleClass="w-full"
                 [imageStyle]="{
                   width: '100px',
-                  height: '120px',
+                  height: '125px',
                   'object-fit': 'cover',
                 }"
                 [preview]="true"
@@ -155,14 +155,14 @@
             <p-accordion class="w-full">
               <p-accordion-panel [value]="order._id" class="!border-0 !p-0">
                 <p-accordion-header class="!border-0 !p-0">
-                  <span class="text-sm font-bold text-600">More Details</span>
+                  <span class="text-sm text-600">More Details</span>
                 </p-accordion-header>
 
                 <p-accordion-content
                   class="surface-50 border-round-md !p-0 !m-0"
                 >
                   <div class="grid grid-nogutter text-sm">
-                    <div class="flex justify-start gap-3 pt-2 ">
+                    <div class="flex justify-start gap-3 pt-2">
                       <span class="text-600">Order Date:</span>
                       <span class="font-medium block">{{
                         order.timestamp | date: "dd MMM, yyyy"
