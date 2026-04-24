@@ -29,13 +29,14 @@
     "primeicons": "^7.0.0",
     "primeng": "^19.1.4",
     "qrcode": "^1.5.4",
+    "qrcode-generator": "^2.0.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.0",
-    "@angular/cli": "^19.2.0",
+    "@angular/cli": "^21.2.8",
     "@angular/compiler-cli": "^19.2.0",
     "@types/jasmine": "~5.1.0",
     "@types/qrcode": "^1.5.6",
