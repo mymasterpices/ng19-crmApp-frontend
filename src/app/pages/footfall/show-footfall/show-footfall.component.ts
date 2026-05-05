@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { FootfallService } from '../../../services/footfall/footfall.service';
 import { HttpParams } from '@angular/common/http';
-import { Dialog } from 'primeng/dialog';
+import { Dialog, DialogModule } from 'primeng/dialog';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Button } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,6 +25,7 @@ import { Card } from 'primeng/card';
 import { FileUpload } from 'primeng/fileupload';
 import { Tooltip } from 'primeng/tooltip';
 import { AuthService } from '../../../services/auth.service';
+import { Drawer } from 'primeng/drawer';
 
 interface UploadEvent {
   files: File[];
@@ -51,6 +52,7 @@ interface UploadEvent {
     Card,
     FileUpload,
     Tooltip,
+    DialogModule,
   ],
   templateUrl: './show-footfall.component.html',
   styleUrls: ['./show-footfall.component.css'],

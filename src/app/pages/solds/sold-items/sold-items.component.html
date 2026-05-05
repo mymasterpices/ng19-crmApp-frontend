@@ -7,17 +7,16 @@
         #searchInput
         pInputText
         autocomplete="off"
-        pSize="small"
         (input)="getAllSoldItems(searchInput.value)"
       />
-      <label>Search Sales Person</label>
+      <label>Find Sales Person/Tag no.</label>
     </p-floatlabel>
   </div>
   <p-button
     icon="pi pi-plus"
     class="right-3"
     routerLink="/sold-items/sold-entry"
-    severity="contrast"
+    severity="primary"
     label="Add New"
     size="small"
   >
@@ -105,12 +104,14 @@
           <td routerLink="/view-sold-items/{{ item._id }}">
             @if (item.isSwarnteras) {
               <span
-                class="bg-emerald-100 text-emerald-900 p-1 text-xs rounded-full"
+                class="bg-emerald-400 text-zinc-900 p-1 px-3 text-xs rounded-full"
               >
                 En
               </span>
             } @else {
-              <span class="bg-rose-100 text-rose-900 p-1 text-xs rounded-full">
+              <span
+                class="bg-rose-400 text-rose-900 p-1 px-3 text-xs rounded-full"
+              >
                 NE
               </span>
             }
@@ -161,6 +162,7 @@
                 severity="danger"
                 size="small"
                 (onClick)="deleteSoldItem(item._id)"
+                [rounded]="true"
               >
               </p-button>
             }

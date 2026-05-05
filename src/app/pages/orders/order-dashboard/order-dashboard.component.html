@@ -4,7 +4,7 @@
     icon="pi pi-shopping-bag"
     label="New Order"
     size="small"
-    severity="contrast"
+    severity="primary"
     (click)="drawerVisible = true"
   />
 </section>
@@ -62,7 +62,7 @@
       icon="pi pi-align-center"
       label="Orders"
       size="small"
-      severity="contrast"
+      severity="primary"
       routerLink="/orders/all-orders"
     />
     <p-button
@@ -70,7 +70,7 @@
       label="Change Status"
       size="small"
       [outlined]="true"
-      severity="contrast"
+      severity="primary"
       routerLink="/orders/change-status"
     />
     @if (userRole === "superadmin") {
@@ -79,7 +79,7 @@
         label="Masters"
         size="small"
         [outlined]="true"
-        severity="contrast"
+        severity="primary"
         (onClick)="masterdrawerVisible = true"
       />
     }
@@ -129,7 +129,7 @@
           <p-button
             label="Save"
             size="small"
-            severity="contrast"
+            severity="primary"
             class="w-full"
             styleClass="w-30"
             [loading]="saveLoading"

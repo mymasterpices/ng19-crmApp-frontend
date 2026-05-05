@@ -1,0 +1,223 @@
+<!-- Header -->
+<div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+  <h2 class="text-xl font-semibold">Footfall Report</h2>
+  <p-button
+    icon="pi pi-refresh"
+    severity="primary"
+    label="Re-Sync"
+    size="small"
+    [loading]="loading()"
+    (onClick)="loadData()"
+  ></p-button>
+</div>
+
+<!-- Year / Store Tabs -->
+@if (tabs().length > 0) {
+<div class="flex gap-2 flex-wrap mb-4">
+  @for (tab of tabs(); track tab) {
+  <button
+    class="px-4 py-1.5 rounded-full text-sm font-medium border transition-all cursor-pointer"
+    [ngClass]="
+          activeTab() === tab
+            ? 'bg-gray-800 text-white border-gray-800'
+            : 'bg-white text-gray-600 border-gray-300 hover:border-gray-500'
+        "
+    (click)="onTabChange(tab)"
+  >
+    {{ tab }}
+  </button>
+  }
+</div>
+}
+
+<div class="grid gap-4">
+  <!-- KPI Summary Cards -->
+  @if (currentMonthTotal && !loading()) {
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <p-card styleClass="shadow-sm">
+      <div class="flex flex-col gap-1">
+        <span class="text-gray-500">Total Footfall</span>
+        <span class="text-2xl font-bold"
+          >{{ currentMonthTotal.total.footfall }}</span
+        >
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-sm">
+      <div class="flex flex-col gap-1">
+        <span class="text-gray-500">Total Conversion</span>
+        <span class="text-2xl font-bold"
+          >{{ currentMonthTotal.total.conversion }}</span
+        >
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-sm">
+      <div class="flex flex-col gap-1">
+        <span class="text-gray-500">Conversion Rate</span>
+        <span
+          class="text-2xl font-bold"
+          [ngClass]="getConvClass(currentMonthTotal.total.percentage)"
+        >
+          {{ currentMonthTotal.total.percentage | number: '1.0-2' }}%
+        </span>
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-sm">
+      <div class="flex flex-col gap-1">
+        <span class="text-gray-500">New Customers</span>
+        <span class="text-2xl font-bold"
+          >{{ currentMonthTotal.newCustomers }}</span
+        >
+      </div>
+    </p-card>
+  </div>
+  }
+
+  <!-- Main Table Card -->
+  <p-card styleClass="shadow-sm !p-0">
+    @if (loading()) {
+    <div class="flex flex-col justify-center items-center h-40 gap-3">
+      <i class="pi pi-spin pi-refresh text-2xl text-gray-400"></i>
+      <p class="text-sm text-gray-400">Loading sheet data...</p>
+    </div>
+    } @else {
+
+    <!-- Month Filter Toolbar -->
+    <div
+      class="flex items-center justify-between px-4 py-3 border-b border-gray-100"
+    >
+      <span class="text-sm text-gray-500">
+        Showing <strong>{{ filteredData.length }}</strong> entries
+      </span>
+      <p-select
+        [options]="months()"
+        optionLabel="label"
+        optionValue="key"
+        [ngModel]="selectedMonth()"
+        (ngModelChange)="selectedMonth.set($event)"
+        placeholder="All Months"
+        styleClass="w-44"
+        [showClear]="true"
+      ></p-select>
+    </div>
+
+    <!-- ✅ p-table with PrimeNG frozen column for sticky Date -->
+    <div class="max-w-[80vw] md:max-w-390">
+      <p-table
+        [value]="filteredData"
+        [scrollable]="true"
+        scrollHeight="600px"
+        styleClass="p-datatable-striped p-datatable-gridlines w-full overflow-x-auto"
+        showGridlines
+        size="small"
+      >
+        <ng-template pTemplate="header">
+          <!-- Row 1: Date (frozen) + Salesperson group headers -->
+          <tr>
+            <th
+              rowspan="2"
+              pFrozenColumn
+              alignFrozen="left"
+              class="text-center font-bold bg-gray-800 text-white"
+              style="min-width: 100px"
+            >
+              Date
+            </th>
+            @for (sp of salespersons(); track sp) {
+            <th
+              colspan="3"
+              class="text-center font-bold bg-green-700 text-white px-2 py-2"
+              style="min-width: 150px"
+            >
+              {{ sp }}
+            </th>
+            }
+          </tr>
+
+          <!-- Row 2: Sub-column headers per salesperson -->
+          <tr>
+            @for (sp of salespersons(); track sp) {
+            <th
+              class="text-center bg-green-50 text-green-800"
+              style="min-width: 44px"
+            >
+              FF
+            </th>
+            <th
+              class="text-center bg-green-50 text-green-800"
+              style="min-width: 54px"
+            >
+              Conv
+            </th>
+            <th
+              class="text-center bg-red-50 text-red-700"
+              style="min-width: 64px"
+            >
+              Conv%
+            </th>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row>
+          <tr
+            [ngClass]="row.isTotal ? 'bg-yellow-50 font-bold border-t-2 border-yellow-300' : ''"
+          >
+            <!-- ✅ Date cell — pFrozenColumn freezes it on horizontal scroll -->
+            <td
+              pFrozenColumn
+              alignFrozen="left"
+              class="font-semibold px-2 py-1.5 border-r border-gray-200 whitespace-nowrap"
+              [ngClass]="row.isTotal ? 'bg-yellow-50' : 'bg-white'"
+              style="min-width: 100px"
+            >
+              {{ row.date }}
+            </td>
+
+            <!-- Salesperson data cells -->
+            @for (sp of salespersons(); track sp) {
+            <td class="text-center px-1 py-1.5">
+              {{ row[sp]?.footfall || '—' }}
+            </td>
+            <td class="text-center px-1 py-1.5">
+              {{ row[sp]?.conversion || '—' }}
+            </td>
+            <td class="text-center px-1 py-1.5">
+              @if (row[sp]?.footfall > 0) {
+              <span
+                class="font-semibold"
+                [ngClass]="{
+                      'text-green-600':  (row[sp]?.conversionPc ?? 0) >= 75,
+                      'text-orange-500': (row[sp]?.conversionPc ?? 0) >= 50 && (row[sp]?.conversionPc ?? 0) < 75,
+                      'text-red-600':    (row[sp]?.conversionPc ?? 0) < 50
+                    }"
+              >
+                {{ row[sp]?.conversionPc | number: '1.0-2' }}%
+              </span>
+              } @else {
+              <span class="text-gray-300">—</span>
+              }
+            </td>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td [attr.colspan]="salespersons().length * 3 + 1">
+              <div
+                class="flex flex-col items-center justify-center h-40 text-gray-400"
+              >
+                <i class="pi pi-inbox text-3xl mb-2"></i>
+                <p class="text-sm">No data for selected month</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    }
+  </p-card>
+</div>

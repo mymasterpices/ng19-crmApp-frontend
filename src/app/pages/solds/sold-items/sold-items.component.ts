@@ -78,11 +78,24 @@ export class SoldItemsComponent implements OnInit {
   getAllSoldItems(search: string = '') {
     let params = new HttpParams();
 
-    // Simply attach the search term if it exists
-    if (search.trim()) {
-      params = params.set('sales_staff', search.trim());
+    const searchTerm = search.trim();
+
+    if (searchTerm) {
+      // Check if the string contains at least one digit
+      const hasNumber = /\d/.test(searchTerm);
+
+      if (hasNumber) {
+        // If it contains a number, search by tag
+        params = params.set('tag', searchTerm);
+      } else {
+        // If it's plain text, search by sales_staff
+        params = params.set('sales_staff', searchTerm);
+      }
     }
-    if (this.userName != 'admin' && this.userName != 'superadmin') {
+
+    // Role-based restriction:
+    // If not admin, ALWAYS force sales_staff to be the logged-in user
+    if (this.userName !== 'admin' && this.userName !== 'superadmin') {
       params = params.set('sales_staff', this.userName);
     }
 

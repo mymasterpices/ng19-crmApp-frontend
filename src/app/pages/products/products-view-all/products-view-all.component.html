@@ -15,7 +15,7 @@
     <p-button
       icon="pi pi-hourglass"
       routerLink="/products/compare"
-      severity="contrast"
+      severity="primary"
       label="Compare"
       size="small"
     >
@@ -46,7 +46,7 @@
               <p-button
                 icon="pi pi-camera"
                 [text]="true"
-                severity="contrast"
+                severity="primary"
                 (onClick)="isScannerVisible = true"
               >
               </p-button>
@@ -285,7 +285,7 @@
     <p-button
       type="submit"
       [label]="isUploading()"
-      severity="contrast"
+      severity="primary"
       [disabled]="!selectedFile || isUploading() !== 'Upload'"
       styleClass="w-auto"
       size="small"

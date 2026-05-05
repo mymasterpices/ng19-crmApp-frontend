@@ -101,6 +101,17 @@ export const routes: Routes = [
         canActivate: [rolecheckGuard],
         data: { expectedRole: 'karigar' },
       },
+
+      // temp routes
+      {
+        path: 'footfall/footfall-sheet',
+        loadComponent: () =>
+          import('./pages/footfall-sheet/footfall-sheet').then(
+            (m) => m.FootfallSheetComponent,
+          ),
+        data: { expectedRole: 'admin' },
+        canActivate: [rolecheckGuard],
+      },
     ],
   },
   {

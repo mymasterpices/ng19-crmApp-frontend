@@ -20,8 +20,9 @@
           <p-button
             icon="pi pi-search"
             type="submit"
-            severity="contrast"
+            severity="primary"
             [disabled]="!searchForm.valid"
+            [rounded]="true"
           ></p-button>
         </div>
       </form>
@@ -42,9 +43,9 @@
   }
   <p-button
     icon="pi pi-plus"
-    size="small"
-    severity="contrast"
+    severity="primary"
     (click)="addNewCustomer = true"
+    [rounded]="true"
   ></p-button>
 </div>
 <div

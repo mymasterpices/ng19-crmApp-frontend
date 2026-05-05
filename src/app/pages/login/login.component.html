@@ -17,6 +17,13 @@
             autocomplete="off"
           />
           <label for="username" class="block font-normal mb-1">Username</label>
+
+          @if (
+            loginFrom.get("username")?.invalid &&
+            loginFrom.get("username")?.touched
+          ) {
+            <p class="text-red-500 text-xs">Username is required</p>
+          }
         </p-floatlabel>
 
         <p-floatlabel variant="on" class="mb-5">
@@ -33,14 +40,19 @@
           <label for="password" class="block text-md font-normal mb-1"
             >Password</label
           >
+          @if (
+            loginFrom.get("password")?.invalid &&
+            loginFrom.get("password")?.touched
+          ) {
+            <p class="text-red-500 text-xs">Password is required</p>
+          }
         </p-floatlabel>
 
         <p-button
           label="Sign In"
           styleClass="w-full"
           type="submit"
-          severity="contrast"
-          size="small"
+          severity="primary"
         ></p-button>
       </form>
       <div class="flex">
@@ -55,6 +67,6 @@
   <div
     class="md:flex justify-center items-center min-h-screen min-w-1/2 bg-gray-900 hidden h-screen"
   >
-    <img src="login.svg" alt="" class="w-[60%]" />
+    <img src="loging.svg" alt="" class="w-[60%]" />
   </div>
 </div>

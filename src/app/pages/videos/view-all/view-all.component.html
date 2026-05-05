@@ -19,7 +19,7 @@
         icon="pi pi-link"
         class="mt-3"
         routerLink="/videos/view-all"
-        severity="contrast"
+        severity="primary"
         label="Generate"
         size="small"
         (click)="displayBasic = true"
@@ -30,10 +30,9 @@
         <p-button
           icon="pi pi-upload"
           class="mt-3"
-          severity="contrast"
+          severity="info"
           label="Upload"
           size="small"
-          outlined="true"
           (click)="visible = true"
         >
         </p-button>
@@ -108,16 +107,18 @@
               severity="danger"
               (click)="deleteVideoItem(video._id)"
               icon="pi pi-trash"
+              [rounded]="true"
             >
             </p-button>
           }
           <p-button
             (click)="getTheLink(video._id)"
             variant="text"
-            severity="contrast"
+            severity="primary"
             pTooltip="Share"
             tooltipPosition="top"
             icon="pi pi-share-alt"
+            [rounded]="true"
           >
           </p-button>
         </span>
@@ -194,7 +195,7 @@
           <p-button
             label="Save & Get link"
             icon="pi pi-link"
-            severity="contrast"
+            severity="primary"
             [disabled]="shareLinkForm.invalid"
             (click)="generateShareableLink()"
           />

@@ -1,3 +1,7 @@
+<div class="flex justify-between items-center pb-1">
+  <h2 class="text-xl font-semibold">Footfall</h2>
+</div>
+
 <div class="md:flex md:flex-row flex-col justify-between items-center mb-4">
   <!-- Search & Month Filter -->
   <div class="wrapper flex justify-between items-center gap-3">
@@ -36,22 +40,21 @@
     <p-button
       icon="pi pi-plus"
       (click)="openDialog()"
-      severity="contrast"
+      severity="primary"
       pTooltip="New Entry"
       tooltipPosition="left"
-      size="small"
+      [rounded]="true"
     ></p-button>
 
     <!-- Bulk Upload (admin only) -->
     @if (loginedUser == "admin") {
       <p-button
         icon="pi pi-upload"
-        severity="contrast"
-        size="small"
-        [outlined]="true"
+        severity="secondary"
         pTooltip="Bulk Upload CSV"
         tooltipPosition="left"
         (click)="uploadVisible = true"
+        [rounded]="true"
       ></p-button>
     }
 
@@ -59,8 +62,7 @@
     <p-button
       icon="pi pi-refresh"
       severity="secondary"
-      size="small"
-      [outlined]="true"
+      [rounded]="true"
       [loading]="isRefreshing()"
       pTooltip="Refresh Data"
       tooltipPosition="left"
@@ -154,7 +156,7 @@
         type="submit"
         [label]="isUploading()"
         iconPos="right"
-        severity="contrast"
+        severity="primary"
         [disabled]="!selectedFile || isUploading() === 'Processing...'"
       ></p-button>
     </div>
@@ -219,7 +221,7 @@
     </div>
 
     <div class="flex justify-end mt-4">
-      <p-button type="submit" label="Save" severity="contrast"></p-button>
+      <p-button type="submit" label="Save" severity="primary"></p-button>
     </div>
   </form>
 </p-dialog>

@@ -3,7 +3,7 @@
   <p-button
     label="New Order"
     icon="pi pi-plus"
-    severity="contrast"
+    severity="primary"
     size="small"
     (onClick)="drawerVisible = true"
   >
@@ -75,7 +75,7 @@
                     label="Edit"
                     [text]="true"
                     size="small"
-                    severity="contrast"
+                    severity="primary"
                     (onClick)="onEdit(order._id)"
                   ></p-button>
                   <p-button
@@ -83,7 +83,7 @@
                     label="Share"
                     [text]="true"
                     size="small"
-                    severity="contrast"
+                    severity="primary"
                     (onClick)="getPDF(order._id)"
                   ></p-button>
                 </div>
