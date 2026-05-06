@@ -44,7 +44,7 @@ export class AddNewUserComponent implements OnInit {
   }
 
   //form data
-  addNewSalesman = new FormGroup({
+  saveNewUser = new FormGroup({
     username: new FormControl('', [
       Validators.required,
       Validators.minLength(3),
@@ -57,7 +57,7 @@ export class AddNewUserComponent implements OnInit {
   });
 
   onSubmit() {
-    const formValue = this.addNewSalesman.value;
+    const formValue = this.saveNewUser.value;
     const userRole: any = formValue.role;
 
     const user = {
@@ -66,15 +66,16 @@ export class AddNewUserComponent implements OnInit {
       role: userRole.name,
     };
 
+    console.log("user input is : ", user);
     this.loginService.addSalesstaff(user).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
           detail: 'User Added Successfully',
         });
         // console.log(res);
-        this.addNewSalesman.reset();
+        this.saveNewUser.reset();
         this.close.emit();
       },
       error: (error) => {

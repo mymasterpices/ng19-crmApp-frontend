@@ -3,7 +3,7 @@
   <p-button
     icon="pi pi-shopping-bag"
     label="New Order"
-    size="small"
+    
     severity="primary"
     (click)="drawerVisible = true"
   />
@@ -61,25 +61,20 @@
     <p-button
       icon="pi pi-align-center"
       label="Orders"
-      size="small"
       severity="primary"
       routerLink="/orders/all-orders"
     />
     <p-button
       icon="pi pi-qrcode"
       label="Change Status"
-      size="small"
-      [outlined]="true"
-      severity="primary"
+      severity="info"
       routerLink="/orders/change-status"
     />
     @if (userRole === "superadmin") {
       <p-button
         icon="pi pi-user-edit"
         label="Masters"
-        size="small"
-        [outlined]="true"
-        severity="primary"
+        severity="secondary"
         (onClick)="masterdrawerVisible = true"
       />
     }
@@ -128,7 +123,7 @@
 
           <p-button
             label="Save"
-            size="small"
+            
             severity="primary"
             class="w-full"
             styleClass="w-30"

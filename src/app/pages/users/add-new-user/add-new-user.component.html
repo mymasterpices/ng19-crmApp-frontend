@@ -1,9 +1,4 @@
-<form
-  action=""
-  [formGroup]="addNewSalesman"
-  (ngSubmit)="onSubmit()"
-  class="p-2"
->
+<form action="" [formGroup]="saveNewUser" (ngSubmit)="onSubmit()" class="p-2">
   <div class="grid grid-cols-1 gap-4">
     <p-floatlabel variant="on">
       <input
@@ -17,14 +12,14 @@
       <label for="value3">Username</label>
 
       @if (
-        addNewSalesman.controls["username"].hasError("required") &&
-        addNewSalesman.controls["username"].touched
+        saveNewUser.controls["username"].hasError("required") &&
+        saveNewUser.controls["username"].touched
       ) {
         <small class="text-red-400 pl-1 block relative"
           >Username is required.</small
         >
       }
-      @if (addNewSalesman.controls["username"].hasError("minlength")) {
+      @if (saveNewUser.controls["username"].hasError("minlength")) {
         <small class="text-red-400 pl-1 block relative"
           >Username must be at least 3 characters.</small
         >
@@ -43,14 +38,14 @@
       />
       <label for="value3">Password</label>
       @if (
-        addNewSalesman.controls["password"].hasError("required") &&
-        addNewSalesman.controls["password"].touched
+        saveNewUser.controls["password"].hasError("required") &&
+        saveNewUser.controls["password"].touched
       ) {
         <small class="text-red-400 pl-1 block relative"
           >Password is required.</small
         >
       }
-      @if (addNewSalesman.controls["password"].hasError("minlength")) {
+      @if (saveNewUser.controls["password"].hasError("minlength")) {
         <small class="text-red-400 pl-1 block relative"
           >Password must be at least 3 characters.</small
         >
@@ -71,6 +66,7 @@
       icon="pi pi-save"
       severity="primary"
       size="small"
+      type="submit"
     ></p-button>
   </div>
 </form>
