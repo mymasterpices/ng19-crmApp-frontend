@@ -112,6 +112,24 @@ export const routes: Routes = [
         data: { expectedRole: 'admin' },
         canActivate: [rolecheckGuard],
       },
+      {
+        path: 'footfall',
+        loadComponent: () =>
+          import('./pages/footfall/report.component').then(
+            (m) => m.ReportComponent,
+          ),
+        data: { expectedRole: 'admin' },
+        canActivate: [rolecheckGuard],
+      },
+      {
+        path: 'footfall/footfall-data',
+        loadComponent: () =>
+          import('./pages/footfall-data/footfall-data.component').then(
+            (m) => m.FootfallData,
+          ),
+        data: { expectedRole: 'admin' },
+        canActivate: [rolecheckGuard],
+      },
     ],
   },
   {

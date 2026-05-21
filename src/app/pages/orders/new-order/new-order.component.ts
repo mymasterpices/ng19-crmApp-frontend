@@ -184,14 +184,14 @@ export class NewOrderComponent implements OnInit, OnChanges {
   categoryList: any[] = [];
 
   getkarigarsList() {
-    this._orderServices.getkarigarsList().subscribe({
+    this._orderServices.getkarigarsList('karigar', 'active').subscribe({
       next: (res: any) => (this.karigarList = res || []),
       error: (err) => console.error('Karigars fetch error:', err),
     });
   }
 
   getSalespersonList() {
-    this._orderServices.getSalespersonList().subscribe({
+    this._orderServices.getSalespersonList('user', 'active').subscribe({
       next: (res: any) => (this.salespersonList = res || []),
     });
   }

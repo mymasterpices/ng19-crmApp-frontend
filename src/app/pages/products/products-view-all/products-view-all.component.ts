@@ -140,6 +140,9 @@ export class ProductsViewAllComponent {
   getTotalDiamondAmount(diamonds: any[]): number {
     return (diamonds || []).reduce((total, d) => total + (d.amount || 0), 0);
   }
+  getTotaldiamondWeight(diamonds: any[]): number {
+    return (diamonds || []).reduce((total, d) => total + (d.weight || 0), 0);
+  }
 
   getTotalStoneAmount(stones: any[]): number {
     return (stones || []).reduce(

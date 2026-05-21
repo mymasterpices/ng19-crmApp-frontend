@@ -12,7 +12,7 @@
 </div>
 
 <div
-  class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-4 pt-4"
+  class="grid grid-cols-1 sm:grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-4 pt-4"
 >
   @for (customer of customers(); track $index) {
     <p-card class="relative cursor-pointer">
@@ -53,6 +53,14 @@
             >
               {{ customer.status }}
             </span>
+          </p>
+          <p class="text-[12px] text-zinc-400 dark:text-zinc-400 pt-1">
+            Visited on:
+            @if (!customer.visitedOn) {
+              {{ customer.createdAt | date: "d,MMM,y" }}
+            } @else {
+              {{ customer.visitedOn | date: "d,MMM,y" }}
+            }
           </p>
         </div>
       </div>

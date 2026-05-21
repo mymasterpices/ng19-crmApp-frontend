@@ -104,26 +104,43 @@ export class EditOrderComponent implements OnInit, OnDestroy {
    * Sequence Optimization: Load metadata and Route ID in parallel
    */
   private loadInitialData() {
-    // 1. Fetch dropdowns in parallel for speed
-    forkJoin({
-      karigars: this._orderServices.getkarigarsList(),
-      sales: this._orderServices.getSalespersonList(),
-      cats: this._orderServices.getCategoryList(),
-    })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        this.karigarList.set(res.karigars);
-        this.salespersonList.set(res.sales);
-        this.categoryList.set(res.cats);
-      });
-
-    // 2. Handle Route Param & Fetch Data
     this._route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
-      if (id) {
-        this.editOrderid.set(id);
-        this.fetchOrderInfo(new HttpParams().set('id', id));
-      }
+      if (!id) return;
+
+      this.editOrderid.set(id);
+
+      // ✅ All three run in parallel, patchValue only fires when ALL are done
+      forkJoin({
+        karigars: this._orderServices.getkarigarsList('karigar', 'active'),
+        sales: this._orderServices.getSalespersonList('user', 'active'),
+        cats: this._orderServices.getCategoryList(),
+        order: this._orderServices.getOrders(new HttpParams().set('id', id)),
+      })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res: any) => {
+            // 1. Populate dropdowns first
+            this.karigarList.set(res.karigars);
+            this.salespersonList.set(res.sales);
+            this.categoryList.set(res.cats);
+
+            // 2. Now patch — options exist, p-select can match the value
+            const order = Array.isArray(res.order) ? res.order[0] : res.order;
+            if (order) {
+              if (order.deliveryDate)
+                order.deliveryDate = new Date(order.deliveryDate);
+              this.editOrderNum.set(order.orderNumber);
+              this.productForm.patchValue(order);
+            }
+          },
+          error: () =>
+            this._messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Could not load order details',
+            }),
+        });
     });
   }
 

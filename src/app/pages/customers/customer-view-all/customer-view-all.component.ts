@@ -62,6 +62,7 @@ export class CustomerViewAllComponent implements OnInit {
     { label: 'Open', value: 'Open' },
     { label: 'Close', value: 'Close' },
     { label: 'Failed', value: 'Failed' },
+    { label: 'Swarnteras', value: 'Swarnteras' },
   ]);
 
   userRole: string = '';

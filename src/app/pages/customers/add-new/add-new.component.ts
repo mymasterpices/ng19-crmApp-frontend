@@ -59,7 +59,12 @@ export class AddNewComponent implements OnInit {
   private loginService = inject(ApiService);
   private _authService = inject(AuthService);
 
-  status = [{ name: 'Open' }, { name: 'Cold' }, { name: 'Close' }];
+  status = [
+    { name: 'Open' },
+    { name: 'Cold' },
+    { name: 'Close' },
+    { name: 'Swarnteras' },
+  ];
   seriousness = [{ name: 'High' }, { name: 'Low' }, { name: 'Neutral' }];
 
   selectedFile: File | null = null;
@@ -72,6 +77,7 @@ export class AddNewComponent implements OnInit {
     price: new FormControl(null, Validators.required),
     nextFollowUpDate: new FormControl<Date | null>(null, Validators.required),
     newcustomer: new FormControl(''),
+    visitedOn: new FormControl<Date | null>(null),
     status: new FormControl(null, Validators.required),
     seriousness: new FormControl(null, Validators.required),
     conversation: new FormControl('', Validators.required),
@@ -144,6 +150,10 @@ export class AddNewComponent implements OnInit {
     formData.append(
       'nextFollowUpDate',
       new Date(formValue.nextFollowUpDate!).toISOString(),
+    );
+    formData.append(
+      'visitedOn',
+      formValue.visitedOn ? new Date(formValue.visitedOn).toISOString() : '',
     );
 
     // Convert status and seriousness to string

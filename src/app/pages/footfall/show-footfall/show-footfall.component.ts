@@ -73,6 +73,7 @@ export class ShowFootfallComponent implements OnInit {
     date: new FormControl<Date | null>(null),
     form: this.fb.array([]),
   });
+  
   salesPerson: any[] = [];
 
   // component state signals

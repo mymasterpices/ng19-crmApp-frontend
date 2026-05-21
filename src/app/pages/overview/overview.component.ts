@@ -192,11 +192,9 @@ export class OverviewComponent implements OnInit {
       scales: {
         x: {
           ticks: { color: '#495057' },
-          grid: { color: '#ebedef' },
         },
         y: {
           ticks: { color: '#495057' },
-          grid: { color: '#ebedef' },
         },
       },
     };

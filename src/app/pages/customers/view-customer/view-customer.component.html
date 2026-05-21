@@ -74,8 +74,9 @@
               icon="pi pi-phone"
               pTooltip="{{ customerData?.customerId?.mobile }}"
               tooltipPosition="left"
-              [text]="true"
+              [outlined]="true"
               severity="primary"
+              [rounded]="true"
             />
           </a>
         </div>
@@ -102,6 +103,7 @@
             'bg-yellow-500': customerContactInfo?.status === 'Cold',
             'bg-green-500': customerContactInfo?.status === 'Close',
             'bg-red-500': customerContactInfo?.status === 'Failed',
+            'bg-purple-500': customerContactInfo?.status === 'Swarnteras',
           }"
         >
           {{ customerContactInfo?.status }}
@@ -128,6 +130,7 @@
               class="w-full"
               pTooltip="Open"
               tooltipPosition="bottom"
+              [rounded]="true"
             >
             </p-button>
             <p-button
@@ -138,6 +141,7 @@
               class="w-full"
               pTooltip="Cold"
               tooltipPosition="bottom"
+              [rounded]="true"
             >
             </p-button>
             <p-button
@@ -148,6 +152,7 @@
               class="w-full"
               pTooltip="Close"
               tooltipPosition="bottom"
+              [rounded]="true"
             >
             </p-button>
             <p-button
@@ -158,6 +163,18 @@
               class="w-full"
               pTooltip="Failed"
               tooltipPosition="bottom"
+              [rounded]="true"
+            >
+            </p-button>
+            <p-button
+              icon="pi pi-circle-on"
+              [text]="true"
+              severity="help"
+              (click)="updateStatus('Swarnteras')"
+              class="w-full"
+              pTooltip="Swarnteras"
+              tooltipPosition="bottom"
+              [rounded]="true"
             >
             </p-button>
           </div>
@@ -190,6 +207,7 @@
             severity="primary"
             class="pr-0 mr-0"
             (click)="popover.toggle($event)"
+            [rounded]="true"
           ></p-button>
         </div>
         <!-- update customer status -->
@@ -201,6 +219,7 @@
               severity="primary"
               class="w-full"
               (click)="showDialog(chat._id)"
+              [rounded]="true"
             ></p-button>
             <p-button
               icon="pi pi-trash"
@@ -208,6 +227,7 @@
               class="w-full"
               severity="danger"
               (click)="deleteChat(chat._id)"
+              [rounded]="true"
             ></p-button>
           </div>
         </p-popover>

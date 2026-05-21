@@ -1,0 +1,477 @@
+<div class="flex justify-between items-center pb-1">
+  <!-- Page Information -->
+  <div>
+    <h2 class="text-xl font-semibold">Footfall Analytics</h2>
+    <p>
+      <span class="text-sm text-gray-500">{{ rangeLabel }}</span>
+    </p>
+  </div>
+
+  <!-- Filter Selection & Actions -->
+  <div class="flex md:flex-row flex-col gap-2 items-center">
+    <p-selectbutton
+      [options]="filterOptions"
+      [(ngModel)]="value"
+      (ngModelChange)="onFilterChange()"
+      optionLabel="label"
+      optionValue="value"
+      aria-labelledby="basic"
+    />
+    <p-floatlabel variant="on">
+      <p-datepicker
+        [(ngModel)]="rangeDates"
+        (ngModelChange)="onDateChange()"
+        selectionMode="range"
+        [readonlyInput]="true"
+        icon="pi pi-calendar"
+        iconPosition="left"
+        [showClear]="true"
+        (onClearClick)="onClearDate()"
+        styleClass="w-full md:w-[230px]"
+      ></p-datepicker>
+      <label>CUSTOM DATE</label>
+    </p-floatlabel>
+
+    <p-button
+      icon="pi pi-plus"
+      pTooltip="Add New Entry"
+      tooltipPosition="left"
+      severity="primary"
+      (click)="addEntryVisible()"
+    ></p-button>
+  </div>
+</div>
+
+<div class="flex min-h-screen py-4">
+  <main class="flex-1 overflow-y-auto">
+    <!-- ═══════════════════════════════════════════════════════
+         KPI METRIC CARDS
+    ════════════════════════════════════════════════════════ -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <!-- Total Footfall -->
+      <p-card styleClass="bg-[#1a1d23] border-none text-white">
+        <div class="flex justify-between items-start mb-2">
+          <span
+            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
+          >
+            Total Footfall
+            <i
+              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
+              [pTooltip]="kpiTooltips.totalFootfall"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <i
+            class="pi pi-chart-bar text-blue-400 bg-blue-400/10 p-2 rounded"
+          ></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-xl font-bold">{{ totalFootfall() | number }}</span>
+          <span
+            class="text-xs font-medium"
+            [ngClass]="changeClass(footfallChange())"
+          >
+            {{ formatChange(footfallChange()) }}
+          </span>
+        </div>
+      </p-card>
+
+      <!-- Total Conversion -->
+      <p-card styleClass="bg-[#1a1d23] border-none text-white">
+        <div class="flex justify-between items-start mb-2">
+          <span
+            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
+          >
+            Total Conversion
+            <i
+              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
+              [pTooltip]="kpiTooltips.totalConversion"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <i class="pi pi-wallet text-blue-400 bg-blue-400/10 p-2 rounded"></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-xl font-bold">{{
+            totalConversion() | number
+          }}</span>
+          <span
+            class="text-xs font-medium"
+            [ngClass]="changeClass(conversionChange())"
+          >
+            {{ formatChange(conversionChange()) }}
+          </span>
+        </div>
+      </p-card>
+
+      <!-- Conversion Rate % -->
+      <p-card styleClass="bg-[#1a1d23] border-none text-white">
+        <div class="flex justify-between items-start mb-2">
+          <span
+            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
+          >
+            Conversion Rate
+            <i
+              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
+              [pTooltip]="kpiTooltips.conversionRate"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <i
+            class="pi pi-percentage text-blue-400 bg-blue-400/10 p-2 rounded"
+          ></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-xl font-bold"
+            >{{ conversionRate() | number: "1.1-1" }}%</span
+          >
+          <span
+            class="text-xs font-medium"
+            [ngClass]="changeClass(rateChange())"
+          >
+            {{ formatChange(rateChange()) }}
+          </span>
+        </div>
+      </p-card>
+
+      <!-- Top Performing Staff -->
+      <p-card styleClass="bg-[#1a1d23] border-none text-white">
+        <div class="flex justify-between items-start mb-2">
+          <span
+            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
+          >
+            Top Performer
+            <i
+              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
+              [pTooltip]="kpiTooltips.topPerformer"
+              tooltipPosition="top"
+            ></i>
+          </span>
+          <i
+            class="pi pi-star-fill text-blue-400 bg-blue-400/10 p-2 rounded"
+          ></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          @if (topPerformer()) {
+            <span class="text-xl font-bold">{{ topPerformer()!.name }}</span>
+            <span class="text-xs text-gray-400"
+              >{{ topPerformer()!.sales }} Sales</span
+            >
+          } @else {
+            <span class="text-sm text-gray-500">No data yet</span>
+          }
+        </div>
+      </p-card>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FOOTFALL vs CONVERSION BAR CHART
+    ════════════════════════════════════════════════════════ -->
+    <section class="mb-8">
+      <p-card>
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-semibold">Footfall vs Conversion</h2>
+            <span class="text-sm text-slate-400">{{ rangeLabel }}</span>
+          </div>
+        </div>
+        <div class="h-80">
+          @if (loading()) {
+            <div class="flex items-center justify-center h-full text-slate-500">
+              Loading chart…
+            </div>
+          } @else if (barChartData()) {
+            <p-chart
+              type="bar"
+              [data]="barChartData()"
+              [options]="barChartOptions"
+              height="300px"
+            ></p-chart>
+          } @else {
+            <div class="flex items-center justify-center h-full text-slate-500">
+              No data for the selected period.
+            </div>
+          }
+        </div>
+      </p-card>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RECENT ENTRY FEED  (last 7 days)
+    ════════════════════════════════════════════════════════ -->
+    <section class="mb-8">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Recent Entry Feed</h2>
+        <span class="text-xs text-gray-500">Last 7 days</span>
+      </div>
+
+      @if (loading()) {
+        <div class="flex gap-4 overflow-x-auto pb-2">
+          @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+            <div
+              class="min-w-[220px] h-28 bg-[#1a1d23] rounded-lg animate-pulse"
+            ></div>
+          }
+        </div>
+      } @else if (dailyFeed().length === 0) {
+        <p class="text-sm text-gray-500 py-4">No entries in the last 7 days.</p>
+      } @else {
+        <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+          @for (entry of dailyFeed(); track entry.date) {
+            <p-card class="min-w-[220px]">
+              <p class="text-[10px] text-gray-500 font-bold uppercase mb-3">
+                {{ formatDate(entry.date) }}
+              </p>
+              <div class="flex justify-between items-end mb-4">
+                <div>
+                  <span class="text-2xl font-bold block">{{
+                    entry.footfall
+                  }}</span>
+                  <span class="text-[10px] text-gray-500 uppercase"
+                    >Visitors</span
+                  >
+                </div>
+                <div class="text-right">
+                  <span class="text-2xl font-bold text-green-500 block">{{
+                    entry.conversion
+                  }}</span>
+                  <span class="text-[10px] text-gray-500 uppercase">Convs</span>
+                </div>
+              </div>
+              <div class="flex gap-2 flex-wrap">
+                @for (tag of getUniquePCTags(entry.pcs); track tag) {
+                  <p-tag
+                    [value]="tag"
+                    styleClass="bg-blue-500/10 text-blue-400 text-[9px] px-2 py-0.5 border border-blue-500/20"
+                  ></p-tag>
+                }
+                @if (entry.pcs.length === 0) {
+                  <span class="text-[10px] text-gray-600">—</span>
+                }
+              </div>
+            </p-card>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STAFF ACCOUNTABILITY TABLE
+         Footfall entries cross-referenced with customer records
+         saved on the same date — shows leads logged & missed.
+    ════════════════════════════════════════════════════════ -->
+    <section class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-lg font-semibold">Staff Accountability</h2>
+          <span class="text-sm text-gray-500"
+            >Footfall entries vs customer records — {{ rangeLabel }}</span
+          >
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="h-40 bg-[#1a1d23] rounded-lg animate-pulse"></div>
+      } @else if (staffAccountability().length === 0) {
+        <p class="text-sm text-gray-500 py-4">
+          No data for the selected period.
+        </p>
+      } @else {
+        <p-card styleClass="p-0 overflow-hidden">
+          <p-table
+            [value]="staffAccountability()"
+            styleClass="p-datatable-sm"
+            [rowHover]="true"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold"
+                >
+                  Sales Person
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Footfall
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Conversion
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Leads
+                  <i
+                    class="pi pi-info-circle ml-1 text-gray-600 cursor-help"
+                    pTooltip="Customer records saved by this salesperson within the selected period"
+                    tooltipPosition="top"
+                  ></i>
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Conv %
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold"
+                >
+                  Missed
+                  <i
+                    class="pi pi-info-circle ml-1 text-gray-600 cursor-help"
+                    pTooltip="Customer names saved on a footfall day where this salesperson had no footfall entry — potential unlogged interactions"
+                    tooltipPosition="top"
+                  ></i>
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <!-- Sales Person -->
+                <td>
+                  <div class="flex items-center gap-2">
+                    <p-avatar
+                      [image]="'https://i.pravatar.cc/150?u=' + row.salesPerson"
+                      size="normal"
+                      shape="circle"
+                    ></p-avatar>
+                    <span class="font-semibold text-sm">{{
+                      row.salesPerson | titlecase
+                    }}</span>
+                  </div>
+                </td>
+
+                <!-- Footfall -->
+                <td class="text-right">
+                  <span class="font-bold">{{ row.footfall }}</span>
+                </td>
+
+                <!-- Conversion -->
+                <td class="text-right">
+                  <span class="font-bold text-green-500">{{
+                    row.conversion
+                  }}</span>
+                </td>
+
+                <!-- Leads -->
+                <td class="text-right">
+                  @if (row.leads > 0) {
+                    <p-badge
+                      [value]="row.leads.toString()"
+                      severity="info"
+                    ></p-badge>
+                  } @else {
+                    <span class="text-gray-500 text-xs">—</span>
+                  }
+                </td>
+
+                <!-- Conv % -->
+                <td class="text-right">
+                  <span
+                    class="text-xs font-bold"
+                    [ngClass]="
+                      row.convRate >= 50
+                        ? 'text-green-500'
+                        : row.convRate >= 25
+                          ? 'text-yellow-500'
+                          : 'text-red-400'
+                    "
+                  >
+                    {{ row.convRate | number: "1.0-1" }}%
+                  </span>
+                </td>
+
+                <!-- Missed customers -->
+                <td>
+                  @if (row.missedCustomers.length === 0) {
+                    <span class="text-[11px] text-gray-600">—</span>
+                  } @else {
+                    <div class="flex flex-wrap gap-1">
+                      @for (name of row.missedCustomers; track name) {
+                        <p-tag
+                          [value]="name"
+                          styleClass="bg-red-500/10 text-red-400 text-[9px] px-2 py-0.5 border border-red-500/20"
+                        ></p-tag>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" class="text-center text-sm text-gray-500 py-6">
+                  No staff data found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      }
+    </section>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ADD NEW ENTRY DIALOG
+════════════════════════════════════════════════════════ -->
+<p-dialog
+  [(visible)]="entryFromVisible"
+  header="Footfall Entry"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="md:w-[58rem] w-full"
+>
+  <form
+    [formGroup]="footfallForm"
+    (ngSubmit)="onSubmit()"
+    class="max-sm:flex max-sm:flex-col"
+  >
+    <div class="flex justify-end mt-4">
+      <p-floatlabel class="flex-1" variant="on">
+        <p-datepicker
+          [iconDisplay]="'input'"
+          [showIcon]="true"
+          inputId="icondisplay"
+          placeholder="Back date entry"
+          formControlName="date"
+        />
+      </p-floatlabel>
+      <p-button
+        type="submit"
+        label="Save"
+        severity="primary"
+        icon="pi pi-check"
+      ></p-button>
+    </div>
+
+    <div formArrayName="form" class="space-y-4 py-4">
+      @for (person of form.controls; track $index; let i = $index) {
+        <div [formGroupName]="i" class="flex gap-4 flex-row">
+          <input
+            pInputText
+            [disabled]="true"
+            [value]="form.at(i).get('sales_person')?.value | titlecase"
+          />
+          <p-floatlabel variant="on">
+            <input pInputText formControlName="ff" />
+            <label>FF</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <input pInputText formControlName="con" />
+            <label>CO</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+            <input pInputText formControlName="pc" />
+            <label>PC</label>
+          </p-floatlabel>
+        </div>
+      }
+    </div>
+  </form>
+</p-dialog>

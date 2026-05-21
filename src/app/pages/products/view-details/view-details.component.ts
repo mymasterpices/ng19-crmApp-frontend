@@ -109,7 +109,7 @@ export class ViewDetailsComponent implements OnInit {
 
           this.getList();
         },
-        (error) => console.log(error)
+        (error) => console.log(error),
       );
 
       //create a dynamic image URL
@@ -164,6 +164,11 @@ export class ViewDetailsComponent implements OnInit {
   getTotalDiamondAmount(diamonds: any[]) {
     if (!diamonds) return 0;
     return diamonds.reduce((total, d) => total + (d.amount || 0), 0);
+  }
+
+  getTotaldiamondWeight(diamonds: any[]) {
+    if (!diamonds) return 0;
+    return diamonds.reduce((total, d) => total + (d.weight || 0), 0);
   }
 
   getTotalStoneAmount(stones: any[]) {
@@ -226,7 +231,7 @@ export class ViewDetailsComponent implements OnInit {
         severity: 'error',
         summary: 'Error',
         detail: `Discount can't be greater than the total price (${totalAmount.toFixed(
-          2
+          2,
         )})`,
       });
       return;

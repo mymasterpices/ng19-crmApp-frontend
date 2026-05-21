@@ -1,119 +1,134 @@
-<form
-  [formGroup]="customerForm"
-  (ngSubmit)="onSubmit()"
-  enctype="multipart/form-data"
->
-  <div class="grid grid-cols-1 gap-4">
-    <p-floatlabel variant="on" class="w-full">
-      <input pInputText id="name" class="w-full" formControlName="name" />
-      <label for="name">Customer Name</label>
-    </p-floatlabel>
-
-    <p-floatlabel variant="on" class="w-full">
-      <input pInputText id="name" class="w-full" formControlName="mobile" />
-      <label for="name">Mobile</label>
-    </p-floatlabel>
-
-    <p-floatlabel variant="on" class="w-full">
-      <input
-        pInputText
-        id="productName"
-        formControlName="productName"
-        class="w-full"
-      />
-      <label for="productName">Tag Number</label>
-    </p-floatlabel>
-
-    <p-floatlabel variant="on" class="w-full">
-      <p-inputnumber
-        inputId="price"
-        formControlName="price"
-        class="w-full"
-        locale="en-IN"
-      />
-      <label for="price">Price</label>
-    </p-floatlabel>
-
-    <p-floatlabel class="w-full" variant="on">
-      <p-select
-        inputId="status"
-        [options]="status"
-        optionLabel="name"
-        formControlName="status"
-        styleClass="w-full"
-      />
-      <label for="status">Status</label>
-    </p-floatlabel>
-
-    <p-floatlabel class="w-full" variant="on">
-      <p-select
-        inputId="seriousness"
-        [options]="seriousness"
-        optionLabel="name"
-        formControlName="seriousness"
-        styleClass="w-full"
-      />
-      <label for="seriousness">Seriousness</label>
-    </p-floatlabel>
-
-    <p-floatlabel variant="on" class="w-full">
-      <p-datepicker
-        inputId="nextFollowUpDate"
-        formControlName="nextFollowUpDate"
-        showIcon
-        iconDisplay="input"
-        class="w-full"
-        styleClass="w-full"
-      />
-      <label for="nextFollowUpDate">Next Follow-Up On</label>
-    </p-floatlabel>
-    <!-- if new customers -->
-    <div class="flex">
-      <p-checkbox
-        formControlName="newcustomer"
-        [binary]="true"
-        inputId="newcustomer"
-      />
-      <label for="newcustomer" class="ml-2">New Customer</label>
-    </div>
-
-    <p-floatlabel class="w-full" variant="on">
-      <textarea
-        rows="2"
-        cols="30"
-        pTextarea
-        class="w-full"
-        formControlName="conversation"
-      ></textarea>
-      <label for="conversation">Conversation</label>
-    </p-floatlabel>
-
-    <div class="flex justify-between items-center gap-4">
-      <p-floatlabel class="w-auto" variant="on">
-        <p-fileUpload
-          name="file"
-          mode="basic"
-          [auto]="true"
-          accept="image/*"
-          maxFileSize="10000000"
-          [customUpload]="true"
-          (onSelect)="onFileSelected($event)"
-          chooseLabel="Choose image"
-          chooseIcon="pi pi-upload"
-          class="w-full"
-          inputSyleClass="w-full"
-          styleClass="w-full"
-        />
+<div class="py-1">
+  <form
+    [formGroup]="customerForm"
+    (ngSubmit)="onSubmit()"
+    enctype="multipart/form-data"
+  >
+    <div class="grid grid-cols-1 gap-4">
+      <p-floatlabel variant="on" class="w-full">
+        <input pInputText id="name" class="w-full" formControlName="name" />
+        <label for="name">Customer Name</label>
       </p-floatlabel>
 
-      <p-button
-        [label]="isSaving() ? 'Saving...' : 'Save'"
-        styleClass="max-sm:w-full "
-        type="submit"
-        icon="pi pi-save"
-        pripple
-        severity="primary"
-      ></p-button>
+      <p-floatlabel variant="on" class="w-full">
+        <input pInputText id="name" class="w-full" formControlName="mobile" />
+        <label for="name">Mobile</label>
+      </p-floatlabel>
+
+      <p-floatlabel variant="on" class="w-full">
+        <input
+          pInputText
+          id="productName"
+          formControlName="productName"
+          class="w-full"
+        />
+        <label for="productName">Tag Number</label>
+      </p-floatlabel>
+
+      <p-floatlabel variant="on" class="w-full">
+        <p-inputnumber
+          inputId="price"
+          formControlName="price"
+          class="w-full"
+          locale="en-IN"
+        />
+        <label for="price">Price</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full" variant="on">
+        <p-select
+          inputId="status"
+          [options]="status"
+          optionLabel="name"
+          formControlName="status"
+          styleClass="w-full"
+        />
+        <label for="status">Status</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full" variant="on">
+        <p-select
+          inputId="seriousness"
+          [options]="seriousness"
+          optionLabel="name"
+          formControlName="seriousness"
+          styleClass="w-full"
+        />
+        <label for="seriousness">Seriousness</label>
+      </p-floatlabel>
+
+      <p-floatlabel variant="on" class="w-full">
+        <p-datepicker
+          inputId="nextFollowUpDate"
+          formControlName="nextFollowUpDate"
+          showIcon
+          iconDisplay="input"
+          class="w-full"
+          styleClass="w-full"
+        />
+        <label for="nextFollowUpDate">Next Follow-Up On</label>
+      </p-floatlabel>
+      <!-- if new customers -->
+      <div class="flex gap-3 justify-between items-start">
+        <div class="w-full flex items-center">
+          <p-checkbox
+            formControlName="newcustomer"
+            [binary]="true"
+            inputId="newcustomer"
+          />
+          <label for="newcustomer" class="ml-2">New Customer</label>
+        </div>
+      </div>
+      <p-floatlabel variant="on" class="w-">
+        <p-datepicker
+          formControlName="visitedOn"
+          inputId="visitedOn"
+          showIcon
+          iconDisplay="input"
+          class="w-full"
+          styleClass="w-full"
+        />
+        <label for="visitedOn" class="ml-2">Customer Visited On</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full" variant="on">
+        <textarea
+          rows="2"
+          cols="30"
+          pTextarea
+          class="w-full"
+          formControlName="conversation"
+        ></textarea>
+        <label for="conversation">Conversation</label>
+      </p-floatlabel>
+
+      <div class="flex justify-between items-center gap-4">
+        <p-floatlabel class="w-auto" variant="on">
+          <p-fileUpload
+            name="file"
+            mode="basic"
+            [auto]="true"
+            accept="image/*"
+            maxFileSize="10000000"
+            [customUpload]="true"
+            (onSelect)="onFileSelected($event)"
+            chooseLabel="Choose image"
+            chooseIcon="pi pi-upload"
+            class="w-full"
+            inputSyleClass="w-full"
+            styleClass="w-full"
+          />
+        </p-floatlabel>
+
+        <p-button
+          [label]="isSaving() ? 'Saving...' : 'Save'"
+          styleClass="max-sm:w-full "
+          type="submit"
+          icon="pi pi-save"
+          pripple
+          severity="primary"
+        ></p-button>
+      </div>
     </div>
-  </div>
-</form>
+  </form>
+</div>

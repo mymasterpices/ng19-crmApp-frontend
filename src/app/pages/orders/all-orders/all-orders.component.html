@@ -69,23 +69,34 @@
               </div>
 
               <p-popover #op>
-                <div class="flex flex-column gap-2">
+                <div class="grid grid-cols-1 gap-2">
                   <p-button
                     icon="pi pi-pencil"
                     label="Edit"
-                    [text]="true"
+                    [outlined]="true"
                     size="small"
-                    severity="primary"
+                    severity="warn"
                     (onClick)="onEdit(order._id)"
+                    class="w-full"
                   ></p-button>
                   <p-button
                     icon="pi pi-share-alt"
                     label="Share"
-                    [text]="true"
+                    [outlined]="true"
                     size="small"
                     severity="primary"
                     (onClick)="getPDF(order._id)"
                   ></p-button>
+                  @if (userRole === "superadmin") {
+                    <p-button
+                      icon="pi pi-trash"
+                      label="Delete"
+                      [outlined]="true"
+                      size="small"
+                      severity="danger"
+                      (onClick)="onDelete(order._id)"
+                    ></p-button>
+                  }
                 </div>
               </p-popover>
 

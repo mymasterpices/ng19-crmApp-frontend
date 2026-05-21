@@ -14,13 +14,15 @@ import { HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { PopoverModule } from 'primeng/popover';
 import { PaginatorModule } from 'primeng/paginator';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { __param } from 'tslib';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { DrawerModule } from 'primeng/drawer';
 import { NewOrderComponent } from '../new-order/new-order.component';
+import { AuthService } from '../../../services/auth.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-all-orders',
@@ -40,6 +42,7 @@ import { NewOrderComponent } from '../new-order/new-order.component';
     FormsModule,
     DrawerModule,
     NewOrderComponent,
+    ConfirmDialogModule,
   ],
   templateUrl: './all-orders.component.html',
   styleUrl: './all-orders.component.css',
@@ -50,6 +53,10 @@ export class AllOrdersComponent implements OnInit {
   private _messageService = inject(MessageService);
   private _shareOrderService = inject(ShareOrderService);
   private _route = inject(ActivatedRoute);
+  private _authService = inject(AuthService);
+  private confirmationService = inject(ConfirmationService);
+
+  userRole = this._authService.getUserRole();
 
   orders: any[] = [];
   pagedOrders: any[] = [];
@@ -218,6 +225,49 @@ export class AllOrdersComponent implements OnInit {
       },
       error: (err: any) => {
         console.log('error while fetch data for pdf', err);
+      },
+    });
+  }
+
+  //delete an order by superadmin
+  onDelete(orderId: string) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this order?',
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+      },
+      accept: () => {
+        this._orderServices.deleteOrder(orderId).subscribe({
+          next: (res: any) => {
+            this._messageService.add({
+              severity: 'success',
+              summary: 'Order Deleted',
+              detail: 'The order has been successfully deleted.',
+            });
+            // Refresh the order list after deletion
+            const currentFilter = this._route.snapshot.paramMap.get('status');
+            let params = new HttpParams();
+            if (currentFilter) {
+              params = params.set('status', currentFilter);
+            }
+            this.fetchOrders(params);
+          },
+          error: (err: any) => {
+            this._messageService.add({
+              severity: 'error',
+              summary: 'Deletion Failed',
+              detail: 'Could not delete the order. Please try again later.',
+            });
+            console.error('API Error:', err);
+          },
+        });
       },
     });
   }

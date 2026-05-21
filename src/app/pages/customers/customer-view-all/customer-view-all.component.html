@@ -2,7 +2,7 @@
   @if (userRole !== "user") {
     <div class="div w-1/2 max-sm:w-full">
       <form action="" [formGroup]="searchForm" (ngSubmit)="searchCustomer()">
-        <div class="card flex justify-center gap-3">
+        <div class="card flex justify-center gap-2">
           <p-multiselect
             [options]="salespersonOptions()"
             placeholder="Sales Person"
@@ -49,7 +49,7 @@
   ></p-button>
 </div>
 <div
-  class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-4 pt-4"
+  class="grid grid-cols-1 sm:grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-4 pt-4"
 >
   @for (customer of paginatedCustomers(); track $index) {
     <p-card class="relative cursor-pointer">
@@ -87,13 +87,19 @@
                 'bg-yellow-500': customer.status === 'Cold',
                 'bg-green-500': customer.status === 'Close',
                 'bg-red-500': customer.status === 'Failed',
+                'bg-purple-500': customer.status === 'Swarnteras',
               }"
             >
               {{ customer.status }}
             </span>
           </p>
           <p class="text-[12px] text-zinc-400 dark:text-zinc-400 pt-1">
-            Visited on: {{ customer.createdAt | date: "d,MMM,y" }}
+            Visited on:
+            @if (!customer.visitedOn) {
+              {{ customer.createdAt | date: "d,MMM,y" }}
+            } @else {
+              {{ customer.visitedOn | date: "d,MMM,y" }}
+            }
           </p>
         </div>
       </div>

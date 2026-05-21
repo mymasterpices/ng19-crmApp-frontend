@@ -39,8 +39,19 @@ export class OrderServices {
       orderData,
     );
   }
-  getkarigarsList() {
-    return this.http.get(environment.API_URL + '/api/orders/karigar/get');
+  getkarigarsList(role: string, status: string = 'active') {
+    const params = new HttpParams().set('role', role).set('status', status);
+    return this.http.get(environment.API_URL + '/api/auth/users', {
+      params: params || {},
+    });
+  }
+
+  //get salesperson
+  getSalespersonList(role: string, status: string = 'active') {
+    const params = new HttpParams().set('role', role).set('status', status);
+    return this.http.get(environment.API_URL + '/api/auth/users', {
+      params: params || {},
+    });
   }
 
   //create category
@@ -54,11 +65,6 @@ export class OrderServices {
   //get category
   getCategoryList() {
     return this.http.get(environment.API_URL + '/api/orders/category/get');
-  }
-
-  //get salesperson
-  getSalespersonList() {
-    return this.http.get(environment.API_URL + '/api/orders/salesperson/get');
   }
 
   createSalesperson(salespersonData: any) {
@@ -78,6 +84,13 @@ export class OrderServices {
     return this.http.put(
       environment.API_URL + `/api/orders/update/${orderId}`,
       { status },
+    );
+  }
+
+  // ── DELETE ORDER ─────────────────────────────────────────────────────────────
+  deleteOrder(orderId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.API_URL}/api/orders/delete/${orderId}`,
     );
   }
 }
