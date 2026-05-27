@@ -1,10 +1,10 @@
 <section class="flex justify-between align-center mb-4">
   <h1 class="text-xl font-semibold">Order Dashboard</h1>
   <p-button
-    icon="pi pi-shopping-bag"
+    icon="pi pi-clipboard"
     label="New Order"
-    
     severity="primary"
+    size="small"
     (click)="drawerVisible = true"
   />
 </section>
@@ -14,7 +14,7 @@
     <h3 class="font-semibold mb-2">Order Status</h3>
     <p-carousel
       [value]="tags"
-      [numVisible]="5"
+      [numVisible]="4"
       [numScroll]="1"
       [circular]="false"
       [responsiveOptions]="responsiveOptions"
@@ -25,6 +25,7 @@
           <p-button
             [severity]="tag.severity"
             [badge]="tag.count"
+            size="small"
             [routerLink]="'/orders/all-orders/' + tag.name.toLowerCase()"
             [label]="tag.name | titlecase"
             class="px-3 py-2"
@@ -63,11 +64,13 @@
       label="Orders"
       severity="primary"
       routerLink="/orders/all-orders"
+      size="small"
     />
     <p-button
       icon="pi pi-qrcode"
       label="Change Status"
       severity="info"
+      size="small"
       routerLink="/orders/change-status"
     />
     @if (userRole === "superadmin") {
@@ -75,6 +78,7 @@
         icon="pi pi-user-edit"
         label="Masters"
         severity="secondary"
+        size="small"
         (onClick)="masterdrawerVisible = true"
       />
     }
@@ -123,10 +127,10 @@
 
           <p-button
             label="Save"
-            
             severity="primary"
             class="w-full"
-            styleClass="w-30"
+            icon="pi pi-save"
+            size="small"
             [loading]="saveLoading"
             (onClick)="saveNewCategory(categoryInput)"
           >

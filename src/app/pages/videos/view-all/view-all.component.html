@@ -98,7 +98,7 @@
             <media-fullscreen-button></media-fullscreen-button>
           </media-control-bar>
         </media-controller>
-        <span class="flex justify-between py-2">
+        <span class="flex justify-end py-2">
           @if (loginUser == "admin") {
             <p-button
               pTooltip="Delete"
@@ -111,16 +111,6 @@
             >
             </p-button>
           }
-          <p-button
-            (click)="getTheLink(video._id)"
-            variant="text"
-            severity="primary"
-            pTooltip="Share"
-            tooltipPosition="top"
-            icon="pi pi-share-alt"
-            [rounded]="true"
-          >
-          </p-button>
         </span>
       </p-card>
     }
@@ -143,20 +133,20 @@
   [style]="{ height: '100%', width: '25%' }"
   styleClass="!w-full md:!w-80 lg:!w-[30rem]"
 >
-  <p-card>
+  <div class="py-1">
     <form action="" [formGroup]="shareLinkForm">
       <div class="flex flex-col flex-column gap-4 w-25rem">
         <div>
-          <span
-            class="font-medium text-surface-900 dark:text-surface-0 block mb-2"
-            >Customer Name</span
-          >
-          <input
-            type="text"
-            pInputText
-            formControlName="customerName"
-            class="w-full"
-          />
+          <p-floatlabel variant="on">
+            <input
+              type="text"
+              pInputText
+              formControlName="customerName"
+              class="w-full"
+              id="custName"
+            />
+            <label for="custName">Customer name</label>
+          </p-floatlabel>
 
           @if (
             shareLinkForm.controls["customerName"].hasError("required") &&
@@ -171,18 +161,19 @@
           }
         </div>
         <div>
-          <span
-            class="font-medium text-surface-900 dark:text-surface-0 block mb-2"
-            >Date</span
-          >
-          <p-datepicker
-            class="w-full"
-            showIcon
-            iconDisplay="input"
-            styleClass="w-full"
-            [showButtonBar]="true"
-            formControlName="LinkExpireOnDate"
-          />
+          <p-floatlabel variant="on">
+            <p-datepicker
+              class="w-full"
+              showIcon
+              iconDisplay="input"
+              styleClass="w-full"
+              [showButtonBar]="true"
+              formControlName="LinkExpireOnDate"
+              valueType="date"
+            />
+            <label for="date">Link Expire On</label>
+          </p-floatlabel>
+
           @if (
             shareLinkForm.controls["LinkExpireOnDate"].invalid &&
             (shareLinkForm.controls["LinkExpireOnDate"].dirty ||
@@ -202,5 +193,5 @@
         </div>
       </div>
     </form>
-  </p-card>
+  </div>
 </p-drawer>

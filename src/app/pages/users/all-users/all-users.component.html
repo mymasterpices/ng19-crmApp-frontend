@@ -50,6 +50,12 @@
           <tr>
             <td>{{ i + 1 }}</td>
             <td>
+              <p-avatar
+                label="{{ user.username.charAt(0) || 'G' | titlecase }}"
+                shape="circle"
+                styleClass="mr-2"
+                class="!bg-emerald-500 border-1 dark:border-emerald-600 !text-white text-semibold"
+              />
               {{ user.username | titlecase }}
 
               <i
@@ -58,7 +64,9 @@
                 (click)="copyUserId(user._id)"
               ></i>
             </td>
-            <td>{{ user.role | titlecase }}</td>
+            <td>
+              {{ user.role | titlecase }}
+            </td>
             <td>
               <p-toggleswitch
                 [ngModel]="user.status === 'active'"
@@ -75,6 +83,7 @@
                 icon="pi pi-ellipsis-h"
                 pTooltip="Action"
                 tooltipPosition="bottom"
+                [rounded]="true"
                 (click)="selectUserForPasswordChange(user._id)"
               ></p-button>
             </td>
@@ -123,6 +132,7 @@
         severity="danger"
         pTooltip="Delete"
         tooltipPosition="bottom"
+        [rounded]="true"
         (click)="deleteCustomer(selectedUserId)"
       ></p-button>
 
@@ -132,6 +142,8 @@
           severity="primary"
           label="Update"
           type="submit"
+          size="small"
+          icon="pi pi-check"
           [disabled]="changePasswordForm.invalid"
         ></p-button>
       </div>

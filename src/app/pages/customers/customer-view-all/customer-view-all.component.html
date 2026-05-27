@@ -128,8 +128,8 @@
     </div>
   }
 </div>
-@if (paginatedCustomers().length > 1) {
-  <div class="card flex justify-center py-6">
+@if (paginatedCustomers().length > 5) {
+  <div class="card flex justify-self-center-safe py-6">
     <!-- Paginator component -->
     <p-paginator
       [rows]="rows()"

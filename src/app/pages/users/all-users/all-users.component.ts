@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { TitleCasePipe } from '@angular/common';
+import { SlicePipe, TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -24,6 +24,7 @@ import { FootfallService } from '../../../services/footfall/footfall.service';
 import { HttpParams } from '@angular/common/http';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AvatarModule } from "primeng/avatar";
 
 @Component({
   selector: 'app-all-users',
@@ -43,7 +44,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ToggleSwitchModule,
     FormsModule,
     InputTextModule,
-  ],
+    AvatarModule,
+],
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',
 })

@@ -27,6 +27,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { DrawerModule } from 'primeng/drawer';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-view-all',
@@ -46,6 +47,7 @@ import { AuthService } from '../../../services/auth.service';
     DrawerModule,
     FormsModule,
     UpperCasePipe,
+    FloatLabelModule,
   ],
   templateUrl: './view-all.component.html',
   styleUrls: ['./view-all.component.css'], // fixed typo
@@ -196,26 +198,6 @@ export class ViewAllComponent implements OnInit {
         });
       },
     });
-  }
-
-  getTheLink(videoID: string) {
-    const videoShareLink = `${this.siteURL}/${videoID}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(videoShareLink).then(() => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Link Generated',
-          detail: 'Shareable link copied to clipboard!',
-        });
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Clipboard API not supported in this browser.',
-      });
-    }
-    console.log('Shareable link:', videoShareLink);
   }
 
   autoplayOnHover(videoElement: HTMLVideoElement) {
