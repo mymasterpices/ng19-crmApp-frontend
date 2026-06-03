@@ -46,217 +46,6 @@
 <div class="flex min-h-screen py-4">
   <main class="flex-1 overflow-y-auto">
     <!-- ═══════════════════════════════════════════════════════
-         KPI METRIC CARDS
-    ════════════════════════════════════════════════════════ -->
-    <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <!-- Total Footfall -->
-      <p-card styleClass="bg-[#1a1d23] border-none text-white">
-        <div class="flex justify-between items-start mb-2">
-          <span
-            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
-          >
-            Total Footfall
-            <i
-              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
-              [pTooltip]="kpiTooltips.totalFootfall"
-              tooltipPosition="top"
-            ></i>
-          </span>
-          <i
-            class="pi pi-chart-bar text-blue-400 bg-blue-400/10 p-2 rounded"
-          ></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <span class="text-xl font-bold">{{ totalFootfall() | number }}</span>
-          <span
-            class="text-xs font-medium"
-            [ngClass]="changeClass(footfallChange())"
-          >
-            {{ formatChange(footfallChange()) }}
-          </span>
-        </div>
-      </p-card>
-
-      <!-- Total Conversion -->
-      <p-card styleClass="bg-[#1a1d23] border-none text-white">
-        <div class="flex justify-between items-start mb-2">
-          <span
-            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
-          >
-            Total Conversion
-            <i
-              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
-              [pTooltip]="kpiTooltips.totalConversion"
-              tooltipPosition="top"
-            ></i>
-          </span>
-          <i class="pi pi-wallet text-blue-400 bg-blue-400/10 p-2 rounded"></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <span class="text-xl font-bold">{{
-            totalConversion() | number
-          }}</span>
-          <span
-            class="text-xs font-medium"
-            [ngClass]="changeClass(conversionChange())"
-          >
-            {{ formatChange(conversionChange()) }}
-          </span>
-        </div>
-      </p-card>
-
-      <!-- Conversion Rate % -->
-      <p-card styleClass="bg-[#1a1d23] border-none text-white">
-        <div class="flex justify-between items-start mb-2">
-          <span
-            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
-          >
-            Conversion Rate
-            <i
-              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
-              [pTooltip]="kpiTooltips.conversionRate"
-              tooltipPosition="top"
-            ></i>
-          </span>
-          <i
-            class="pi pi-percentage text-blue-400 bg-blue-400/10 p-2 rounded"
-          ></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <span class="text-xl font-bold"
-            >{{ conversionRate() | number: "1.1-1" }}%</span
-          >
-          <span
-            class="text-xs font-medium"
-            [ngClass]="changeClass(rateChange())"
-          >
-            {{ formatChange(rateChange()) }}
-          </span>
-        </div>
-      </p-card>
-
-      <!-- Top Performing Staff -->
-      <p-card styleClass="bg-[#1a1d23] border-none text-white">
-        <div class="flex justify-between items-start mb-2">
-          <span
-            class="text-xs text-gray-400 uppercase tracking-wider font-semibold flex items-center gap-1"
-          >
-            Top Performer
-            <i
-              class="pi pi-info-circle text-gray-600 text-[10px] cursor-help"
-              [pTooltip]="kpiTooltips.topPerformer"
-              tooltipPosition="top"
-            ></i>
-          </span>
-          <i
-            class="pi pi-star-fill text-blue-400 bg-blue-400/10 p-2 rounded"
-          ></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          @if (topPerformer()) {
-            <span class="text-xl font-bold">{{ topPerformer()!.name }}</span>
-            <span class="text-xs text-gray-400"
-              >{{ topPerformer()!.sales }} Sales</span
-            >
-          } @else {
-            <span class="text-sm text-gray-500">No data yet</span>
-          }
-        </div>
-      </p-card>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════
-         FOOTFALL vs CONVERSION BAR CHART
-    ════════════════════════════════════════════════════════ -->
-    <section class="mb-8">
-      <p-card>
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <h2 class="text-lg font-semibold">Footfall vs Conversion</h2>
-            <span class="text-sm text-slate-400">{{ rangeLabel }}</span>
-          </div>
-        </div>
-        <div class="h-80">
-          @if (loading()) {
-            <div class="flex items-center justify-center h-full text-slate-500">
-              Loading chart…
-            </div>
-          } @else if (barChartData()) {
-            <p-chart
-              type="bar"
-              [data]="barChartData()"
-              [options]="barChartOptions"
-              height="300px"
-            ></p-chart>
-          } @else {
-            <div class="flex items-center justify-center h-full text-slate-500">
-              No data for the selected period.
-            </div>
-          }
-        </div>
-      </p-card>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════
-         RECENT ENTRY FEED  (last 7 days)
-    ════════════════════════════════════════════════════════ -->
-    <section class="mb-8">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-lg font-semibold">Recent Entry Feed</h2>
-        <span class="text-xs text-gray-500">Last 7 days</span>
-      </div>
-
-      @if (loading()) {
-        <div class="flex gap-4 overflow-x-auto pb-2">
-          @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
-            <div
-              class="min-w-[220px] h-28 bg-[#1a1d23] rounded-lg animate-pulse"
-            ></div>
-          }
-        </div>
-      } @else if (dailyFeed().length === 0) {
-        <p class="text-sm text-gray-500 py-4">No entries in the last 7 days.</p>
-      } @else {
-        <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-          @for (entry of dailyFeed(); track entry.date) {
-            <p-card class="min-w-[220px]">
-              <p class="text-[10px] text-gray-500 font-bold uppercase mb-3">
-                {{ formatDate(entry.date) }}
-              </p>
-              <div class="flex justify-between items-end mb-4">
-                <div>
-                  <span class="text-2xl font-bold block">{{
-                    entry.footfall
-                  }}</span>
-                  <span class="text-[10px] text-gray-500 uppercase"
-                    >Visitors</span
-                  >
-                </div>
-                <div class="text-right">
-                  <span class="text-2xl font-bold text-green-500 block">{{
-                    entry.conversion
-                  }}</span>
-                  <span class="text-[10px] text-gray-500 uppercase">Convs</span>
-                </div>
-              </div>
-              <div class="flex gap-2 flex-wrap">
-                @for (tag of getUniquePCTags(entry.pcs); track tag) {
-                  <p-tag
-                    [value]="tag"
-                    styleClass="bg-blue-500/10 text-blue-400 text-[9px] px-2 py-0.5 border border-blue-500/20"
-                  ></p-tag>
-                }
-                @if (entry.pcs.length === 0) {
-                  <span class="text-[10px] text-gray-600">—</span>
-                }
-              </div>
-            </p-card>
-          }
-        </div>
-      }
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════
          STAFF ACCOUNTABILITY TABLE
          Footfall entries cross-referenced with customer records
          saved on the same date — shows leads logged & missed.
@@ -283,6 +72,7 @@
             [value]="staffAccountability()"
             styleClass="p-datatable-sm"
             [rowHover]="true"
+            size="small"
           >
             <ng-template pTemplate="header">
               <tr>
@@ -330,12 +120,15 @@
             </ng-template>
 
             <ng-template pTemplate="body" let-row>
-              <tr>
+              <tr
+                [routerLink]="['/footfall/view-footfall-detail/', row.user_id]"
+                class="cursor-pointer hover:bg-gray-100 transition-colors"
+              >
                 <!-- Sales Person -->
                 <td>
                   <div class="flex items-center gap-2">
                     <p-avatar
-                      [image]="'https://i.pravatar.cc/150?u=' + row.salesPerson"
+                      label="{{ row.salesPerson.charAt(0) || 'G' | titlecase }}"
                       size="normal"
                       shape="circle"
                     ></p-avatar>
@@ -387,17 +180,13 @@
 
                 <!-- Missed customers -->
                 <td>
-                  @if (row.missedCustomers.length === 0) {
-                    <span class="text-[11px] text-gray-600">—</span>
+                  @if (row.missedCount > 0) {
+                    <p-badge
+                      [value]="row.missedCount.toString()"
+                      severity="danger"
+                    ></p-badge>
                   } @else {
-                    <div class="flex flex-wrap gap-1">
-                      @for (name of row.missedCustomers; track name) {
-                        <p-tag
-                          [value]="name"
-                          styleClass="bg-red-500/10 text-red-400 text-[9px] px-2 py-0.5 border border-red-500/20"
-                        ></p-tag>
-                      }
-                    </div>
+                    <span class="text-[11px] text-gray-600">—</span>
                   }
                 </td>
               </tr>
@@ -413,6 +202,38 @@
           </p-table>
         </p-card>
       }
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FOOTFALL vs CONVERSION BAR CHART
+    ════════════════════════════════════════════════════════ -->
+    <section class="mb-8">
+      <p-card>
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-semibold">Footfall vs Conversion</h2>
+            <span class="text-sm text-slate-400">{{ rangeLabel }}</span>
+          </div>
+        </div>
+        <div class="h-80">
+          @if (loading()) {
+            <div class="flex items-center justify-center h-full text-slate-500">
+              Loading chart…
+            </div>
+          } @else if (barChartData()) {
+            <p-chart
+              type="bar"
+              [data]="barChartData()"
+              [options]="barChartOptions"
+              height="300px"
+            ></p-chart>
+          } @else {
+            <div class="flex items-center justify-center h-full text-slate-500">
+              No data for the selected period.
+            </div>
+          }
+        </div>
+      </p-card>
     </section>
   </main>
 </div>
@@ -461,8 +282,8 @@
           />
           <p-floatlabel variant="on">
             <input pInputText formControlName="ff" />
-            <label>FF</label> </p-floatlabel
-          >x`
+            <label>FF</label>
+          </p-floatlabel>
           <p-floatlabel variant="on">
             <input pInputText formControlName="con" />
             <label>CO</label>

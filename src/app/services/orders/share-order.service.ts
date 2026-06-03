@@ -30,11 +30,11 @@ export class ShareOrderService {
           ? [order.imageProduct]
           : [];
 
-      // --- 1. QR CODE ---
+      // --- 1. QR CODE (Only containing Order Number Now) ---
       let qrCodeDataUrl = '';
       try {
-        const orderIDwithURL = `${this.backendUrl}/api/orders/get?orderNumber=${order.orderNumber}`;
-        qrCodeDataUrl = await QRCode.toDataURL(orderIDwithURL || 'N/A', {
+        const qrContent = order.orderNumber ? String(order.orderNumber) : 'N/A';
+        qrCodeDataUrl = await QRCode.toDataURL(qrContent, {
           margin: 1,
           width: 150,
           color: { dark: '#000000', light: '#ffffff' },
@@ -52,7 +52,7 @@ export class ShareOrderService {
       doc.setTextColor(100);
       doc.text('Order Receipt', 14, 26);
 
-      // QR Code
+      // QR Code Placement
       if (qrCodeDataUrl) {
         doc.addImage(qrCodeDataUrl, 'PNG', 14, 33, 24, 24);
         doc.setFontSize(7);
@@ -60,12 +60,23 @@ export class ShareOrderService {
         doc.text('SCAN TO UPDATE', 15, 59);
       }
 
-      // --- 3. PRODUCT IMAGE (Page 1 — first image only, same position as before) ---
+      // --- 3. PRODUCT IMAGE (Page 1 — first image) ---
       if (imagePaths.length > 0) {
         try {
           const imageUrl = `${this.backendUrl}/${imagePaths[0]}`;
-          const base64Img = await this.getBase64ImageFromURL(imageUrl);
-          doc.addImage(base64Img, 'JPEG', 100, 14, 94.83, 120.69);
+          const base64Data = await this.getProportionalImageDetails(
+            imageUrl,
+            94.83,
+            120.69,
+          );
+          doc.addImage(
+            base64Data.base64,
+            'JPEG',
+            100,
+            14,
+            base64Data.width,
+            base64Data.height,
+          );
         } catch (e) {
           console.warn('First image load failed:', e);
           doc.setDrawColor(200);
@@ -153,7 +164,7 @@ export class ShareOrderService {
       // --- 7. FOOTER (Page 1) ---
       this.addFooter(doc);
 
-      // --- 8. PAGE 2 — ADDITIONAL IMAGES GRID (only if more than 1 image) ---
+      // --- 8. PAGE 2 — ADDITIONAL IMAGES GRID (2 columns, Proportional Fit) ---
       if (imagePaths.length > 1) {
         doc.addPage();
 
@@ -172,25 +183,25 @@ export class ShareOrderService {
         doc.setDrawColor(200);
         doc.line(14, 25, 196, 25);
 
-        // ── 2-column grid layout ──────────────────────────────────────
+        // ── 2-column layout dimensions ───────────────────────────────
         const pageWidth = doc.internal.pageSize.width; // 210mm
         const pageHeight = doc.internal.pageSize.height; // 297mm
         const marginLeft = 14;
         const marginTop = 32;
-        const colGap = 6; // gap between columns
-        const rowGap = 8; // gap between rows
+        const colGap = 6;
+        const rowGap = 8;
         const cols = 2;
-        const imgW = (pageWidth - marginLeft * 2 - colGap) / cols; // ~88mm
-        const imgH = imgW * 1.1; // slight portrait ratio
-        const labelH = 6; // height for label below image
-        const cellH = imgH + labelH + rowGap;
+
+        // Calculate max image dimensions based on layout and maintain aspect ratio
+        const maxImgW = (pageWidth - marginLeft * 2 - colGap) / cols; // ~88mm
+        const maxImgH = maxImgW * 1.1; // ~96.8mm Max Height
+
+        const labelH = 6;
+        const cellH = maxImgH + labelH + rowGap;
         const imgsPerPage =
           Math.floor((pageHeight - marginTop - 20) / cellH) * cols;
 
-        // All images from index 1 onwards (index 0 is on page 1)
         const remainingImages = imagePaths.slice(1);
-
-        let imgIndex = 0;
 
         for (let r = 0; r < remainingImages.length; r++) {
           // Start new page if grid is full
@@ -218,32 +229,49 @@ export class ShareOrderService {
 
           const col = r % cols;
           const row = Math.floor((r % imgsPerPage) / cols);
-          const x = marginLeft + col * (imgW + colGap);
+          const x = marginLeft + col * (maxImgW + colGap);
           const y = marginTop + row * cellH;
 
-          // Image border placeholder
-          doc.setDrawColor(220);
-          doc.setFillColor(248, 248, 248);
-          doc.roundedRect(x, y, imgW, imgH, 2, 2, 'FD');
+          // Background card placeholder Box
+          doc.setDrawColor(230);
+          doc.setFillColor(250, 250, 250);
+          doc.roundedRect(x, y, maxImgW, maxImgH, 2, 2, 'FD');
 
           try {
             const imageUrl = `${this.backendUrl}/${remainingImages[r]}`;
-            const base64Img = await this.getBase64ImageFromURL(imageUrl);
-            doc.addImage(base64Img, 'JPEG', x, y, imgW, imgH);
+            // Proportional image helper returns base64 + dimensions to fit within maxImgW x maxImgH
+            const base64Data = await this.getProportionalImageDetails(
+              imageUrl,
+              maxImgW,
+              maxImgH,
+            );
+
+            // Center the image within the box
+            const centeredX = x + (maxImgW - base64Data.width) / 2;
+            const centeredY = y + (maxImgH - base64Data.height) / 2;
+
+            doc.addImage(
+              base64Data.base64,
+              'JPEG',
+              centeredX,
+              centeredY,
+              base64Data.width,
+              base64Data.height,
+            );
           } catch (e) {
             console.warn(`Image ${r + 2} failed to load:`, e);
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text('Image Not Available', x + imgW / 2, y + imgH / 2, {
+            doc.text('Image Not Available', x + maxImgW / 2, y + maxImgH / 2, {
               align: 'center',
             });
           }
 
-          // Image number label below each image
+          // Image label below image
           doc.setFontSize(7);
           doc.setTextColor(120);
           doc.setFont('helvetica', 'normal');
-          doc.text(`Image ${r + 2}`, x + imgW / 2, y + imgH + 4, {
+          doc.text(`Image ${r + 2}`, x + maxImgW / 2, y + maxImgH + 4, {
             align: 'center',
           });
         }
@@ -275,18 +303,36 @@ export class ShareOrderService {
     doc.text(`Page ${doc.getNumberOfPages()}`, pageWidth - 25, pageHeight - 10);
   }
 
-  // ── Base64 image helper ────────────────────────────────────
-  private getBase64ImageFromURL(url: string): Promise<string> {
+  // ── Proportional Aspect Ratio Helper ───────────────────────
+  private getProportionalImageDetails(
+    url: string,
+    maxWidth: number,
+    maxHeight: number,
+  ): Promise<{ base64: string; width: number; height: number }> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.setAttribute('crossOrigin', 'anonymous');
       img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        // Aspect Ratio calculation to fit within maxWidth x maxHeight
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+
+        const finalWidth = width * ratio;
+        const finalHeight = height * ratio;
+
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/jpeg'));
+
+        resolve({
+          base64: canvas.toDataURL('image/jpeg'),
+          width: finalWidth,
+          height: finalHeight,
+        });
       };
       img.onerror = (error) => reject(error);
       img.src = url;

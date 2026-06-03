@@ -57,9 +57,14 @@ export class EditOrderComponent implements OnInit, OnDestroy {
 
   // --- State Management ---
   productForm!: FormGroup;
-  uploadedFile = signal<File | null>(null);
+
+  // ✅ Changed to array to allow multiple new file selections
+  uploadedFiles = signal<File[]>([]);
+  // ✅ Keeps track of paths currently stored in the DB
+  existingImages = signal<string[]>([]);
+
   isSaving = signal<boolean>(false);
-  private destroy$ = new Subject<void>(); // For memory management
+  private destroy$ = new Subject<void>();
 
   // --- Data Signals ---
   editOrderNum = signal<string | null>(null);
@@ -100,9 +105,6 @@ export class EditOrderComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Sequence Optimization: Load metadata and Route ID in parallel
-   */
   private loadInitialData() {
     this._route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
@@ -110,7 +112,6 @@ export class EditOrderComponent implements OnInit, OnDestroy {
 
       this.editOrderid.set(id);
 
-      // ✅ All three run in parallel, patchValue only fires when ALL are done
       forkJoin({
         karigars: this._orderServices.getkarigarsList('karigar', 'active'),
         sales: this._orderServices.getSalespersonList('user', 'active'),
@@ -120,17 +121,22 @@ export class EditOrderComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: any) => {
-            // 1. Populate dropdowns first
             this.karigarList.set(res.karigars);
             this.salespersonList.set(res.sales);
             this.categoryList.set(res.cats);
 
-            // 2. Now patch — options exist, p-select can match the value
             const order = Array.isArray(res.order) ? res.order[0] : res.order;
             if (order) {
               if (order.deliveryDate)
                 order.deliveryDate = new Date(order.deliveryDate);
+
               this.editOrderNum.set(order.orderNumber);
+
+              // ✅ Save existing image strings array to display on UI and pass back
+              if (order.imageProduct) {
+                this.existingImages.set(order.imageProduct);
+              }
+
               this.productForm.patchValue(order);
             }
           },
@@ -144,33 +150,23 @@ export class EditOrderComponent implements OnInit, OnDestroy {
     });
   }
 
-  private fetchOrderInfo(params: HttpParams) {
-    this._orderServices.getOrders(params).subscribe({
-      next: (data: any) => {
-        const order = Array.isArray(data) ? data[0] : data;
-        if (order) {
-          if (order.deliveryDate)
-            order.deliveryDate = new Date(order.deliveryDate);
-          this.editOrderNum.set(order.orderNumber);
-          this.productForm.patchValue(order);
-        }
-      },
-      error: () =>
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Could not load order details',
-        }),
-    });
-  }
-
   // --- File Handlers ---
   onFileSelect(event: any) {
-    this.uploadedFile.set(event.currentFiles[0]);
+    // ✅ Collect all chosen files into the array
+    this.uploadedFiles.set(event.currentFiles);
   }
 
-  onFileRemove() {
-    this.uploadedFile.set(null);
+  onFileRemove(event: any) {
+    this.uploadedFiles.set(
+      this.uploadedFiles().filter((f) => f !== event.file),
+    );
+  }
+
+  // ✅ Call this from UI template if you want to let users delete an old image
+  removeExistingImage(index: number) {
+    const updated = [...this.existingImages()];
+    updated.splice(index, 1);
+    this.existingImages.set(updated);
   }
 
   // --- Submission Logic ---
@@ -189,7 +185,7 @@ export class EditOrderComponent implements OnInit, OnDestroy {
 
     // 1. Efficiently append text fields
     Object.keys(formValues).forEach((key) => {
-      if (['imageProduct', 'productImage'].includes(key)) return;
+      if (key === 'imageProduct') return;
 
       let val = formValues[key];
       if (key === 'status' && val) val = val.toLowerCase();
@@ -202,11 +198,17 @@ export class EditOrderComponent implements OnInit, OnDestroy {
       }
     });
 
-    // 2. Append file last
-    const file = this.uploadedFile();
-    if (file) formData.append('productImage', file, file.name);
+    // 2. ✅ Pass down retained old image paths as a JSON string or individual strings
+    // This allows the backend to know which files should be kept
+    formData.append('retainedImages', JSON.stringify(this.existingImages()));
 
-    // 3. Execution
+    // 3. ✅ Append all new files to the array
+    const files = this.uploadedFiles();
+    files.forEach((file) => {
+      formData.append('imageProduct', file, file.name);
+    });
+
+    // 4. Execution
     this._orderServices.updateOrder(id, formData).subscribe({
       next: (res: any) => {
         this.isSaving.set(false);
@@ -215,6 +217,12 @@ export class EditOrderComponent implements OnInit, OnDestroy {
           summary: 'Updated',
           detail: `Order ${this.editOrderNum()} saved`,
         });
+
+        // Update local tracking state with backend's response
+        if (res.data && res.data.imageProduct) {
+          this.existingImages.set(res.data.imageProduct);
+          this.uploadedFiles.set([]); // Clear upload queue
+        }
       },
       error: (err) => {
         this.isSaving.set(false);
@@ -229,12 +237,9 @@ export class EditOrderComponent implements OnInit, OnDestroy {
 
   getPDF(orderId: any) {
     const params = new HttpParams().set('id', orderId);
-
     this._orderServices.getOrders(params).subscribe({
       next: (res: any) => {
-        console.log('API Response:', res);
         const data = Array.isArray(res) ? res : [res];
-
         if (data.length > 0) {
           this._shareOrderService.generateOrderPdf(data);
         } else {

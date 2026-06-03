@@ -6,7 +6,7 @@
       </h2>
       <p-button
         icon="pi pi-share-alt"
-        [text]="true"
+        label="Share"
         size="small"
         severity="primary"
         (onClick)="getPDF(editOrderid())"
@@ -62,12 +62,12 @@
         <div class="col-12 field mt-3">
           <p-fileupload
             mode="advanced"
-            [multiple]="false"
+            [multiple]="true"
             accept="image/*"
-            maxFileSize="1000000"
+            [maxFileSize]="1000000"
             [customUpload]="true"
             (onSelect)="onFileSelect($event)"
-            (onRemove)="onFileRemove()"
+            (onRemove)="onFileRemove($event)"
             [showUploadButton]="false"
             [showCancelButton]="true"
             chooseLabel="Add Image"

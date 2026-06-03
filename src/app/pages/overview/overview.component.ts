@@ -6,10 +6,8 @@ import { ApiService } from '../../services/api.service';
 import { ChartModule } from 'primeng/chart';
 import { RouterLink } from '@angular/router';
 import { SharevideosService } from '../../services/sharevideos.service';
-import { FootfaloverviewComponent } from './footfaloverview/footfaloverview.component';
 import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
-import { AnalyticComponent } from './reports/analytic/analytic.component';
 import { TargetViewComponent } from "../target-view/target-view.component";
 import { AuthService } from '../../services/auth.service';
 
@@ -31,9 +29,7 @@ interface FootEntry {
     DatePipe,
     ChartModule,
     RouterLink,
-    FootfaloverviewComponent,
     KarigarDashboardComponent,
-    AnalyticComponent,
     TargetViewComponent
 ],
   templateUrl: './overview.component.html',

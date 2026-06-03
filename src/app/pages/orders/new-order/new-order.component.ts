@@ -235,7 +235,7 @@ export class NewOrderComponent implements OnInit, OnChanges {
 
     // ✅ Append all images with same field name "productImages"
     this.uploadedFiles().forEach((file) => {
-      formData.append('productImages', file, file.name);
+      formData.append('imageProduct', file, file.name);
     });
 
     // Append all other form fields

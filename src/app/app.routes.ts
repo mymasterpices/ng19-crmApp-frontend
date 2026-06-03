@@ -1,3 +1,4 @@
+import { Viewfootfalldetail } from './pages/viewfootfalldetail/viewfootfalldetail.component';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { AdminComponent } from './pages/admin/admin.component';
@@ -126,6 +127,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/footfall-data/footfall-data.component').then(
             (m) => m.FootfallData,
+          ),
+        data: { expectedRole: 'admin' },
+        canActivate: [rolecheckGuard],
+      },
+
+      {
+        path: 'footfall/view-footfall-detail/:user_id',
+        loadComponent: () =>
+          import('./pages/viewfootfalldetail/viewfootfalldetail.component').then(
+            (m) => m.Viewfootfalldetail,
           ),
         data: { expectedRole: 'admin' },
         canActivate: [rolecheckGuard],

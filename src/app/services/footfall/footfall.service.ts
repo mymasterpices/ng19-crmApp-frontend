@@ -168,4 +168,36 @@ export class FootfallService {
     fd.append('file', file);
     return this.http.post(`${environment.API_URL}/api/footfall/import`, fd);
   }
+
+  getAllFootfallData(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.API_URL}/api/footfall/footfalldata/all`,
+    );
+  }
+
+  //Get the footfall data for a specific user and year & month
+  getFootfallData(
+    userId: string,
+    year: number,
+    month: number,
+  ): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.API_URL}/api/footfall/footfalldata/${userId}/${year}/${month}`,
+    );
+  }
+
+  //update footfall entry by entry id
+  updateFootfallEntryById(entryId: string, entry: any): Observable<any> {
+    return this.http.patch(
+      `${environment.API_URL}/api/footfall/footfalldata/update/${entryId}`,
+      entry,
+    );
+  }
+
+  //delete footfall entry by entry id
+  deleteFootfallEntryById(entryId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.API_URL}/api/footfall/footfalldata/delete/${entryId}`,
+    );
+  }
 }
