@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { TargetService } from '../../services/target/target.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-target-view',
@@ -24,6 +25,7 @@ import { TargetService } from '../../services/target/target.service';
     ButtonModule,
     ToastModule,
     CardModule,
+    RouterLink,
   ],
   providers: [MessageService],
   templateUrl: './target-view.component.html',

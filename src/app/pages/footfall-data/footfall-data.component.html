@@ -32,7 +32,8 @@
       <label>CUSTOM DATE</label>
     </p-floatlabel>
 
-    <p-button
+   @if(userRole !== 'user') {
+     <p-button
       icon="pi pi-plus"
       pTooltip="Add New Entry"
       tooltipPosition="left"
@@ -40,6 +41,7 @@
       (click)="addEntryVisible()"
       [rounded]="true"
     ></p-button>
+   }
   </div>
 </div>
 
@@ -55,7 +57,7 @@
         <div>
           <h2 class="text-lg font-semibold">Staff Accountability</h2>
           <span class="text-sm text-gray-500"
-            >Footfall entries vs customer records — {{ rangeLabel }}</span
+            >Footfall entries vs customer enquiry — {{ rangeLabel }}</span
           >
         </div>
       </div>
@@ -94,7 +96,7 @@
                 <th
                   class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
                 >
-                  Leads
+                  Enquiries
                   <i
                     class="pi pi-info-circle ml-1 text-gray-600 cursor-help"
                     pTooltip="Customer records saved by this salesperson within the selected period"

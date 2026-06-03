@@ -45,6 +45,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -106,6 +107,11 @@ export class FootfallData implements OnInit {
   private http = inject(HttpClient);
   private msg = inject(MessageService);
   private fb = inject(FormBuilder);
+
+  private _authService = inject(AuthService);
+
+  //User info from auth service
+  userRole = this._authService.getUserRole();
 
   // ─── Global Filter State ────────────────────────────────────────────────────
   filterOptions = [

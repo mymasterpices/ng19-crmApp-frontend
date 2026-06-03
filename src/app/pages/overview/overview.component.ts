@@ -10,6 +10,7 @@ import { HttpParams } from '@angular/common/http';
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
 import { TargetViewComponent } from "../target-view/target-view.component";
 import { AuthService } from '../../services/auth.service';
+import { FootfallData } from "../footfall-data/footfall-data.component";
 
 
 interface FootEntry {
@@ -30,7 +31,8 @@ interface FootEntry {
     ChartModule,
     RouterLink,
     KarigarDashboardComponent,
-    TargetViewComponent
+    TargetViewComponent,
+    FootfallData
 ],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.css',
