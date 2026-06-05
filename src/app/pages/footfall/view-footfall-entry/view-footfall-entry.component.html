@@ -27,8 +27,8 @@
     <p-table
       [value]="filteredFootEntries()"
       [paginator]="true"
-      [rows]="20"
-      [rowsPerPageOptions]="[30, 50, 70, 100]"
+      [rows]="31"
+      [rowsPerPageOptions]="[31, 50, 70, 100]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
       [sortField]="'timestamp'"
@@ -68,7 +68,7 @@
           <!-- PC -->
           <td>
             @if (entry.pc) {
-              <span class="text-xs">{{ entry.pc }}</span>
+              <span class="text-xs">{{ entry.pc | titlecase }}</span>
             } @else {
               <span class="text-gray-400">—</span>
             }

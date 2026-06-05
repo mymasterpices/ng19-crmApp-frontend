@@ -201,7 +201,7 @@ export class ProductsViewAllComponent {
         this._messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'Imported successfully',
+          detail: `Total ${res.insertedCount} product imported successfully`,
         });
         this.isUploading.set('Upload');
         this.visible = false;
@@ -211,7 +211,7 @@ export class ProductsViewAllComponent {
         this._messageService.add({
           severity: 'error',
           summary: 'Failed',
-          detail: 'Check CSV format',
+          detail: `Import failed: ${err.error?.message || 'Check CSV format'}`,
         });
         this.isUploading.set('Upload');
       },
