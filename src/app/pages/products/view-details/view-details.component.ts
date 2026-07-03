@@ -64,32 +64,9 @@ export class ViewDetailsComponent implements OnInit {
       const searchTagNumber = { jewel_code };
 
       const code = searchTagNumber.jewel_code || '';
-      let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
-      // Special case: DB1–DB8
-      if (/^DB[1-8]/i.test(code)) {
-        prefix = code.substring(0, 3).toUpperCase(); // "DB1" from "DB100007"
-      } else if (/^[Bb][1-8]/.test(code)) {
-        prefix = code.substring(0, 2).toUpperCase(); // "B1" from "B100007"
-      } else {
-        prefix = prefix.toUpperCase(); // Normal prefix
-      }
 
-      const extensions = ['jpg', 'jpeg', 'JPG', 'JPEG'];
-      const baseUrl = `${environment.SYNC_IMAGE_URL}/${prefix}/${code}`;
-
-      let imageFound = false;
-      for (const ext of extensions) {
-        const img = new Image();
-        img.src = `${baseUrl}.${ext}`;
-        img.onload = () => {
-          if (!imageFound) {
-            this.isImageFound.set(true); // set signal when image is loaded
-            this.productImageUrl.set(img.src);
-            imageFound = true;
-          }
-        };
-      }
-
+      //create a dynamic image URL
+      this.handleImageLookup(code);
       this.apiService.findProduct(searchTagNumber).subscribe(
         (res: any) => {
           if (res.length === 0) {
@@ -111,11 +88,26 @@ export class ViewDetailsComponent implements OnInit {
         },
         (error) => console.log(error),
       );
-
-      //create a dynamic image URL
     });
 
     this.getList();
+  }
+
+  private handleImageLookup(code: string) {
+    this.productImageUrl.set('');
+    const url = `${environment.SYNC_IMAGE_URL}/${encodeURIComponent(code)}.jpg`;
+    console.log('Trying image URL:', url);
+
+    const img = new Image();
+    img.onload = () => {
+      console.log('loaded');
+      this.productImageUrl.set(img.src);
+    };
+    img.onerror = () => {
+      console.log('failed');
+      this.productImageUrl.set('');
+    };
+    img.src = url;
   }
 
   getAlreadySavedItems(item: any) {

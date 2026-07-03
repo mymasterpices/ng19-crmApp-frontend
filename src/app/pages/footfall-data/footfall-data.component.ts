@@ -679,6 +679,7 @@ export class FootfallData implements OnInit {
         this.footfallForm.reset();
         this.entryFromVisible = false;
         this.loadDashboard();
+        this.loadSalesPersons();
       },
       error: () => {
         this.loading.set(false);

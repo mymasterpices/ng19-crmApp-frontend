@@ -1,5 +1,5 @@
 export const environment = {
-  API_URL: 'http://localhost:5200',
-  app: 'http://localhost:4200',
-  SYNC_IMAGE_URL: 'https://syncdrive.jools.in/images',
+  API_URL: 'https://crm.jools.in',
+  app: 'https://crm.jools.in',
+  SYNC_IMAGE_URL: 'https://syncdrive.jools.in/processed',
 };

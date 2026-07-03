@@ -9,16 +9,16 @@
             class="w-[60%] md:w-[20%] mx-auto mb-2 rounded-2xl overflow-hidden"
             routerLink="/view-details/{{ item.jewel_code }}"
           >
-            @if (isImageFound()) {
+            @if (productImageUrl()) {
               <img
                 [src]="productImageUrl()"
-                alt="{{ item.jewel_code }}"
+                [alt]="item.jewel_code"
                 class="rounded-2xl w-full object-cover"
               />
             } @else {
               <img
                 src="imagenotfound.jpg"
-                alt="{{ item.jewel_code }}"
+                [alt]="item.jewel_code"
                 class="w-full object-cover"
               />
             }

@@ -64,7 +64,6 @@ export class ProductsViewAllComponent {
   searchResult = signal<any[]>([]);
   myChoiceList = signal<any[]>([]);
   productImageUrl = signal<string>('');
-  isImageFound = signal<boolean>(false);
   isUploading = signal<string>('Upload');
 
   // --- Component Variables ---
@@ -109,31 +108,20 @@ export class ProductsViewAllComponent {
   }
 
   private handleImageLookup(code: string) {
-    let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
+    this.productImageUrl.set('');
+    const url = `${environment.SYNC_IMAGE_URL}/${encodeURIComponent(code)}.jpg`;
+    console.log('Trying image URL:', url);
 
-    // Jewelry Specific Prefix Logic
-    if (/^DB[1-8]/i.test(code)) {
-      prefix = code.substring(0, 3).toUpperCase();
-    } else if (/^[Bb][1-8]/.test(code)) {
-      prefix = code.substring(0, 2).toUpperCase();
-    } else {
-      prefix = prefix.toUpperCase();
-    }
-
-    const extensions = ['jpg', 'jpeg', 'JPG', 'JPEG'];
-    const baseUrl = `${environment.SYNC_IMAGE_URL}/${prefix}/${code}`;
-
-    this.isImageFound.set(false);
-    for (const ext of extensions) {
-      const img = new Image();
-      img.src = `${baseUrl}.${ext}`;
-      img.onload = () => {
-        if (!this.isImageFound()) {
-          this.isImageFound.set(true);
-          this.productImageUrl.set(img.src);
-        }
-      };
-    }
+    const img = new Image();
+    img.onload = () => {
+      console.log('loaded');
+      this.productImageUrl.set(img.src);
+    };
+    img.onerror = () => {
+      console.log('failed');
+      this.productImageUrl.set('');
+    };
+    img.src = url;
   }
 
   // --- Calculation Methods ---
