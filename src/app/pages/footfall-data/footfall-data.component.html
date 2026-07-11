@@ -23,11 +23,10 @@
         (ngModelChange)="onDateChange()"
         selectionMode="range"
         [readonlyInput]="true"
-        icon="pi pi-calendar"
-        iconPosition="left"
         [showClear]="true"
         (onClearClick)="onClearDate()"
-        styleClass="w-full md:w-[230px]"
+        styleClass="w-full md:w-[270px]"
+        showIcon="true"
       ></p-datepicker>
       <label>Custom Range</label>
     </p-floatlabel>
@@ -47,11 +46,6 @@
 
 <div class="flex min-h-screen py-4">
   <main class="flex-1 overflow-y-auto">
-    <!-- ═══════════════════════════════════════════════════════
-         STAFF ACCOUNTABILITY TABLE
-         Footfall entries cross-referenced with customer records
-         saved on the same date — shows leads logged & missed.
-    ════════════════════════════════════════════════════════ -->
     <section class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <div>
@@ -256,15 +250,16 @@
     class="max-sm:flex max-sm:flex-col"
   >
     <div class="flex justify-end mt-4">
-      <p-floatlabel class="flex-1" variant="on">
+      <p-floatlabel class="flex-1" variant="in">
         <p-datepicker
           [iconDisplay]="'input'"
           [showIcon]="true"
           inputId="icondisplay"
-          placeholder="Back date entry"
           formControlName="date"
         />
+        <label for="icondisplay">Back date entry</label>
       </p-floatlabel>
+      
       <p-button
         type="submit"
         label="Save"
@@ -281,15 +276,15 @@
             [disabled]="true"
             [value]="form.at(i).get('sales_person')?.value | titlecase"
           />
-          <p-floatlabel variant="on">
+          <p-floatlabel variant="in">
             <input pInputText formControlName="ff" />
             <label>FF</label>
           </p-floatlabel>
-          <p-floatlabel variant="on">
+          <p-floatlabel variant="in">
             <input pInputText formControlName="con" />
             <label>CO</label>
           </p-floatlabel>
-          <p-floatlabel variant="on">
+          <p-floatlabel variant="in">
             <input pInputText formControlName="pc" />
             <label>PC</label>
           </p-floatlabel>
