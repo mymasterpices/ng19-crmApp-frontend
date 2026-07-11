@@ -16,6 +16,8 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../services/auth.service';
+import { IconFieldModule } from "primeng/iconfield";
+import { InputIconModule } from "primeng/inputicon";
 
 @Component({
   selector: 'app-sold-items',
@@ -35,7 +37,9 @@ import { AuthService } from '../../../services/auth.service';
     InputTextModule,
     DatePipe,
     TooltipModule,
-  ],
+    IconFieldModule,
+    InputIconModule
+],
   templateUrl: './sold-items.component.html',
   styleUrl: './sold-items.component.css',
 })

@@ -2,47 +2,63 @@
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
     <div class="">
       <!-- Party Name -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input pInputText id="party" formControlName="party" class="w-full" />
-          <label for="party">Party Name</label>
+          <label for="party">Customer Name</label>
         </p-floatlabel>
         @if (
           productForm.controls["party"].invalid &&
           productForm.controls["party"].touched
         ) {
-          <p class="text-red-500 text-xs mt-1">Party name is mandatory</p>
+          <p class="text-red-500 text-xs mt-1">Customer name is required.</p>
         }
       </div>
 
       <!-- Karigar -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="karigarList"
-          optionLabel="username"
-          optionValue="username"
-          [filter]="true"
-          filterBy="username"
-          [showClear]="true"
-          placeholder="Select a Karigar"
-          class="w-full"
-          formControlName="karigari"
-        ></p-select>
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
+          <p-select
+            [options]="karigarList"
+            optionLabel="username"
+            optionValue="username"
+            [filter]="true"
+            filterBy="username"
+            [showClear]="true"
+            class="w-full"
+            formControlName="karigari"
+          ></p-select>
+          <label for="karigari">Select Karigar</label>
+        </p-floatlabel>
+        @if (
+          productForm.controls["karigari"].invalid &&
+          productForm.controls["karigari"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Karigar is required.</p>
+        }
       </div>
 
       <!-- Salesperson -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="salespersonList"
-          optionLabel="username"
-          optionValue="username"
-          [filter]="true"
-          filterBy="username"
-          [showClear]="true"
-          placeholder="Sales Person"
-          class="w-full"
-          formControlName="salesperson"
-        ></p-select>
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
+          <p-select
+            [options]="salespersonList"
+            optionLabel="username"
+            optionValue="username"
+            [filter]="true"
+            filterBy="username"
+            [showClear]="true"
+            class="w-full"
+            formControlName="salesperson"
+          ></p-select>
+          <label for="salesperson">Select Sales Person</label>
+        </p-floatlabel>
+        @if (
+          productForm.controls["salesperson"].invalid &&
+          productForm.controls["salesperson"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Sales Person is required.</p>
+        }
       </div>
 
       <!-- ── IMAGE UPLOAD (Multiple) ───────────────────────────── -->
@@ -98,25 +114,30 @@
       <!-- ── END IMAGE UPLOAD ──────────────────────────────────── -->
 
       <!-- Delivery Date -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <p-datepicker
             id="deliveryDate"
             formControlName="deliveryDate"
-            dateFormat="dd/mm/yy"
-            [showIcon]="true"
-            [touchUI]="true"
-            appendTo="body"
+            showIcon
+            iconDisplay="input"
             styleClass="w-full"
             class="w-full"
+            showClear
           ></p-datepicker>
           <label for="deliveryDate">Delivery Date</label>
         </p-floatlabel>
+        @if (
+          productForm.controls["deliveryDate"].invalid &&
+          productForm.controls["deliveryDate"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Delivery date is required.</p>
+        }
       </div>
 
       <!-- Quantity -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <p-inputNumber
             id="quantity"
             formControlName="quantity"
@@ -126,24 +147,36 @@
           ></p-inputNumber>
           <label for="quantity">Quantity</label>
         </p-floatlabel>
+        @if (
+          productForm.controls["quantity"].invalid &&
+          productForm.controls["quantity"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Quantity is required.</p>
+        }
       </div>
 
       <!-- Gold Weight -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="goldweight"
             formControlName="goldWeight"
             class="w-full"
           />
-          <label for="goldweight">Gold Weight (g)</label>
+          <label for="goldweight">Gold Wt. (in grams)</label>
         </p-floatlabel>
+        @if (
+          productForm.controls["goldWeight"].invalid &&
+          productForm.controls["goldWeight"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Gold weight is required.</p>
+        }
       </div>
 
       <!-- Diamond Details -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="diamondDetails"
@@ -155,8 +188,8 @@
       </div>
 
       <!-- Stone Details -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="stoneDetails"
@@ -168,21 +201,27 @@
       </div>
 
       <!-- Purity -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="purity"
             formControlName="purity"
             class="w-full"
           />
-          <label for="purity">Purity*</label>
+          <label for="purity">Purity</label>
         </p-floatlabel>
+        @if (
+          productForm.controls["purity"].invalid &&
+          productForm.controls["purity"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Purity is required.</p>
+        }
       </div>
 
       <!-- Gold Color -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="goldColor"
@@ -194,31 +233,39 @@
       </div>
 
       <!-- Size -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input pInputText id="size" formControlName="size" class="w-full" />
           <label for="size">Size</label>
         </p-floatlabel>
       </div>
 
       <!-- Category -->
-      <div class="col-12 field mt-3">
-        <p-select
-          [options]="categoryList"
-          optionLabel="name"
-          optionValue="name"
-          [filter]="true"
-          filterBy="name"
-          [showClear]="true"
-          placeholder="Item Category"
-          class="w-full"
-          formControlName="itemCategory"
-        ></p-select>
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
+          <p-select
+            [options]="categoryList"
+            optionLabel="name"
+            optionValue="name"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true"
+            class="w-full"
+            formControlName="itemCategory"
+          ></p-select>
+          <label for="itemCategory">Item Category</label>
+        </p-floatlabel>
+        @if (
+          productForm.controls["itemCategory"].invalid &&
+          productForm.controls["itemCategory"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Item Category is required.</p>
+        }
       </div>
 
       <!-- Gati Order No -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="gatiOrderNo"
@@ -230,21 +277,21 @@
       </div>
 
       <!-- Product Code -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <input
             pInputText
             id="productCode"
             formControlName="productCode"
             class="w-full"
           />
-          <label for="productCode">Product Code</label>
+          <label for="productCode">Product Tag No.</label>
         </p-floatlabel>
       </div>
 
       <!-- Remarks -->
-      <div class="col-12 field mt-3">
-        <p-floatlabel variant="on">
+      <div class="fieldset col-12 field mt-3">
+        <p-floatlabel variant="in">
           <textarea
             pTextarea
             id="remarks"
@@ -257,18 +304,15 @@
       </div>
 
       <!-- Submit Button -->
-      <div
-        class="col-12 mt-3 fixed bottom-0 left-0 right-0 p-3 flex justify-center items-center w-full"
-      >
+      <div class="col-12 mt-3 w-full">
         <p-button
           label="Create Order"
           icon="pi pi-shopping-cart"
           type="submit"
-          size="small"
-          severity="primary"
+          size="large"
+          severity="contrast"
           styleClass="w-full"
           [loading]="isSaving()"
-          [disabled]="productForm.invalid || uploadedFiles().length === 0"
         ></p-button>
       </div>
     </div>

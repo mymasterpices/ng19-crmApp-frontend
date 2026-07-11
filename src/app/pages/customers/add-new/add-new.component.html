@@ -5,105 +5,199 @@
     enctype="multipart/form-data"
   >
     <div class="grid grid-cols-1 gap-4">
-      <p-floatlabel variant="on" class="w-full">
-        <input pInputText id="name" class="w-full" formControlName="name" />
-        <label for="name">Customer Name</label>
-      </p-floatlabel>
+      <!-- Customer name -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-full">
+          <input pInputText id="name" class="w-full" formControlName="name" />
+          <label for="name">Customer Name</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["name"].errors?.["required"] &&
+          customerForm.controls["name"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1"
+            >Customer name is required.</small
+          >
+        }
+      </div>
 
-      <p-floatlabel variant="on" class="w-full">
-        <input pInputText id="name" class="w-full" formControlName="mobile" />
-        <label for="name">Mobile</label>
-      </p-floatlabel>
-
-      <p-floatlabel variant="on" class="w-full">
-        <input
-          pInputText
-          id="productName"
-          formControlName="productName"
-          class="w-full"
-        />
-        <label for="productName">Tag Number</label>
-      </p-floatlabel>
-
-      <p-floatlabel variant="on" class="w-full">
-        <p-inputnumber
-          inputId="price"
-          formControlName="price"
-          class="w-full"
-          locale="en-IN"
-        />
-        <label for="price">Price</label>
-      </p-floatlabel>
-
-      <p-floatlabel class="w-full" variant="on">
-        <p-select
-          inputId="status"
-          [options]="status"
-          optionLabel="name"
-          formControlName="status"
-          styleClass="w-full"
-        />
-        <label for="status">Status</label>
-      </p-floatlabel>
-
-      <p-floatlabel class="w-full" variant="on">
-        <p-select
-          inputId="seriousness"
-          [options]="seriousness"
-          optionLabel="name"
-          formControlName="seriousness"
-          styleClass="w-full"
-        />
-        <label for="seriousness">Seriousness</label>
-      </p-floatlabel>
-
-      <p-floatlabel variant="on" class="w-full">
-        <p-datepicker
-          inputId="nextFollowUpDate"
-          formControlName="nextFollowUpDate"
-          showIcon
-          iconDisplay="input"
-          class="w-full"
-          styleClass="w-full"
-        />
-        <label for="nextFollowUpDate">Next Follow-Up On</label>
-      </p-floatlabel>
-      <!-- if new customers -->
-      <div class="flex gap-3 justify-between items-start">
-        <div class="w-full flex items-center">
-          <p-checkbox
-            formControlName="newcustomer"
-            [binary]="true"
-            inputId="newcustomer"
+      <!-- Customer mobile -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-full">
+          <input
+            pInputText
+            id="mobile"
+            class="w-full"
+            formControlName="mobile"
           />
-          <label for="newcustomer" class="ml-2">New Customer</label>
+          <label for="mobile">Mobile</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["mobile"].errors?.["required"] &&
+          customerForm.controls["mobile"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1">Mobile is required.</small>
+        }
+      </div>
+
+      <!-- Product Name -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-full">
+          <input
+            pInputText
+            id="productNumber"
+            formControlName="productName"
+            class="w-full"
+          />
+          <label for="productNumber">Tag Number</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["productName"].errors?.["required"] &&
+          customerForm.controls["productName"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1"
+            >Tag number is required.</small
+          >
+        }
+      </div>
+
+      <!-- Product price -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-full">
+          <p-inputnumber
+            inputId="price"
+            formControlName="price"
+            class="w-full"
+            locale="en-IN"
+          />
+          <label for="price">Price</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["price"].errors?.["required"] &&
+          customerForm.controls["price"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1">Price is required.</small>
+        }
+      </div>
+
+      <!-- Status -->
+      <div class="fieldset">
+        <p-floatlabel class="w-full" variant="in">
+          <p-select
+            inputId="status"
+            [options]="status"
+            optionLabel="name"
+            formControlName="status"
+            styleClass="w-full"
+          />
+          <label for="status">Status</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["status"].errors?.["required"] &&
+          customerForm.controls["status"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1">Status is required.</small>
+        }
+      </div>
+
+      <!-- Seriousness -->
+      <div class="fieldset">
+        <p-floatlabel class="w-full" variant="in">
+          <p-select
+            inputId="seriousness"
+            [options]="seriousness"
+            optionLabel="name"
+            formControlName="seriousness"
+            styleClass="w-full"
+          />
+          <label for="seriousness">Seriousness</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["seriousness"].errors?.["required"] &&
+          customerForm.controls["seriousness"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1"
+            >Seriousness is required.</small
+          >
+        }
+      </div>
+
+      <!-- Next Follow Up Date -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-full">
+          <p-datepicker
+            inputId="nextFollowUpDate"
+            formControlName="nextFollowUpDate"
+            showIcon
+            iconDisplay="input"
+            class="w-full"
+            styleClass="w-full"
+          />
+          <label for="nextFollowUpDate">Next Follow-Up On</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["nextFollowUpDate"].errors?.["required"] &&
+          customerForm.controls["nextFollowUpDate"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1"
+            >Next follow-up date is required.</small
+          >
+        }
+      </div>
+
+      <!-- if new customers -->
+      <div class="fieldset">
+        <div class="flex gap-3 justify-between items-start">
+          <div class="w-full flex items-center">
+            <p-checkbox
+              formControlName="newcustomer"
+              [binary]="true"
+              inputId="newcustomer"
+            />
+            <label for="newcustomer" class="ml-2">New Customer</label>
+          </div>
         </div>
       </div>
-      <p-floatlabel variant="on" class="w-">
-        <p-datepicker
-          formControlName="visitedOn"
-          inputId="visitedOn"
-          showIcon
-          iconDisplay="input"
-          class="w-full"
-          styleClass="w-full"
-        />
-        <label for="visitedOn" class="ml-2">Customer Visited On</label>
-      </p-floatlabel>
 
-      <p-floatlabel class="w-full" variant="on">
-        <textarea
-          rows="2"
-          cols="30"
-          pTextarea
-          class="w-full"
-          formControlName="conversation"
-        ></textarea>
-        <label for="conversation">Conversation</label>
-      </p-floatlabel>
+      <!-- Customer Visited On -->
+      <div class="fieldset">
+        <p-floatlabel variant="in" class="w-">
+          <p-datepicker
+            formControlName="visitedOn"
+            inputId="visitedOn"
+            showIcon
+            iconDisplay="input"
+            class="w-full"
+            styleClass="w-full"
+          />
+          <label for="visitedOn" class="ml-2">Customer Visited On</label>
+        </p-floatlabel>
+      </div>
+
+      <!-- Conversation -->
+      <div class="fieldset">
+        <p-floatlabel class="w-full" variant="in">
+          <textarea
+            rows="2"
+            cols="30"
+            pTextarea
+            class="w-full"
+            formControlName="conversation"
+          ></textarea>
+          <label for="conversation">Conversation</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["conversation"].errors?.["required"] &&
+          customerForm.controls["conversation"].touched
+        ) {
+          <small class="text-red-500 text-xs mt-1"
+            >Conversation is required.</small
+          >
+        }
+      </div>
 
       <div class="flex justify-between items-center gap-4">
-        <p-floatlabel class="w-auto" variant="on">
+        <p-floatlabel class="w-auto" variant="in">
           <p-fileUpload
             name="file"
             mode="basic"
@@ -126,7 +220,7 @@
           type="submit"
           icon="pi pi-save"
           pripple
-          severity="primary"
+          severity="contrast"
         ></p-button>
       </div>
     </div>

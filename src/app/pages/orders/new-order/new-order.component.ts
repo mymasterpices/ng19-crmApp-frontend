@@ -72,7 +72,7 @@ export class NewOrderComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.productForm = this.fb.group({
       party: ['', Validators.required],
-      karigari: [''],
+      karigari: ['', Validators.required],
       deliveryDate: [null, Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       salesperson: [''],

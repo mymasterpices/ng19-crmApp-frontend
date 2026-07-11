@@ -1,34 +1,41 @@
 <section class="flex justify-between align-center mb-1 p-3">
   <h1 class="text-xl font-semibold">Orders</h1>
   <p-button
-    label="New Order"
     icon="pi pi-plus"
-    severity="primary"
-    size="small"
+    severity="contrast"
     (onClick)="drawerVisible = true"
+    rounded="true"
+    size="large"
   >
   </p-button>
 </section>
 
-<section class="flex justify-between items-center gap-4 px-3 mb-4">
-  <p-iconfield class="w-full">
-    <p-inputicon styleClass="pi pi-search" />
-    <input
-      type="text"
-      pInputText
-      placeholder="Search by order number"
-      class="w-full md:w-70 border-round-lg"
-      (input)="searchByOrderNum($event)"
-    />
-  </p-iconfield>
-  <p-select
-    [options]="orderStatuslist"
-    [(ngModel)]="selectedStatus"
-    (onChange)="onStatusChange($event)"
-    optionLabel="name"
-    placeholder="Apply Filter"
-    showClear="true"
-  />
+<section class="grid grid-cols-3 gap-4 px-3 mb-4 items-center">
+  <div class="col-span-2 w-full">
+    <p-floatlabel variant="in">
+      <input
+        type="text"
+        pInputText
+        class="w-full border-round-lg"
+        (input)="searchByOrderNum($event)"
+      />
+      <label>Search by order number</label>
+    </p-floatlabel>
+  </div>
+
+  <div class="col-span-1 w-full">
+    <p-floatlabel variant="in">
+      <p-select
+        [options]="orderStatuslist"
+        [(ngModel)]="selectedStatus"
+        (onChange)="onStatusChange($event)"
+        optionLabel="name"
+        showClear="true"
+        styleClass="w-full hide-icon"
+      />
+      <label>Filter</label>
+    </p-floatlabel>
+  </div>
 </section>
 
 <section class="surface-ground min-h-screen p-3">
@@ -74,7 +81,6 @@
                     icon="pi pi-pencil"
                     label="Edit"
                     [outlined]="true"
-                    size="small"
                     severity="warn"
                     (onClick)="onEdit(order._id)"
                     class="w-full"
@@ -83,8 +89,7 @@
                     icon="pi pi-share-alt"
                     label="Share"
                     [outlined]="true"
-                    size="small"
-                    severity="primary"
+                    severity="contrast"
                     (onClick)="getPDF(order._id)"
                   ></p-button>
                   @if (userRole === "superadmin") {
@@ -92,7 +97,6 @@
                       icon="pi pi-trash"
                       label="Delete"
                       [outlined]="true"
-                      size="small"
                       severity="danger"
                       (onClick)="onDelete(order._id)"
                     ></p-button>

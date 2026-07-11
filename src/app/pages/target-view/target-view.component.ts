@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -12,6 +12,9 @@ import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { TargetService } from '../../services/target/target.service';
 import { RouterLink } from '@angular/router';
+import { TableModule } from 'primeng/table';
+import { KnobModule } from 'primeng/knob';
+import { single } from 'rxjs';
 
 @Component({
   selector: 'app-target-view',
@@ -26,6 +29,8 @@ import { RouterLink } from '@angular/router';
     ToastModule,
     CardModule,
     RouterLink,
+    TableModule,
+    KnobModule,
   ],
   providers: [MessageService],
   templateUrl: './target-view.component.html',
@@ -40,6 +45,9 @@ export class TargetViewComponent implements OnInit {
   selectedDate: Date = new Date(); // Defaults to current month/year
   isSyncing = false;
 
+  
+
+  // Lifecycle Hook
   ngOnInit(): void {
     this.onFilterChange();
   }
@@ -113,4 +121,6 @@ export class TargetViewComponent implements OnInit {
       year: 'numeric',
     });
   }
+
+  
 }

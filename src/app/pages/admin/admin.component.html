@@ -8,15 +8,22 @@
           [icon]="drawerNavigation ? 'pi pi-times' : 'pi pi-bars'"
           class="md:hidden"
           (click)="drawerNavigation = !drawerNavigation"
-          severity="primary"
+          severity="contrast"
           [text]="true"
         ></p-button>
 
         <a routerLink="/" class="flex items-center justify-between mr-4">
           <img
-            src="LOGO-BRAND.png"
-            class="md:h-8 md:h-6 md:w-auto w-25 dark:brightness-[200]"
-            alt="RKJ Logo"
+            src="color-logo.png"
+            class="dark:hidden  w-10 h-auto"
+            alt="RKJ Logo Light"
+            loading="lazy"
+          />
+
+          <img
+            src="white-logo.png"
+            class="hidden dark:block w-10 h-auto"
+            alt="RKJ Logo Dark"
             loading="lazy"
           />
         </a>
@@ -27,7 +34,7 @@
             [icon]="isDark() ? 'pi pi-moon' : 'pi pi-sun'"
             [text]="true"
             (onClick)="toggleDarkMode()"
-            severity="primary"
+            severity="contrast"
             [rounded]="true"
           >
           </p-button>
@@ -43,7 +50,7 @@
             pTooltip="Logout"
             tooltipPosition="top"
             (onClick)="logOut()"
-            severity="primary"
+            severity="contrast"
             pTooltip="Sign Out"
             tooltipPosition="left"
             [rounded]="true"
@@ -56,7 +63,7 @@
   <!-- Sidebar -->
 
   <aside
-    class="fixed top-0 left-0 z-3 w-100 md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-zinc-200 md:translate-x-0 dark:bg-zinc-950 dark:border-zinc-700"
+    class="fixed top-0 left-0 z-40 w-full md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-zinc-200 md:translate-x-0 dark:bg-zinc-950 dark:border-zinc-700"
     aria-label="Sidenav"
     [ngClass]="{
       'translate-x-0': drawerNavigation,
@@ -70,8 +77,8 @@
             <a
               (click)="drawerNavigation = false"
               routerLink="/karigar/karigar-dashboard"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-th-large px-2"></i> Dashboard
@@ -83,8 +90,8 @@
             <a
               (click)="drawerNavigation = false"
               routerLink="/overview"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-th-large px-2"></i> Overview
@@ -95,8 +102,8 @@
             <a
               (click)="drawerNavigation = false"
               routerLink="/customers/view-all"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-users px-2"></i> Customers
@@ -108,8 +115,8 @@
             <a
               (click)="drawerNavigation = false; toggleMenu('followup')"
               routerLink="/followup/todays"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-replay px-2"></i> Follow-up
@@ -121,8 +128,8 @@
             <a
               (click)="drawerNavigation = false; toggleMenu('products')"
               routerLink="/products/view-all"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-box px-2"></i> Products
@@ -134,8 +141,8 @@
             <a
               (click)="drawerNavigation = false; toggleMenu('videos')"
               routerLink="/videos/view-all"
-              routerLinkActive="bg-emerald-400 !text-zinc-900"
-              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-video px-2"></i> Videos
@@ -149,8 +156,8 @@
               <a
                 (click)="drawerNavigation = false; toggleMenu('soldItems')"
                 routerLink="image-search"
-                routerLinkActive="bg-emerald-400 !text-zinc-900"
-                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                routerLinkActive="bg-zinc-200 !text-zinc-900"
+                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
               >
                 <span class="flex-1 text-left">
                   <i class="pi pi-search px-2"></i> Image Search
@@ -162,8 +169,8 @@
               <a
                 (click)="drawerNavigation = false; toggleMenu('soldItems')"
                 routerLink="sold-items/sold-items"
-                routerLinkActive="bg-emerald-400 !text-zinc-900"
-                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                routerLinkActive="bg-zinc-200 !text-zinc-900"
+                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
               >
                 <span class="flex-1 text-left">
                   <i class="pi pi-list-check px-2"></i> Sold List
@@ -176,8 +183,8 @@
                 <a
                   (click)="drawerNavigation = false"
                   routerLink="footfall/footfall-data"
-                  routerLinkActive="bg-emerald-400 !text-zinc-900"
-                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                  routerLinkActive="bg-zinc-200 !text-zinc-900"
+                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
                 >
                   <span class="flex-1 text-left">
                     <i class="pi pi-map-marker px-2"></i> Footfall
@@ -189,8 +196,8 @@
                 <a
                   (click)="drawerNavigation = false"
                   routerLink="manage-targets"
-                  routerLinkActive="bg-emerald-400 !text-zinc-900"
-                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                  routerLinkActive="bg-zinc-200 !text-zinc-900"
+                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
                 >
                   <span class="flex-1 text-left">
                     <i class="pi pi-bullseye px-2"></i> Manage Targets
@@ -203,8 +210,8 @@
               <a
                 (click)="drawerNavigation = false"
                 routerLink="orders/order-dashboard"
-                routerLinkActive="bg-emerald-400 !text-zinc-900"
-                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                routerLinkActive="bg-zinc-200 !text-zinc-900"
+                class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
               >
                 <span class="flex-1 text-left">
                   <i class="pi pi-clipboard px-2"></i> Orders
@@ -217,8 +224,8 @@
                 <a
                   (click)="drawerNavigation = false; toggleMenu('users')"
                   routerLink="/all-users"
-                  routerLinkActive="bg-emerald-400 !text-zinc-900"
-                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-emerald-400 hover:!text-zinc-900 dark:hover:bg-emerald-400 group w-full"
+                  routerLinkActive="bg-zinc-200 !text-zinc-900"
+                  class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
                 >
                   <span class="flex-1 text-left">
                     <i class="pi pi-user px-2"></i> Users
@@ -236,10 +243,10 @@
       <div class="flex justify-between gap-4 items-center">
         <div class="flex justify-start gap-3">
           <p-avatar
-            label="{{ userName.charAt(0) || 'G' | titlecase }}"
+            image="user.svg"
             shape="circle"
             size="large"
-            class="!bg-emerald-500 border-1 dark:border-emerald-600 !text-white text-semibold"
+            class="w-8 h-8"
           />
           <div class="username">
             <h2 class="font-semibold">Welcome! 👋</h2>
@@ -256,7 +263,7 @@
             pTooltip="Logout"
             tooltipPosition="top"
             (onClick)="logOut()"
-            severity="primary"
+            severity="contrast"
             [rounded]="true"
           />
         </div>

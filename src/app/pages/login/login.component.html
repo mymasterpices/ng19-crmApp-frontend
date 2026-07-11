@@ -1,4 +1,4 @@
-<div class="flex min-h-screen justify-center items-center ">
+<div class="flex min-h-screen justify-center items-center">
   <div
     class="flex items-start justify-between flex-col min-h-screen p-[4rem] max-sm:px-5 w-full max-sm:py-16"
   >
@@ -7,52 +7,61 @@
     </div>
     <div class="w-100 max-sm:w-full">
       <form [formGroup]="loginFrom" (ngSubmit)="onSubmit()">
-        <p-floatlabel variant="on" class="mb-5">
-          <input
-            pInputText
-            formControlName="username"
-            id="username"
-            type="text"
-            class="w-full"
-            autocomplete="off"
-          />
-          <label for="username" class="block font-normal mb-1">Username</label>
+        <!-- Username  -->
+        <div class="fieldset">
+          <p-floatlabel variant="in" class="mb-5">
+            <input
+              pInputText
+              formControlName="username"
+              id="username"
+              type="text"
+              class="w-full"
+              autocomplete="off"
+            />
+            <label for="username" class="block font-normal mb-1"
+              >Username</label
+            >
 
-          @if (
-            loginFrom.get("username")?.invalid &&
-            loginFrom.get("username")?.touched
-          ) {
-            <p class="text-red-500 text-xs">Username is required</p>
-          }
-        </p-floatlabel>
+            @if (
+              loginFrom.get("username")?.invalid &&
+              loginFrom.get("username")?.touched
+            ) {
+              <p class="text-red-500 text-xs">Username is required</p>
+            }
+          </p-floatlabel>
+        </div>
 
-        <p-floatlabel variant="on" class="mb-5">
-          <p-password
-            formControlName="password"
-            [toggleMask]="true"
-            [feedback]="false"
-            class="w-full"
-            inputStyleClass="w-full"
-            styleClass="w-full "
-            autocomplete="off"
-          >
-          </p-password>
-          <label for="password" class="block text-md font-normal mb-1"
-            >Password</label
-          >
-          @if (
-            loginFrom.get("password")?.invalid &&
-            loginFrom.get("password")?.touched
-          ) {
-            <p class="text-red-500 text-xs">Password is required</p>
-          }
-        </p-floatlabel>
-
+        <!-- Password -->
+        <div class="fieldset">
+          <p-floatlabel variant="in" class="mb-5">
+            <p-password
+              formControlName="password"
+              [toggleMask]="true"
+              [feedback]="false"
+              class="w-full"
+              inputStyleClass="w-full"
+              styleClass="w-full "
+              autocomplete="off"
+            >
+            </p-password>
+            <label for="password" class="block text-md font-normal mb-1"
+              >Password</label
+            >
+            @if (
+              loginFrom.get("password")?.invalid &&
+              loginFrom.get("password")?.touched
+            ) {
+              <p class="text-red-500 text-xs">Password is required</p>
+            }
+          </p-floatlabel>
+        </div>
+        <!-- submit button   -->
         <p-button
           label="Sign In"
           styleClass="w-full"
           type="submit"
-          severity="primary"
+          size="large"
+          severity="contrast"
         ></p-button>
       </form>
       <div class="flex">

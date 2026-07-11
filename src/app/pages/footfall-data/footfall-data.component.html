@@ -17,7 +17,7 @@
       optionValue="value"
       aria-labelledby="basic"
     />
-    <p-floatlabel variant="on">
+    <p-floatlabel variant="in">
       <p-datepicker
         [(ngModel)]="rangeDates"
         (ngModelChange)="onDateChange()"
@@ -29,19 +29,19 @@
         (onClearClick)="onClearDate()"
         styleClass="w-full md:w-[230px]"
       ></p-datepicker>
-      <label>CUSTOM DATE</label>
+      <label>Custom Range</label>
     </p-floatlabel>
 
-   @if(userRole !== 'user') {
-     <p-button
-      icon="pi pi-plus"
-      pTooltip="Add New Entry"
-      tooltipPosition="left"
-      severity="primary"
-      (click)="addEntryVisible()"
-      [rounded]="true"
-    ></p-button>
-   }
+    @if (userRole !== "user") {
+      <p-button
+        icon="pi pi-plus"
+        pTooltip="Add New Entry"
+        tooltipPosition="left"
+        severity="contrast"
+        (click)="addEntryVisible()"
+        [rounded]="true"
+      ></p-button>
+    }
   </div>
 </div>
 
@@ -55,8 +55,7 @@
     <section class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-lg font-semibold">Staff Accountability</h2>
-          <span class="text-sm text-gray-500"
+          <span class="text-gray-700"
             >Footfall entries vs customer enquiry — {{ rangeLabel }}</span
           >
         </div>
@@ -269,7 +268,7 @@
       <p-button
         type="submit"
         label="Save"
-        severity="primary"
+        severity="contrast"
         icon="pi pi-check"
       ></p-button>
     </div>

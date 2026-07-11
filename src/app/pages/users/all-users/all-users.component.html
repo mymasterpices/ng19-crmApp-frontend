@@ -2,12 +2,12 @@
 <div class="flex justify-between items-center">
   <div class="wrapper flex justify-between gap-3">
     <h2 class="text-xl font-semibold max-md:hidden">All Users</h2>
-    <p-floatlabel variant="on">
+
+    <p-floatlabel variant="in">
       <input
         #searchInput
         pInputText
         autocomplete="off"
-        pSize="small"
         (input)="getAllCustomer(searchInput.value)"
       />
       <label>Search Customer</label>
@@ -16,9 +16,9 @@
   <p-button
     icon="pi pi-plus"
     class="right-3"
-    severity="primary"
-    label="Add New"
-    size="small"
+    severity="contrast"
+    size="large"
+    rounded="true"
     (onClick)="displayBasic = true"
   ></p-button>
 </div>
@@ -29,7 +29,6 @@
     <p-table
       [value]="allUsers()"
       stripedRows
-      size="small"
       [paginator]="true"
       [rows]="15"
       [rowsPerPageOptions]="[15, 30, 45]"
@@ -79,7 +78,7 @@
             <td>
               <p-button
                 [text]="true"
-                severity="primary"
+                severity="contrast"
                 icon="pi pi-ellipsis-h"
                 pTooltip="Action"
                 tooltipPosition="bottom"
@@ -139,10 +138,9 @@
       <!-- Update Button -->
       <div class="flex gap-4">
         <p-button
-          severity="primary"
+          severity="contrast"
           label="Update"
           type="submit"
-          size="small"
           icon="pi pi-check"
           [disabled]="changePasswordForm.invalid"
         ></p-button>

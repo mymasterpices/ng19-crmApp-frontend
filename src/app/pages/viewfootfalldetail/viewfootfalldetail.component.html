@@ -27,14 +27,13 @@
     <p-table
       [value]="filteredFootEntries()"
       [paginator]="true"
-      [rows]="31 "
+      [rows]="31"
       [rowsPerPageOptions]="[30, 50, 70, 100]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
       [sortField]="'timestamp'"
       [sortOrder]="-1"
       stripedRows
-      size="small"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -99,9 +98,8 @@
           <td>
             <p-button
               icon="pi pi-pencil"
-              severity="primary"
+              severity="contrast"
               [text]="true"
-              size="small"
               (onClick)="openEdit($event, rowOp, entry)"
             />
 
@@ -142,10 +140,9 @@
                   </p-floatlabel>
 
                   <p-button
-                    severity="primary"
+                    severity="contrast"
                     label="Update"
                     icon="pi pi-check"
-                    size="small"
                     (onClick)="onSubmit(entry._id, rowOp)"
                   />
                 </div>
@@ -159,7 +156,6 @@
               icon="pi pi-trash"
               severity="danger"
               [text]="true"
-              size="small"
               (onClick)="deleteEntry(entry)"
             />
           </td>

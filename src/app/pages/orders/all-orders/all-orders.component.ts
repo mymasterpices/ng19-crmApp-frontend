@@ -23,6 +23,7 @@ import { DrawerModule } from 'primeng/drawer';
 import { NewOrderComponent } from '../new-order/new-order.component';
 import { AuthService } from '../../../services/auth.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-all-orders',
@@ -33,8 +34,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     InputTextModule,
     AccordionModule,
     CardModule,
-    IconField,
-    InputIcon,
     ImageModule,
     PopoverModule,
     PaginatorModule,
@@ -43,6 +42,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     DrawerModule,
     NewOrderComponent,
     ConfirmDialogModule,
+    FloatLabelModule,
   ],
   templateUrl: './all-orders.component.html',
   styleUrl: './all-orders.component.css',

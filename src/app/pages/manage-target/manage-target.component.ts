@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -18,6 +18,7 @@ import { CardModule } from 'primeng/card';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { TargetViewComponent } from '../target-view/target-view.component';
 import { TargetService } from '../../services/target/target.service';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-manage-target',
@@ -32,6 +33,7 @@ import { TargetService } from '../../services/target/target.service';
     CardModule,
     FloatLabelModule,
     TargetViewComponent,
+    TableModule,
   ],
   providers: [MessageService],
   templateUrl: './manage-target.component.html',
@@ -44,8 +46,12 @@ export class ManageTargetComponent implements OnInit {
   targetForm!: FormGroup;
   isSaving = false;
 
+  tableData: any[] = [];
+  msg = signal('');
+
   ngOnInit(): void {
     this.initForm();
+    this.getAllTargetData();
   }
 
   initForm(): void {
@@ -90,6 +96,7 @@ export class ManageTargetComponent implements OnInit {
 
         this.isSaving = false;
         this.targetForm.reset({ targetDate: new Date() });
+        this.getAllTargetData();
       },
       error: (err) => {
         this._messageService.add({
@@ -98,6 +105,37 @@ export class ManageTargetComponent implements OnInit {
           detail: err.error?.message || 'Failed to save target.',
         });
         this.isSaving = false;
+      },
+    });
+  }
+
+  refresh() {
+    this.getAllTargetData();
+  }
+
+  //getAll target data for the month
+  getAllTargetData() {
+    this._targetService.getTargetData().subscribe({
+      next: (response: any) => {
+        this.tableData = response.data.map((item: any) => ({
+          monthYear: `${item.month}/${item.year}`,
+          targets: {
+            gold_weight: item.targets?.gold_weight || 0,
+            diamond_weight: item.targets?.diamond_weight || 0,
+            stone_weight: item.targets?.stone_weight || 0,
+          },
+          achievements: {
+            gold_weight: item.achievements?.gold_weight || 0,
+            diamond_weight: item.achievements?.diamond_weight || 0,
+            stone_weight: item.achievements?.stone_weight || 0,
+          },
+        }));
+
+        this.msg.set(`Data refreshed at ${new Date().toLocaleTimeString()}`);
+      },
+      error: (error: any) => {
+        console.error('Error fetching target data:', error);
+        this.msg.set('Error fetching target data');
       },
     });
   }

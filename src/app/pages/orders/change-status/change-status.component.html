@@ -19,17 +19,24 @@
   </div> -->
 
   <div class="w-full">
-    <p-iconfield class="w-full">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        type="text"
-        pInputText
-        [(ngModel)]="searchOrderNum"
-        placeholder="Search or Scan order number"
-        class="w-full border-round-lg"
-        (input)="searchByOrderNum($event)"
-      />
-    </p-iconfield>
+    <div class="feildset flex flex-col gap-1 w-full">
+      <p-iconfield class="w-full">
+        <p-floatlabel variant="in">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchOrderNum"
+            class="w-full border-round-lg"
+            (input)="searchByOrderNum($event)"
+          />
+          <label>Search order no.</label>
+        </p-floatlabel>
+        <p-inputicon styleClass="pi pi-search" />
+      </p-iconfield>
+    </div>
+    @if (hasSearched && !isLoading && orderDetails().length === 0) {
+      <p class="text-red-500 text-sm mt-1">No orders found</p>
+    }
   </div>
 </div>
 
@@ -100,14 +107,14 @@
                 label="Edit"
                 icon="pi pi-pencil"
                 [text]="true"
-                severity="primary"
+                severity="contrast"
                 (onClick)="onEdit(order._id)"
               ></p-button>
               <p-button
                 label="Share"
                 icon="pi pi-share-alt"
                 [text]="true"
-                severity="primary"
+                severity="contrast"
                 (onClick)="getPDF(order._id)"
               ></p-button>
             </div>

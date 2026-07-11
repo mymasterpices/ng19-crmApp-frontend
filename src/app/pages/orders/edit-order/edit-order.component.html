@@ -7,8 +7,7 @@
       <p-button
         icon="pi pi-share-alt"
         label="Share"
-        size="small"
-        severity="primary"
+        severity="contrast"
         (onClick)="getPDF(editOrderid())"
       >
       </p-button>
@@ -232,8 +231,7 @@
             label="Update Order"
             icon="pi pi-shopping-cart"
             type="submit"
-            size="small"
-            severity="primary"
+            severity="contrast"
             styleClass="w-full"
             [loading]="isSaving()"
             [disabled]="productForm.invalid"

@@ -20,7 +20,7 @@
           <p-button
             icon="pi pi-search"
             type="submit"
-            severity="primary"
+            severity="secondary"
             [disabled]="!searchForm.valid"
             [rounded]="true"
           ></p-button>
@@ -33,7 +33,6 @@
         #searchInput
         pInputText
         autocomplete="off"
-        pSize="small"
         (input)="getSearchCustomer(searchInput.value)"
         class="w-full md:w-32rem"
         styleClass="w-full"
@@ -43,9 +42,10 @@
   }
   <p-button
     icon="pi pi-plus"
-    severity="primary"
+    severity="contrast"
     (click)="addNewCustomer = true"
     [rounded]="true"
+    class="ml-2"
   ></p-button>
 </div>
 <div
@@ -147,7 +147,7 @@
 
 <!-- add new customer -->
 <p-drawer
-  header="Add New Customer"
+  header="Enter Customer Info"
   [(visible)]="addNewCustomer"
   position="bottom"
   [style]="{ height: '100%', width: '25%' }"

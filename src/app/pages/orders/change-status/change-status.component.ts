@@ -27,6 +27,7 @@ import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import { ShareOrderService } from '../../../services/orders/share-order.service';
 import { ScannerService } from '../../../services/scanner/scanner.service';
+import { FloatLabelModule } from "primeng/floatlabel";
 
 @Component({
   selector: 'app-change-status',
@@ -43,7 +44,8 @@ import { ScannerService } from '../../../services/scanner/scanner.service';
     TagModule,
     PopoverModule,
     ImageModule,
-  ],
+    FloatLabelModule
+],
   templateUrl: './change-status.component.html',
   styleUrl: './change-status.component.css',
 })

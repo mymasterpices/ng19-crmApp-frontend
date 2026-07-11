@@ -7,7 +7,6 @@
         (onClick)="visible = true"
         severity="secondary"
         label="Upload"
-        size="small"
       >
       </p-button>
     }
@@ -15,9 +14,8 @@
     <p-button
       icon="pi pi-hourglass"
       routerLink="/products/compare"
-      severity="primary"
+      severity="contrast"
       label="Compare"
-      size="small"
     >
     </p-button>
   </div>
@@ -27,14 +25,15 @@
   <div class="w-full md:w-[600px] flex justify-center items-center">
     <div class="my-2 w-full">
       <form [formGroup]="searchFrom" (ngSubmit)="search()">
-        <div class="my-2">
-          <p-floatlabel variant="on">
+        <div class="feildset my-2">
+          <p-floatlabel variant="in">
             <input
               type="text"
               pInputText
               formControlName="jewel_code"
               class="w-full"
               (change)="search()"
+              clear
             />
             <label for="jewel_code">Enter Tag No.</label>
           </p-floatlabel>
@@ -311,10 +310,9 @@
     <p-button
       type="submit"
       [label]="isUploading()"
-      severity="primary"
+      severity="contrast"
       [disabled]="!selectedFile || isUploading() !== 'Upload'"
       styleClass="w-auto"
-      size="small"
     ></p-button>
   </form>
 </p-dialog>

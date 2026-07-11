@@ -11,7 +11,6 @@
         pInputText
         autocomplete="off"
         (input)="getSavedFootfallEntries(searchInput.value)"
-        pSize="small"
       />
       <label>Sales Staff</label>
     </p-floatlabel>
@@ -27,7 +26,6 @@
         monthNavigator="true"
         yearNavigator="true"
         yearRange="2020:2030"
-        size="small"
         [showClear]="true"
       ></p-datepicker>
       <label>For Month</label>
@@ -40,7 +38,7 @@
     <p-button
       icon="pi pi-plus"
       (click)="openDialog()"
-      severity="primary"
+      severity="contrast"
       pTooltip="New Entry"
       tooltipPosition="left"
       [rounded]="true"
@@ -83,7 +81,6 @@
       (onLazyLoad)="loadDataLazy($event)"
       [loading]="loading()"
       stripedRows
-      size="small"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -156,7 +153,7 @@
         type="submit"
         [label]="isUploading()"
         iconPos="right"
-        severity="primary"
+        severity="contrast"
         [disabled]="!selectedFile || isUploading() === 'Processing...'"
       ></p-button>
     </div>
@@ -221,7 +218,7 @@
     </div>
 
     <div class="flex justify-end mt-4">
-      <p-button type="submit" label="Save" severity="primary"></p-button>
+      <p-button type="submit" label="Save" severity="contrast"></p-button>
     </div>
   </form>
 </p-dialog>

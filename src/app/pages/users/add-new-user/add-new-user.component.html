@@ -1,71 +1,79 @@
 <form action="" [formGroup]="saveNewUser" (ngSubmit)="onSubmit()" class="p-2">
   <div class="grid grid-cols-1 gap-4">
-    <p-floatlabel variant="on">
-      <input
-        pInputText
-        id="value3"
-        class="ng-dirty ng-invalid"
-        class="w-full"
-        formControlName="username"
-        autocomplete="off"
-      />
-      <label for="value3">Username</label>
+    <!-- username -->
+    <div class="fieldset">
+      <p-floatlabel variant="in">
+        <input
+          pInputText
+          id="value3"
+          class="ng-dirty ng-invalid"
+          class="w-full"
+          formControlName="username"
+          autocomplete="off"
+        />
+        <label for="value3">Username</label>
 
-      @if (
-        saveNewUser.controls["username"].hasError("required") &&
-        saveNewUser.controls["username"].touched
-      ) {
-        <small class="text-red-400 pl-1 block relative"
-          >Username is required.</small
-        >
-      }
-      @if (saveNewUser.controls["username"].hasError("minlength")) {
-        <small class="text-red-400 pl-1 block relative"
-          >Username must be at least 3 characters.</small
-        >
-      }
-    </p-floatlabel>
-    <p-floatlabel variant="on">
-      <p-password
-        [feedback]="false"
-        toggleMask="true"
-        id="value3"
-        class="w-full"
-        styleClass="w-full "
-        inputStyleClass="w-full"
-        formControlName="password"
-        autocomplete="off"
-      />
-      <label for="value3">Password</label>
-      @if (
-        saveNewUser.controls["password"].hasError("required") &&
-        saveNewUser.controls["password"].touched
-      ) {
-        <small class="text-red-400 pl-1 block relative"
-          >Password is required.</small
-        >
-      }
-      @if (saveNewUser.controls["password"].hasError("minlength")) {
-        <small class="text-red-400 pl-1 block relative"
-          >Password must be at least 3 characters.</small
-        >
-      }
-    </p-floatlabel>
-    <p-floatlabel>
-      <p-select
-        [options]="roles"
-        optionLabel="name"
-        value="name"
-        formControlName="role"
-        class="w-full"
-      />
-    </p-floatlabel>
+        @if (
+          saveNewUser.controls["username"].hasError("required") &&
+          saveNewUser.controls["username"].touched
+        ) {
+          <small class="text-red-400 pl-1 block relative"
+            >Username is required.</small
+          >
+        }
+        @if (saveNewUser.controls["username"].hasError("minlength")) {
+          <small class="text-red-400 pl-1 block relative"
+            >Username must be at least 3 characters.</small
+          >
+        }
+      </p-floatlabel>
+    </div>
+    <!-- password -->
+    <div class="fieldset">
+      <p-floatlabel variant="in">
+        <p-password
+          [feedback]="false"
+          toggleMask="true"
+          id="value3"
+          class="w-full"
+          styleClass="w-full "
+          inputStyleClass="w-full"
+          formControlName="password"
+          autocomplete="off"
+        />
+        <label for="value3">Password</label>
+        @if (
+          saveNewUser.controls["password"].hasError("required") &&
+          saveNewUser.controls["password"].touched
+        ) {
+          <small class="text-red-400 pl-1 block relative"
+            >Password is required.</small
+          >
+        }
+        @if (saveNewUser.controls["password"].hasError("minlength")) {
+          <small class="text-red-400 pl-1 block relative"
+            >Password must be at least 3 characters.</small
+          >
+        }
+      </p-floatlabel>
+    </div>
+
+    <div class="fieldset">
+      <p-floatlabel variant="in">
+        <p-select
+          [options]="roles"
+          optionLabel="name"
+          value="name"
+          formControlName="role"
+          class="w-full"
+        />
+      </p-floatlabel>
+    </div>
     <p-button
       label="Save"
       styleClass="w-auto"
       icon="pi pi-save"
-      severity="primary"
-      size="small"
+      severity="contrast"
       type="submit"
     ></p-button>
   </div>

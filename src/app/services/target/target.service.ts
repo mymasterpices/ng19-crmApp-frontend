@@ -27,4 +27,9 @@ export class TargetService {
       {},
     );
   }
+
+  //fetch entire target data for a month
+  getTargetData() {
+    return this.http.get(`${this.appUrl}/api/targets`);
+  }
 }

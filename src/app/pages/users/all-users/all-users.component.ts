@@ -25,6 +25,8 @@ import { HttpParams } from '@angular/common/http';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AvatarModule } from "primeng/avatar";
+import { InputIconModule } from "primeng/inputicon";
+import { IconFieldModule } from "primeng/iconfield";
 
 @Component({
   selector: 'app-all-users',
@@ -45,6 +47,8 @@ import { AvatarModule } from "primeng/avatar";
     FormsModule,
     InputTextModule,
     AvatarModule,
+    InputIconModule,
+    IconFieldModule
 ],
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',

@@ -2,7 +2,8 @@
 <div class="flex justify-between items-center">
   <div class="wrapper flex justify-between gap-3">
     <h2 class="text-xl font-semibold max-md:hidden">Sold List</h2>
-    <p-floatlabel variant="on">
+
+    <p-floatlabel variant="in">
       <input
         #searchInput
         pInputText
@@ -16,9 +17,9 @@
     icon="pi pi-plus"
     class="right-3"
     routerLink="/sold-items/sold-entry"
-    severity="primary"
-    label="Add New"
-    size="small"
+    severity="contrast"
+    size="large"
+    rounded="true"
   >
   </p-button>
 </div>
@@ -32,7 +33,6 @@
       [rowsPerPageOptions]="[10, 20, 30]"
       responsiveLayout="scroll"
       stripedRows
-      size="small"
     >
       <!-- Table Header -->
       <ng-template pTemplate="header">
@@ -67,7 +67,6 @@
               @if (item.products.length > 1) {
                 <p-badge
                   severity="contrast"
-                  size="small"
                   [value]="'+' + (item.products.length - 1)"
                   class="absolute top-0 left-0"
                 />
@@ -160,7 +159,6 @@
                 class="p-button-text"
                 text="true"
                 severity="danger"
-                size="small"
                 (onClick)="deleteSoldItem(item._id)"
                 [rounded]="true"
               >

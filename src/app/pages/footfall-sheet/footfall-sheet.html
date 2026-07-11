@@ -3,9 +3,8 @@
   <h2 class="text-xl font-semibold">Footfall Report</h2>
   <p-button
     icon="pi pi-refresh"
-    severity="primary"
+    severity="contrast"
     label="Re-Sync"
-    size="small"
     [loading]="loading()"
     (onClick)="loadData()"
   ></p-button>
@@ -111,7 +110,6 @@
         scrollHeight="600px"
         styleClass="p-datatable-striped p-datatable-gridlines w-full overflow-x-auto"
         showGridlines
-        size="small"
       >
         <ng-template pTemplate="header">
           <!-- Row 1: Date (frozen) + Salesperson group headers -->

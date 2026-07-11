@@ -3,8 +3,7 @@
   <p-button
     icon="pi pi-clipboard"
     label="New Order"
-    severity="primary"
-    size="small"
+    severity="contrast"
     (click)="drawerVisible = true"
   />
 </section>
@@ -25,7 +24,6 @@
           <p-button
             [severity]="tag.severity"
             [badge]="tag.count"
-            size="small"
             [routerLink]="'/orders/all-orders/' + tag.name.toLowerCase()"
             [label]="tag.name | titlecase"
             class="px-3 py-2"
@@ -62,15 +60,13 @@
     <p-button
       icon="pi pi-align-center"
       label="Orders"
-      severity="primary"
+      severity="contrast"
       routerLink="/orders/all-orders"
-      size="small"
     />
     <p-button
       icon="pi pi-qrcode"
       label="Change Status"
       severity="info"
-      size="small"
       routerLink="/orders/change-status"
     />
     @if (userRole === "superadmin") {
@@ -78,7 +74,6 @@
         icon="pi pi-user-edit"
         label="Masters"
         severity="secondary"
-        size="small"
         (onClick)="masterdrawerVisible = true"
       />
     }
@@ -114,23 +109,24 @@
       </p-tablist>
       <p-tabpanels class="!p-0 mt-1">
         <p-tabpanel value="0">
-          <p-floatlabel variant="on" class="my-4">
-            <input
-              pInputText
-              #categoryInput
-              id="value3"
-              class="w-full"
-              styleClass="w-full"
-            />
-            <label for="value3">Add category</label>
-          </p-floatlabel>
+          <div class="fieldset">
+            <p-floatlabel variant="in" class="my-4">
+              <input
+                pInputText
+                #categoryInput
+                id="value3"
+                class="w-full"
+                styleClass="w-full"
+              />
+              <label for="value3">Add category</label>
+            </p-floatlabel>
+          </div>
 
           <p-button
             label="Save"
-            severity="primary"
+            severity="contrast"
             class="w-full"
             icon="pi pi-save"
-            size="small"
             [loading]="saveLoading"
             (onClick)="saveNewCategory(categoryInput)"
           >

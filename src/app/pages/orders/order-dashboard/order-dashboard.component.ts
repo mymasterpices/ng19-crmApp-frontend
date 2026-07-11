@@ -82,7 +82,7 @@ export class OrderDashboardComponent implements OnInit {
       case 'received':
         return 'info';
       case 'issued':
-        return 'secondary';
+        return 'success';
       case 'dispatched':
         return 'success';
       case 'cancelled':

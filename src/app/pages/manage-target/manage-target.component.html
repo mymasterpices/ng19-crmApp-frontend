@@ -1,6 +1,6 @@
 <p-toast position="bottom-center"></p-toast>
 
-<div class="mx-auto">
+<div class="mx-auto pb-6">
   <div class="flex items-center gap-4 mb-6">
     <div
       class="w-12 h-12 rounded-4xl bg-gray-900 dark:bg-gray-800 text-white flex items-center justify-center shadow-lg"
@@ -36,14 +36,15 @@
 
       <div class="grid grid-cols-1 gap-8 mt-2">
         <!-- Target Month/Year -->
-        <div class="flex flex-col gap-1">
-          <p-floatlabel variant="on">
+        <div class="fieldset flex flex-col gap-1">
+          <p-floatlabel variant="in">
             <p-datePicker
               id="targetDate"
               formControlName="targetDate"
               view="month"
               dateFormat="mm/yy"
               styleClass="w-full"
+              showClear
             >
             </p-datePicker>
             <label for="targetDate">Target Month/Year</label>
@@ -75,8 +76,8 @@
         <!-- Sales Amount -->
 
         <!-- Gold Weight -->
-        <div class="flex flex-col gap-1">
-          <p-floatlabel variant="on">
+        <div class="fieldset flex flex-col gap-1">
+          <p-floatlabel variant="in">
             <p-inputNumber
               id="gold_weight"
               formControlName="gold_weight"
@@ -97,8 +98,8 @@
         </div>
 
         <!-- Diamond Weight -->
-        <div class="flex flex-col gap-1">
-          <p-floatlabel variant="on">
+        <div class="fieldset flex flex-col gap-1">
+          <p-floatlabel variant="in">
             <p-inputNumber
               id="diamond_weight"
               formControlName="diamond_weight"
@@ -119,8 +120,8 @@
         </div>
 
         <!-- Stone Units -->
-        <div class="flex flex-col gap-1">
-          <p-floatlabel variant="on">
+        <div class="fieldset flex flex-col gap-1">
+          <p-floatlabel variant="in">
             <p-inputNumber
               id="stone_weight"
               formControlName="stone_weight"
@@ -146,17 +147,14 @@
           severity="secondary"
           variant="text"
           (onClick)="targetForm.reset()"
-          size="small"
         >
         </p-button>
         <p-button
           type="submit"
           label="Save Target"
-          size="small"
           icon="pi pi-check"
           [loading]="isSaving"
-          [disabled]="targetForm.invalid"
-          severity="primary"
+          severity="contrast"
           styleClass="rounded-xl px-8"
         >
         </p-button>
@@ -164,7 +162,59 @@
     </p-card>
   </form>
 </div>
-<hr
-  class="mb-0 mt-6 border-gray-300 dark:border-gray-700 text-center mx-auto"
-/>
+
 <app-target-view></app-target-view>
+
+<!-- show all tagets and achievements -->
+<p-card class="card p-4">
+  <div class="flex justify-between gap-2">
+    <h3 class="text-lg font-bold mb-4">Target vs Achievement Report</h3>
+    <div class="info flex gap-3 items-center">
+      <small class="text-gray-400 text-xs">{{ msg() }}</small>
+      <p-button
+        icon="pi pi-refresh"
+        class="ml-auto"
+        rounded
+        severity="secondary"
+        (click)="refresh()"
+      ></p-button>
+    </div>
+  </div>
+
+  <p-table
+    [value]="tableData"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-gridlines"
+    stripedRows
+  >
+    <ng-template pTemplate="header">
+      <tr class="bg-gray-100">
+        <th>Month/Year</th>
+        <th>Metric</th>
+        <th>Target</th>
+        <th>Achievement</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td rowspan="3" class="font-bold">{{ row.monthYear }}</td>
+        <td>Gold Weight</td>
+        <td>{{ row.targets.gold_weight | number }} <small>kg</small></td>
+        <td>{{ row.achievements.gold_weight | number }} <small>kg</small></td>
+      </tr>
+      <tr>
+        <td>Diamond Weight</td>
+        <td>{{ row.targets.diamond_weight | number }} <small>ct</small></td>
+        <td>
+          {{ row.achievements.diamond_weight | number }} <small>ct</small>
+        </td>
+      </tr>
+      <tr>
+        <td>Stone Weight</td>
+        <td>{{ row.targets.stone_weight | number }} <small>ct</small></td>
+        <td>{{ row.achievements.stone_weight | number }} <small>ct</small></td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
