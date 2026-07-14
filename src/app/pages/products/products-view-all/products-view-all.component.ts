@@ -126,15 +126,19 @@ export class ProductsViewAllComponent {
 
   // --- Calculation Methods ---
   getTotalDiamondAmount(diamonds: any[]): number {
-    return (diamonds || []).reduce((total, d) => total + (d.amount || 0), 0);
+    return (diamonds || []).reduce((total, d) => total + (d.dia_amt || 0), 0);
   }
   getTotaldiamondWeight(diamonds: any[]): number {
-    return (diamonds || []).reduce((total, d) => total + (d.weight || 0), 0);
+    return (diamonds || []).reduce((total, d) => total + (d.dia_wt || 0), 0);
+  }
+
+  getTotalStoneWeight(stones: any[]): number {
+    return (stones || []).reduce((total, s) => total + (s.stone_wt || 0), 0);
   }
 
   getTotalStoneAmount(stones: any[]): number {
     return (stones || []).reduce(
-      (total, s) => total + (s.colour_stone_amt || 0),
+      (total, s) => total + (s.stone_amt || 0),
       0,
     );
   }

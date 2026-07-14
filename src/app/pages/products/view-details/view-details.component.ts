@@ -152,20 +152,20 @@ export class ViewDetailsComponent implements OnInit {
     // 4. Default to 0 if no charges exist
     return 0;
   }
-
-  getTotalDiamondAmount(diamonds: any[]) {
-    if (!diamonds) return 0;
-    return diamonds.reduce((total, d) => total + (d.amount || 0), 0);
+  // --- Calculation Methods ---
+  getTotalDiamondAmount(diamonds: any[]): number {
+    return (diamonds || []).reduce((total, d) => total + (d.dia_amt || 0), 0);
+  }
+  getTotaldiamondWeight(diamonds: any[]): number {
+    return (diamonds || []).reduce((total, d) => total + (d.dia_wt || 0), 0);
   }
 
-  getTotaldiamondWeight(diamonds: any[]) {
-    if (!diamonds) return 0;
-    return diamonds.reduce((total, d) => total + (d.weight || 0), 0);
+  getTotalStoneWeight(stones: any[]): number {
+    return (stones || []).reduce((total, s) => total + (s.stone_wt || 0), 0);
   }
 
-  getTotalStoneAmount(stones: any[]) {
-    if (!stones) return 0;
-    return stones.reduce((total, s) => total + (s.colour_stone_amt || 0), 0);
+  getTotalStoneAmount(stones: any[]): number {
+    return (stones || []).reduce((total, s) => total + (s.stone_amt || 0), 0);
   }
 
   calculateGST(item: any): number {

@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <div class="w-full md:w-5/7 py-4">
+  <div class="w-full lg:w-6/7 py-4">
     @for (item of searchResult(); track item.jewel_code) {
       <p-card styleClass="mb-4 bg-white shadow-sm ">
         <div
@@ -98,7 +98,7 @@
                     <th class="p-2 w-[25%]">Description</th>
                     <th class="p-2 text-center w-[12%]">Wt.</th>
                     <th class="p-2 text-center w-[12%]">Pcs.</th>
-                    <th class="p-2 text-center w-[12%]">Size</th>
+                    <th class="p-2 text-center w-[12%]">Size | Shape</th>
                     <th class="p-2 text-center w-[12%]">Rate</th>
                     <th class="p-2 text-center w-[12%]">Qlty</th>
                     <th class="p-2 text-right w-[15%]">Price</th>
@@ -154,10 +154,18 @@
                     @for (dia of item.diamonds; track $index) {
                       <tr class="hover:bg-gray-50/50">
                         <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
-                        <td class="p-2 text-center">{{ dia.weight }} Cts</td>
-                        <td class="p-2 text-center">{{ dia.pieces || "-" }}</td>
-                        <td class="p-2 text-center">{{ dia.size || "-" }}</td>
-                        <td class="p-2 text-center">{{ dia.rate || "-" }}</td>
+                        <td class="p-2 text-center">
+                          {{ dia.dia_amt || "-" }} Cts
+                        </td>
+                        <td class="p-2 text-center">
+                          {{ dia.diamond_pcs || "-" }}
+                        </td>
+                        <td class="p-2 text-center">
+                          {{ dia.dia_size }} | {{ dia.diamond_shape || "-" }}
+                        </td>
+                        <td class="p-2 text-center">
+                          {{ dia.dia_rate || "-" }}
+                        </td>
                         <td class="p-2 text-center font-medium">
                           @if (dia.diamond_colour || dia.diamond_clarity) {
                             {{ dia.diamond_colour || "" }}
@@ -169,7 +177,7 @@
                         <td
                           class="p-2 text-right text-gray-600 dark:text-gray-300"
                         >
-                          {{ dia.amount | number: "1.2-2" }}/-
+                          {{ dia.dia_amt | number: "1.2-2" }}/-
                         </td>
                       </tr>
                     }
@@ -206,21 +214,46 @@
                       <tr class="hover:bg-gray-50/50">
                         <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
                         <td class="p-2 text-center">
-                          {{ stone.colour_stone_wt }} Cts
+                          {{ stone.stone_wt }} Cts
                         </td>
                         <td class="p-2 text-center">
-                          {{ stone.pieces || "-" }}
+                          {{ stone.stone_pcs || "-" }}
                         </td>
-                        <td class="p-2 text-center">{{ stone.size || "-" }}</td>
-                        <td class="p-2 text-center">{{ stone.rate || "-" }}</td>
+                        <td class="p-2 text-center">
+                          {{ stone.stone_shape || "-" }}
+                        </td>
+                        <td class="p-2 text-center">
+                          {{ stone.stone_rate || "-" }}
+                        </td>
                         <td class="p-2 text-center">-</td>
                         <td
                           class="p-2 text-right text-gray-600 dark:text-gray-300"
                         >
-                          {{ stone.colour_stone_amt | number: "1.2-2" }}/-
+                          {{ stone.stone_amt | number: "1.2-2" }}/-
                         </td>
                       </tr>
                     }
+                    <!-- total diamonds -->
+                    <tr
+                      class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
+                    >
+                      <td class="p-2 pl-4">Total Stone (B)</td>
+                      <td class="p-2 text-center">
+                        {{ getTotalStoneWeight(item.stones) | number: "1.2-2" }}
+                        Cts
+                      </td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td
+                        class="p-2 text-right text-gray-900 dark:text-gray-50"
+                      >
+                        {{
+                          getTotalStoneAmount(item.stones) | number: "1.2-2"
+                        }}/-
+                      </td>
+                    </tr>
                   }
 
                   <!-- sub total -->
