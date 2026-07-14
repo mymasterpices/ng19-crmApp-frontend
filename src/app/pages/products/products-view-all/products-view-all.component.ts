@@ -137,10 +137,7 @@ export class ProductsViewAllComponent {
   }
 
   getTotalStoneAmount(stones: any[]): number {
-    return (stones || []).reduce(
-      (total, s) => total + (s.stone_amt || 0),
-      0,
-    );
+    return (stones || []).reduce((total, s) => total + (s.stone_amt || 0), 0);
   }
 
   getMakingChargeAmount(item: any): number {
@@ -193,7 +190,7 @@ export class ProductsViewAllComponent {
         this._messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: `Total ${res.insertedCount} product imported successfully`,
+          detail: `Total ${res.count} product imported successfully`,
         });
         this.isUploading.set('Upload');
         this.visible = false;
