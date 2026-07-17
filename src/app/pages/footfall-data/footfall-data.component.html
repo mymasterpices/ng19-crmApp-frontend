@@ -200,6 +200,127 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════
+         RECENT FOOTFALL ENTRIES (last 10, across all salespeople)
+    ════════════════════════════════════════════════════════ -->
+    <section class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-lg font-semibold">Recent Footfall Entries</h2>
+          <span class="text-sm text-gray-500">Last 10 entries</span>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="h-40 bg-[#1a1d23] rounded-lg animate-pulse"></div>
+      } @else if (recentEntries().length === 0) {
+        <p class="text-sm text-gray-500 py-4">No recent entries found.</p>
+      } @else {
+        <p-card styleClass="p-0 overflow-hidden">
+          <p-table
+            [value]="recentEntries()"
+            styleClass="p-datatable-sm"
+            [rowHover]="true"
+            size="small"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold"
+                >
+                  Date
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold"
+                >
+                  Sales Person
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Footfall
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold text-right"
+                >
+                  Conversion
+                </th>
+                <th
+                  class="text-xs uppercase tracking-wider text-gray-400 font-semibold"
+                >
+                  PC List
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+              <tr
+                [routerLink]="['/footfall/view-footfall-detail/', row.user_id]"
+                class="cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <!-- Date -->
+                <td class="text-sm">{{ formatShortDate(row.date) }}</td>
+
+                <!-- Sales Person -->
+                <td>
+                  <div class="flex items-center gap-2">
+                    <p-avatar
+                      label="{{
+                        row.sales_person?.charAt(0) || 'G' | titlecase
+                      }}"
+                      size="normal"
+                      shape="circle"
+                    ></p-avatar>
+                    <span class="font-semibold text-sm">{{
+                      row.sales_person | titlecase
+                    }}</span>
+                  </div>
+                </td>
+
+                <!-- Footfall -->
+                <td class="text-right">
+                  <span class="font-bold">{{ row.footfall }}</span>
+                </td>
+
+                <!-- Conversion -->
+                <td class="text-right">
+                  <span class="font-bold text-green-500">{{
+                    row.conversion
+                  }}</span>
+                </td>
+
+                <!-- PC List -->
+                <td>
+                  @if (row.pc?.length) {
+                    <div class="flex gap-1 flex-wrap">
+                      @for (tag of getUniquePCTags(row.pc); track tag) {
+                        <p-tag [value]="tag" severity="info"></p-tag>
+                      }
+                      @if (row.pc.length > 3) {
+                        <span class="text-xs text-gray-500"
+                          >+{{ row.pc.length - 3 }}</span
+                        >
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-gray-500 text-xs">—</span>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" class="text-center text-sm text-gray-500 py-6">
+                  No recent entries found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      }
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
          FOOTFALL vs CONVERSION BAR CHART
     ════════════════════════════════════════════════════════ -->
     <section class="mb-8">
@@ -259,7 +380,7 @@
         />
         <label for="icondisplay">Back date entry</label>
       </p-floatlabel>
-      
+
       <p-button
         type="submit"
         label="Save"

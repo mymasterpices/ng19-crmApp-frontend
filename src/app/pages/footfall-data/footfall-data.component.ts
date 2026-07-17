@@ -49,7 +49,6 @@ import { AuthService } from '../../services/auth.service';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
-/** Row in the Staff Footfall Summary table */
 export interface StaffRow {
   salesPerson: string;
   footfall: number;
@@ -57,7 +56,6 @@ export interface StaffRow {
   missed: number;
 }
 
-/** Row in the Staff Accountability table */
 export interface StaffAccountabilityRow {
   user_id: string;
   salesPerson: string;
@@ -67,6 +65,23 @@ export interface StaffAccountabilityRow {
   convRate: number;
   missedCustomers: string[];
   missedCount: number;
+  lastActiveDate: string;
+}
+
+export interface RecentEntryRow {
+  date: string;
+  sales_person: string;
+  footfall: number;
+  conversion: number;
+  pc: string[];
+  user_id: string;
+}
+
+interface PersonAgg {
+  user_id: string;
+  footfall: number;
+  conversion: number;
+  days: Set<string>;
   lastActiveDate: string;
 }
 
@@ -101,19 +116,15 @@ export interface StaffAccountabilityRow {
   styleUrl: './footfall-data.component.css',
 })
 export class FootfallData implements OnInit {
-  // ─── Injected Services ──────────────────────────────────────────────────────
   private svc = inject(FootfallService);
   private cdr = inject(ChangeDetectorRef);
   private http = inject(HttpClient);
   private msg = inject(MessageService);
   private fb = inject(FormBuilder);
-
   private _authService = inject(AuthService);
 
-  //User info from auth service
   userRole = this._authService.getUserRole();
 
-  // ─── Global Filter State ────────────────────────────────────────────────────
   filterOptions = [
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
@@ -121,7 +132,6 @@ export class FootfallData implements OnInit {
   value: 'weekly' | 'monthly' = 'weekly';
   rangeDates: Date[] | undefined;
 
-  // ─── Dialog & Form State ────────────────────────────────────────────────────
   entryFromVisible = false;
   footfallForm: FormGroup = this.fb.group({
     date: new FormControl<Date | null>(null),
@@ -129,7 +139,6 @@ export class FootfallData implements OnInit {
   });
   private salesPersons: any[] = [];
 
-  // ─── KPI Signals ────────────────────────────────────────────────────────────
   totalFootfall = signal<number>(0);
   totalConversion = signal<number>(0);
   conversionRate = signal<number>(0);
@@ -138,27 +147,21 @@ export class FootfallData implements OnInit {
   rateChange = signal<number>(0);
   topPerformer = signal<{ name: string; sales: number } | null>(null);
 
-  // ─── Feed & Table Signals ───────────────────────────────────────────────────
   dailyFeed = signal<FeedEntry[]>([]);
   staffAccountability = signal<StaffAccountabilityRow[]>([]);
+  recentEntries = signal<RecentEntryRow[]>([]);
   rows: StaffRow[] = [];
 
-  // ─── Bar Chart ──────────────────────────────────────────────────────────────
   barChartData = signal<any>(null);
   barChartOptions: any = {};
 
-  // ─── Loading State ──────────────────────────────────────────────────────────
   loading = signal<boolean>(false);
   tableLoading = computed(() => this.loading());
 
-  // ─── Staff Accountability — Separate Date Filter ─────────────────────────────
-  // Filtering the accountability table by a specific date does NOT trigger a
-  // full API reload; we reuse the cached reports/customers instead.
   accountabilityDate: Date | null = null;
   private cachedReports: any = [];
   private cachedCustomers: any = [];
 
-  // ─── KPI Tooltip Copy ───────────────────────────────────────────────────────
   readonly kpiTooltips = {
     totalFootfall:
       'Total visitors who entered the store in the selected period.',
@@ -170,9 +173,6 @@ export class FootfallData implements OnInit {
       'Staff member with the highest confirmed sale count within the active filter period.',
   };
 
-  // ─── Range Labels ───────────────────────────────────────────────────────────
-
-  /** Label for the global date filter (used in KPI cards, chart, feed totals). */
   get rangeLabel(): string {
     if (this.rangeDates?.[0] && this.rangeDates?.[1]) {
       const fmt = (d: Date) =>
@@ -186,11 +186,6 @@ export class FootfallData implements OnInit {
     return this.value === 'weekly' ? 'Last 7 days' : 'Last 30 days';
   }
 
-  /**
-   * Label shown in the Staff Accountability subtitle.
-   * Reflects the accountability-specific date picker when set,
-   * otherwise falls back to the global range label.
-   */
   get accountabilityRangeLabel(): string {
     if (this.accountabilityDate) {
       return this.formatDate(this.accountabilityDate.toISOString());
@@ -198,7 +193,6 @@ export class FootfallData implements OnInit {
     return this.rangeLabel;
   }
 
-  // ─── Computed: Footer Totals for Staff Footfall Summary ────────────────────
   get totalRowFootfall(): number {
     return this.rows.reduce((sum, r) => sum + r.footfall, 0);
   }
@@ -209,12 +203,10 @@ export class FootfallData implements OnInit {
     return this.rows.reduce((sum, r) => sum + r.missed, 0);
   }
 
-  // ─── Form Array Accessor ────────────────────────────────────────────────────
   get form(): FormArray {
     return this.footfallForm.get('form') as FormArray;
   }
 
-  // ─── Range Helpers ──────────────────────────────────────────────────────────
   private get rangeType(): 'weekly' | 'monthly' | 'custom' {
     return this.rangeDates?.[0] && this.rangeDates?.[1] ? 'custom' : this.value;
   }
@@ -240,14 +232,12 @@ export class FootfallData implements OnInit {
     return { start, end };
   }
 
-  // ─── Lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.setupBarChartOptions();
     this.loadSalesPersons();
     this.loadDashboard();
   }
 
-  // ─── Unified Dashboard Load ─────────────────────────────────────────────────
   private loadDashboard(): void {
     this.loading.set(true);
 
@@ -261,25 +251,15 @@ export class FootfallData implements OnInit {
       reports: this.svc.getAllFootfallData().pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ kpis, feed, chart, customers, reports }) => {
-        // Cache reports & customers so the accountability date filter
-        // can rebuild the table without re-fetching.
         this.cachedReports = reports;
         this.cachedCustomers = customers;
 
-        // ① KPI Cards
         this.applyKpis(kpis);
-
-        // ② Recent Entry Feed (last 7 days from API)
         this.dailyFeed.set(feed);
-
-        // ③ Bar Chart
         this.buildBarChart(chart, feed);
-
-        // ④ Staff Accountability (uses accountabilityDate if set)
         this.buildAccountabilityTable(reports, customers);
-
-        // ⑤ Staff Footfall Summary
         this.rows = this.buildSummaryRows(reports);
+        this.buildRecentEntries(reports);
 
         this.loading.set(false);
         this.cdr.markForCheck();
@@ -296,9 +276,6 @@ export class FootfallData implements OnInit {
     });
   }
 
-  // ─── Section Builders ───────────────────────────────────────────────────────
-
-  /** ① Apply KPI response to all KPI signals */
   private applyKpis(k: KpiResponse): void {
     this.totalFootfall.set(k.totalFootfall);
     this.totalConversion.set(k.totalConversion);
@@ -309,7 +286,6 @@ export class FootfallData implements OnInit {
     this.topPerformer.set(k.topPerformer);
   }
 
-  /** ③ Build bar chart — weekly uses feed days, monthly uses full-year buckets */
   private buildBarChart(yearData: YearlyChartData, feed: FeedEntry[]): void {
     if (this.rangeType === 'monthly') {
       const monthLabels = [
@@ -346,7 +322,6 @@ export class FootfallData implements OnInit {
       return;
     }
 
-    // Weekly / custom — use the feed entries chronologically
     const sorted = [...feed].reverse();
     if (sorted.length === 0) {
       this.barChartData.set(null);
@@ -376,22 +351,6 @@ export class FootfallData implements OnInit {
     });
   }
 
-  /**
-   * ④ Staff Accountability
-   *
-   * Filter window:
-   *   • If accountabilityDate is set → single day
-   *   • Otherwise → activeWindow (weekly / monthly / custom)
-   *
-   * Missed formula (FIXED):
-   *   gap   = footfall − conversion
-   *   missed = max(0, gap − leads)
-   *
-   *   Ex 1: footfall=20, conv=15, leads=5  → gap=5,  missed = max(0, 5−5)  = 0
-   *   Ex 2: footfall=30, conv=20, leads=5  → gap=10, missed = max(0, 10−5) = 5
-   *
-   * Sort: most-recent lastActiveDate first, then footfall descending.
-   */
   private buildAccountabilityTable(reports: any, customers: any): void {
     const reportList: any[] = Array.isArray(reports)
       ? reports
@@ -405,7 +364,6 @@ export class FootfallData implements OnInit {
         ? customers.data
         : [];
 
-    // ── Determine filter window ──────────────────────────────────────────────
     let filterStart: Date;
     let filterEnd: Date;
 
@@ -420,23 +378,12 @@ export class FootfallData implements OnInit {
 
     const toDay = (d: string | Date) => new Date(d).toISOString().slice(0, 10);
 
-    // Customers created within the filter window
     const windowCustomers = customerList.filter((c) => {
       const d = new Date(c.createdAt);
       return d >= filterStart && d <= filterEnd;
     });
 
-    // Aggregate per salesperson: footfall, conversion, active days, lastActiveDate
-    const personMap = new Map<
-      string,
-      {
-        user_id: string;
-        footfall: number;
-        conversion: number;
-        days: Set<string>;
-        lastActiveDate: string;
-      }
-    >();
+    const personMap = new Map<string, PersonAgg>();
 
     for (const report of reportList) {
       if (!report.daily_stats) continue;
@@ -453,7 +400,7 @@ export class FootfallData implements OnInit {
             user_id: report.user_id ?? '',
             footfall: 0,
             conversion: 0,
-            days: new Set(),
+            days: new Set<string>(),
             lastActiveDate: day,
           });
         }
@@ -462,7 +409,6 @@ export class FootfallData implements OnInit {
         entry.conversion += stat.conversion || 0;
         entry.days.add(day);
 
-        // Track the most recent day with footfall
         if (day > entry.lastActiveDate) {
           entry.lastActiveDate = day;
         }
@@ -472,20 +418,16 @@ export class FootfallData implements OnInit {
     const rows: StaffAccountabilityRow[] = [];
 
     for (const [spKey, data] of personMap.entries()) {
-      // All customer records attributed to this salesperson in the window
       const myCustomers = windowCustomers.filter(
         (c) => (c.salesperson || '').toLowerCase().trim() === spKey,
       );
 
-      // Customers saved on days where this person had NO footfall entry
       const missedCustomers = myCustomers
         .filter((c) => !data.days.has(toDay(c.createdAt)))
         .map((c) => c.name as string);
 
       const leads = myCustomers.length;
       const gap = data.footfall - data.conversion;
-
-      // FIXED missed calculation: max(0, gap − leads)
       const computedMissedCount = Math.max(0, gap - leads);
 
       rows.push({
@@ -504,7 +446,6 @@ export class FootfallData implements OnInit {
       });
     }
 
-    // Sort: most-recent lastActiveDate first, then higher footfall first
     rows.sort((a, b) => {
       const dateDiff = b.lastActiveDate.localeCompare(a.lastActiveDate);
       return dateDiff !== 0 ? dateDiff : b.footfall - a.footfall;
@@ -514,7 +455,6 @@ export class FootfallData implements OnInit {
     this.cdr.markForCheck();
   }
 
-  /** ⑤ Staff Footfall Summary — filter-aware aggregation */
   private buildSummaryRows(records: any): StaffRow[] {
     const reportList: any[] = Array.isArray(records)
       ? records
@@ -550,46 +490,65 @@ export class FootfallData implements OnInit {
       .sort((a, b) => b.footfall - a.footfall);
   }
 
-  // ─── Event Handlers ─────────────────────────────────────────────────────────
+  private buildRecentEntries(reports: any): void {
+    const reportList: any[] = Array.isArray(reports)
+      ? reports
+      : Array.isArray(reports?.data)
+        ? reports.data
+        : [];
 
-  /** Global filter toggle (Weekly / Monthly) — clears custom date and reloads */
+    const entries: RecentEntryRow[] = [];
+
+    for (const report of reportList) {
+      const name: string = report.sales_person ?? '';
+
+      for (const stat of report.daily_stats ?? []) {
+        if (!stat.footfall && !stat.conversion) continue;
+
+        entries.push({
+          date: stat.date,
+          sales_person: name,
+          footfall: stat.footfall ?? 0,
+          conversion: stat.conversion ?? 0,
+          pc: stat.pc ?? [],
+          user_id: report.user_id ?? '',
+        });
+      }
+    }
+
+    entries.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+
+    this.recentEntries.set(entries.slice(0, 10));
+  }
+
   onFilterChange(): void {
     this.rangeDates = undefined;
     this.loadDashboard();
   }
 
-  /** Global custom date range selected — reload once both ends are picked */
   onDateChange(): void {
     if (this.rangeDates?.[1]) this.loadDashboard();
   }
 
-  /** Clear global custom date range — revert to current filter and reload */
   onClearDate(): void {
     this.rangeDates = undefined;
     this.loadDashboard();
   }
 
-  /**
-   * Accountability-specific date changed.
-   * Rebuilds the accountability table from the cache — NO full API reload.
-   */
   onAccountabilityDateChange(): void {
     this.buildAccountabilityTable(this.cachedReports, this.cachedCustomers);
   }
 
-  /** Clear the accountability date filter — revert to the global window. */
   onClearAccountabilityDate(): void {
     this.accountabilityDate = null;
     this.buildAccountabilityTable(this.cachedReports, this.cachedCustomers);
   }
 
-  // ─── Dialog: Add New Entry ──────────────────────────────────────────────────
-
   addEntryVisible(): void {
     this.entryFromVisible = true;
   }
-
-  // ─── Form: Load Sales Persons & Build Entry Form ────────────────────────────
 
   private loadSalesPersons(): void {
     this.svc.getAllSalesPersons().subscribe({
@@ -616,8 +575,6 @@ export class FootfallData implements OnInit {
       ),
     );
   }
-
-  // ─── Form Submit ────────────────────────────────────────────────────────────
 
   onSubmit(): void {
     if (this.footfallForm.invalid) return;
@@ -692,14 +649,20 @@ export class FootfallData implements OnInit {
     });
   }
 
-  // ─── Utility Methods ────────────────────────────────────────────────────────
-
   formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
+  }
+
+  formatShortDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = d.toLocaleDateString('en-US', { month: 'short' });
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 
   formatChange(val: number): string {
@@ -713,8 +676,6 @@ export class FootfallData implements OnInit {
   getUniquePCTags(pcs: string[]): string[] {
     return [...new Set(pcs)].slice(0, 3);
   }
-
-  // ─── Chart Options Setup ────────────────────────────────────────────────────
 
   private setupBarChartOptions(): void {
     this.barChartOptions = {
