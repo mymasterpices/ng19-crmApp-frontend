@@ -34,6 +34,7 @@ import { PopoverModule } from 'primeng/popover';
 import { CardModule } from 'primeng/card';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { Tooltip } from 'primeng/tooltip';
+import { ChatWidgetComponent } from '../chat-widget/chat-widget.component';
 
 @Component({
   selector: 'app-admin',
@@ -58,6 +59,7 @@ import { Tooltip } from 'primeng/tooltip';
     FormsModule,
     MobileFooterComponent,
     Tooltip,
+    ChatWidgetComponent,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
@@ -67,6 +69,8 @@ export class AdminComponent implements OnInit {
 
   isDark = signal<boolean>(false);
   menuStates: Record<string, boolean> = {};
+  //showchatwindow
+  chatDrawer: boolean = false;
 
   private router = inject(Router);
   private authService = inject(AuthService); // ✅ single service

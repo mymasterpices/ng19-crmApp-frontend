@@ -1,0 +1,15 @@
+@keyframes cw-bounce {
+  0%,
+  60%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.dot {
+  animation: cw-bounce 1.2s infinite ease-in-out;
+}

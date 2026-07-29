@@ -25,6 +25,7 @@
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
     "jwt-decode": "^4.0.0",
+    "marked": "^18.0.7",
     "media-chrome": "^4.14.0",
     "ngx-scanner-qrcode": "^1.7.6",
     "primeicons": "^7.0.0",

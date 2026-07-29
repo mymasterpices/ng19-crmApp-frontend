@@ -1,0 +1,134 @@
+<div class="fixed bottom-20 right-6 z-[1000] font-sans">
+  <!-- Floating launcher -->
+  @if (!isOpen()) {
+    <button
+      type="button"
+      (click)="toggleChat()"
+      aria-label="Open store assistant chat"
+      class="relative grid h-[60px] w-[60px] place-items-center rounded-full bg-gradient-to-br from-amethyst-500 to-amethyst-600 transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300 cursor-pointer"
+    >
+      <span class="absolute rounded-full"></span>
+      <img class="relative z-10 rounded-full" src="./chat.png" alt="" />
+    </button>
+  }
+
+  <!-- Chat panel -->
+  @if (isOpen()) {
+    <section
+      role="dialog"
+      aria-label="Store assistant chat"
+      class="flex h-[580px] max-h-[calc(100vh-96px)] w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[18px] bg-white dark:bg-zinc-950 shadow-[0_20px_50px_rgba(42,39,48,0.22)] animate-cw-rise"
+    >
+      <!-- Header -->
+      <header
+        class="flex items-center justify-between border-b-1 border-zinc-500 bg-gradient-to-r from-amethyst-600 to-amethyst-500 px-4 py-3.5"
+      >
+        <div class="flex items-center gap-2.5">
+          <span
+            class="grid h-9 w-9 place-items-center rounded-full bg-white/15"
+          >
+            <img class="" src="./chat.png" />
+          </span>
+          <div>
+            <p class="m-0 text-sm font-semibold">Store Assistant</p>
+            <p
+              class="mt-0.5 flex items-center gap-1 text-xs text-zinc-700 dark:text-zinc-400"
+            >
+              <span
+                class="h-1.5 w-1.5 rounded-full"
+                [class.bg-emerald-400]="!isLoading()"
+                [class.bg-gold-300]="isLoading()"
+                [class.animate-cw-blink]="isLoading()"
+              ></span>
+              {{ isLoading() ? "Thinking…" : "Online" }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          pButton
+          [text]="true"
+          [rounded]="true"
+          icon="pi pi-times"
+          severity="contrast"
+          (click)="closeChat()"
+          aria-label="Close chat"
+        ></button>
+      </header>
+
+      <!-- Messages -->
+      <div
+        #scrollContainer
+        class="flex flex-1 flex-col gap-3 overflow-y-auto bg-[#faf9f7] p-4 dark:bg-zinc-950"
+      >
+        @for (msg of messages(); track msg.id) {
+          <div class="flex" [class.justify-end]="msg.role === 'user'">
+            @if (msg.role === "assistant") {
+              <div
+                class="prose prose-sm prose-amethyst max-w-[84%] rounded-2xl rounded-bl-md text-zinc-200 bg-zinc-950 dark:bg-zinc-800 px-3.5 py-2.5 text-[13.5px] leading-relaxed"
+                [class.border-amethyst-100]="!msg.isError"
+                [class.bg-amethyst-50]="!msg.isError"
+                [class.border-red-400]="msg.isError"
+                [class.bg-red-50]="msg.isError"
+                [class.text-red-600]="msg.isError"
+                [innerHTML]="msg.content | safeMarkdown"
+              ></div>
+            } @else {
+              <div
+                class="max-w-[84%] rounded-2xl rounded-br-md bg-gradient-to-br from-amethyst-500 to-amethyst-400 px-3.5 py-2.5 text-[13.5px] leading-relaxed bg-zinc-200 dark:bg-zinc-300 dark:text-zinc-900"
+              >
+                {{ msg.content }}
+              </div>
+            }
+          </div>
+        }
+
+        @if (isLoading()) {
+          <div class="flex">
+            <div
+              class="flex items-center gap-1 rounded-2xl rounded-bl-md border border-zinc-100 bg-amethyst-50 px-3.5 py-3"
+              aria-label="Assistant is typing"
+            >
+              <span
+                class="dot h-1.5 w-1.5 rounded-full bg-zinc-500"
+                style="animation-delay: 0s"
+              ></span>
+              <span
+                class="dot h-1.5 w-1.5 rounded-full bg-zinc-500"
+                style="animation-delay: 0.15s"
+              ></span>
+              <span
+                class="dot h-1.5 w-1.5 rounded-full bg-zinc-500"
+                style="animation-delay: 0.3s"
+              ></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Input -->
+      <footer class="flex items-center gap-2 border-t border-amethyst-100 p-3">
+        <input
+          type="text"
+          pInputText
+          class="!rounded-full flex-1"
+          placeholder="Ask about revenue, targets, performance…"
+          [(ngModel)]="userInput"
+          (keydown)="onKeydown($event)"
+          [disabled]="isLoading()"
+        />
+        <button
+          type="button"
+          pButton
+          severity="contrast"
+          icon="pi pi-send"
+          class="!h-[38px] !w-[38px] !rounded-full !border-amethyst-500 !bg-amethyst-500"
+          [disabled]="isLoading() || !userInput.trim()"
+          (click)="sendMessage()"
+          aria-label="Send message"
+        ></button>
+      </footer>
+    </section>
+  }
+</div>

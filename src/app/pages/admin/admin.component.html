@@ -31,11 +31,29 @@
       <div class="flex items-center lg:order-2">
         <div class="flex justify-between items-center gap-1 md:gap-4">
           <p-button
+            [text]="true"
+            severity="contrast"
+            [rounded]="true"
+            class="p-0"
+            (click)="chatDrawer = true"
+            pTooltip="Chat"
+            tooltipPosition="left"
+          >
+            <img
+              src="./chat-bot.png"
+              class="w-6 h-auto"
+              alt="Ask"
+              loading="lazy"
+            />
+          </p-button>
+          <p-button
             [icon]="isDark() ? 'pi pi-moon' : 'pi pi-sun'"
             [text]="true"
             (onClick)="toggleDarkMode()"
             severity="contrast"
             [rounded]="true"
+            pTooltip="Theme"
+            tooltipPosition="left"
           >
           </p-button>
           <div class="flex justify-start items-center gap-2">
@@ -275,6 +293,28 @@
     class="p-4 md:ml-64 min-h-screen pt-20 max-sm:pb-20 bg-zinc-200 dark:bg-zinc-950"
   >
     <router-outlet></router-outlet>
+
+    <p-drawer
+      [(visible)]="chatDrawer"
+      position="bottom"
+      [style]="{ height: '100%', width: '25%' }"
+      styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+    >
+      <ng-template #header>
+        <div class="flex items-center gap-2">
+          <p-avatar image="./chat.png" shape="circle" />
+          <span class="font-bold">Store assistant</span>
+        </div>
+      </ng-template>
+      <div class="contentBody italic">Under development...</div>
+
+      <ng-template #footer>
+        <div class="flex items-center gap-2">...</div>
+      </ng-template>
+    </p-drawer>
+    @if (userRole === "superadmin") {
+      <app-chat-widget />
+    }
   </main>
 </div>
 <app-mobile-footer />
