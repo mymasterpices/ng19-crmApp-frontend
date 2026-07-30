@@ -13,6 +13,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ChatMessage } from '../../models/chat.model';
 import { ChatServiceService } from '../../services/chat-service.service';
 import { SafeMarkdownPipe } from '../../pipes/safe-markdown.pipe';
+import { AvatarModule } from 'primeng/avatar';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-chat-widget',
@@ -22,6 +27,11 @@ import { SafeMarkdownPipe } from '../../pipes/safe-markdown.pipe';
     ButtonModule,
     InputTextModule,
     SafeMarkdownPipe,
+    AvatarModule,
+    CardModule,
+    TagModule,
+    ScrollPanelModule,
+    MessageModule,
   ],
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.css',
