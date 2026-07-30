@@ -9,7 +9,7 @@
       <div class="flex" [class.justify-end]="msg.role === 'user'">
         @if (msg.role === "assistant") {
           <div
-            class="prose prose-sm prose-amethyst max-w-[84%] rounded-2xl rounded-bl-md text-zinc-200 bg-zinc-950 dark:bg-zinc-800 px-3.5 py-2.5 leading-relaxed overflow-auto"
+            class="prose prose-sm prose-amethyst max-w-[85%] rounded-2xl rounded-bl-xs text-zinc-200 bg-zinc-950 dark:bg-zinc-800 px-3.5 py-2.5 leading-relaxed overflow-auto"
             [class.border-amethyst-100]="!msg.isError"
             [class.bg-amethyst-50]="!msg.isError"
             [class.border-red-400]="msg.isError"
@@ -19,7 +19,7 @@
           ></div>
         } @else {
           <div
-            class="max-w-[84%] rounded-2xl rounded-br-md bg-gradient-to-br from-amethyst-500 to-amethyst-400 px-3.5 py-2.5 leading-relaxed bg-zinc-200 dark:bg-zinc-300 dark:text-zinc-900 overflow-auto"
+            class="max-w-[84%] rounded-2xl rounded-br-xs px-3.5 py-2.5 leading-relaxed bg-zinc-200 dark:bg-zinc-300 dark:text-zinc-900 overflow-auto"
           >
             {{ msg.content }}
           </div>
