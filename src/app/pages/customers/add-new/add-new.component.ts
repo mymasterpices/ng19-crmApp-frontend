@@ -28,6 +28,7 @@ import { jwtDecode } from 'jwt-decode';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { OrderServices } from '../../../services/orders/order-services';
 
 interface FileWithPreview {
   files: File[];
@@ -58,6 +59,7 @@ export class AddNewComponent implements OnInit {
   private messageService = inject(MessageService);
   private loginService = inject(ApiService);
   private _authService = inject(AuthService);
+  private _orderServices = inject(OrderServices);
 
   status = [
     { name: 'Open' },
@@ -70,10 +72,14 @@ export class AddNewComponent implements OnInit {
   selectedFile: File | null = null;
   checked: boolean = false;
 
+  // ── Lists ───────────────────────────────
+  categoryList: any[] = [];
+
   customerForm = new FormGroup({
     name: new FormControl('', Validators.required),
     mobile: new FormControl(null, [Validators.required]),
     productName: new FormControl('', Validators.required),
+    itemCategory: new FormControl('', Validators.required),
     price: new FormControl(null, Validators.required),
     nextFollowUpDate: new FormControl<Date | null>(null, Validators.required),
     newcustomer: new FormControl(''),
@@ -87,6 +93,8 @@ export class AddNewComponent implements OnInit {
 
   ngOnInit() {
     this.userID = this._authService.getUserId();
+    //get category list
+    this.getCategoryList();
   }
 
   onFileSelected(event: FileWithPreview) {
@@ -111,6 +119,16 @@ export class AddNewComponent implements OnInit {
       //patch the username to the form
       this.customerForm.patchValue({ salesperson: this.userName });
     }
+  }
+
+  getCategoryList() {
+    this._orderServices.getCategoryList().subscribe({
+      next: (res: any) => (this.categoryList = res || []),
+    });
+  }
+
+  getCategoryName(id: string): string {
+    return this.categoryList.find((c) => c._id === id)?.name || id || '';
   }
 
   onSubmit() {
@@ -147,6 +165,7 @@ export class AddNewComponent implements OnInit {
     formData.append('newcustomer', String(formValue.newcustomer));
     formData.append('productName', formValue.productName as string);
     formData.append('price', String(formValue.price));
+    formData.append('itemCategory', formValue.itemCategory as string);
     formData.append(
       'nextFollowUpDate',
       new Date(formValue.nextFollowUpDate!).toISOString(),

@@ -1,7 +1,7 @@
 <div class="flex justify-between items-center mb-4">
   <h2 class="text-xl font-semibold">Find Product</h2>
   <div class="flex gap-2">
-    @if (loginedUser !== "user") {
+    @if (loggedUser !== "user") {
       <p-button
         icon="pi pi-upload"
         (onClick)="visible = true"
@@ -12,7 +12,7 @@
     }
 
     <p-button
-      icon="pi pi-hourglass"
+      icon="pi pi-sliders-v"
       routerLink="/products/compare"
       severity="contrast"
       label="Compare"

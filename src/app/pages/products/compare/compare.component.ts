@@ -33,13 +33,12 @@ export class CompareComponent implements OnInit {
     this.getSavedProductsList();
   }
 
+  // Get saved product list
   getSavedProductsList() {
     const productList = this._saveditemservice.getSavedList();
-    if (productList && productList.length > 0) {
-      // Set reactive signal
-      this.SavedItems.set(productList);
+    this.SavedItems.set(productList || []);
 
-      // Resolve product images dynamically
+    if (this.SavedItems().length > 0) {
       this.SavedItems().forEach((item) => this.resolveProductImage(item));
     }
   }
@@ -110,37 +109,18 @@ export class CompareComponent implements OnInit {
   }
 
   private resolveProductImage(item: any) {
-    const code = item?.jewel_code;
-    if (!code) {
-      item.product_image_url = this.placeholder;
-      return;
-    }
+    const url = `${environment.SYNC_IMAGE_URL}/${encodeURIComponent(item.jewel_code)}.jpg`;
 
-    const prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
-    const baseUrl = `${environment.SYNC_IMAGE_URL}/${prefix}/${code}`;
-    const extensions = ['jpg', 'jpeg', 'JPG', 'JPEG'];
-
-    let found = false;
-
-    for (const ext of extensions) {
-      const img = new Image();
-      const testUrl = `${baseUrl}.${ext}`;
-
-      img.onload = () => {
-        if (!found) {
-          found = true;
-          item.product_image_url = testUrl;
-        }
-      };
-
-      img.onerror = () => {
-        if (!found && ext === extensions[extensions.length - 1]) {
-          item.product_image_url = this.placeholder;
-        }
-      };
-
-      img.src = testUrl;
-    }
+    const img = new Image();
+    img.onload = () => {
+      item.product_image_url = img.src;
+      // trigger change detection for the signal since we mutated an object inside it
+      this.SavedItems.set([...this.SavedItems()]);
+    };
+    img.onerror = () => {
+      item.product_image_url = '';
+    };
+    img.src = url;
   }
 
   removeItemfromfavList(id: string) {

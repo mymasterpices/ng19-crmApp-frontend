@@ -92,6 +92,7 @@ export class OrderDashboardComponent implements OnInit {
     }
   }
 
+
   getAllorders() {
     // Passing empty HttpParams if needed by your service
     this._orderServices.getOrders(new HttpParams()).subscribe({

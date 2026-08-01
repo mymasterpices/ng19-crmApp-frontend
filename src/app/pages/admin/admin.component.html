@@ -30,17 +30,18 @@
       </div>
       <div class="flex items-center lg:order-2">
         <div class="flex justify-between items-center gap-1 md:gap-4">
-          <p-button
-            [text]="true"
-            severity="contrast"
-            [rounded]="true"
-            class="p-0"
-            (click)="chatDrawer = true"
-            pTooltip="Chat"
-            tooltipPosition="left"
-          >
-            <img src="./chat.png" class="w-6 h-auto" alt="Ask" loading="lazy" />
-          </p-button>
+          @if (userRole === "superadmin") {
+            <p-button
+              icon="pi pi-comments"
+              text="true"
+              pTooltip="Assistant"
+              tooltipPosition="top"
+              (onClick)="chatDrawer = true"
+              severity="contrast"
+              [rounded]="true"
+            />
+          }
+
           <p-button
             [icon]="isDark() ? 'pi pi-moon' : 'pi pi-sun'"
             [text]="true"

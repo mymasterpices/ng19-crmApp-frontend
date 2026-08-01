@@ -354,89 +354,123 @@
     [style]="{ height: '100%', width: '25%' }"
     styleClass="!w-full md:!w-80 lg:!w-[30rem]"
   >
-    <div class="mb-12">
-      @for (item of myChoiceList(); track item._id) {
-        <p-card class="w-full shadow-sm mx-4 my-4">
-          <div class="flex justify-start flex-col gap-4 items-center relative">
-            <div class="w-25">
-              <img
-                [src]="item.product_image_url || placeholder"
-                alt="{{ item.jewel_code }}"
-                class="rounded-xl"
-              />
-            </div>
-            <!-- Content -->
-            <div class="w-full">
-              <!-- Title and jewel code -->
-              <div class="flex justify-between gap-2 items-start pb-2">
-                <h3 class="text-lg font-semibold md:text-sm leading-snug">
-                  {{ item.product_category | titlecase }}
-                  {{ item.sub_category | titlecase }}
-                </h3>
-                <b class="md:text-sm ml-auto">{{ item.jewel_code }}</b>
+    @if (myChoiceList().length > 0) {
+      <!-- show the product card of favorite list -->
+      <div class="mb-12">
+        @for (item of myChoiceList(); track item._id) {
+          <p-card class="w-full mx-4 my-4 p-0">
+            <div
+              class="flex justify-start flex-col gap-4 items-center relative"
+            >
+              <div class="w-25">
+                <img
+                  [src]="item.product_image_url || placeholder"
+                  alt="{{ item.jewel_code }}"
+                  class="rounded-xl"
+                />
               </div>
-
-              <div class="">
-                <div class="flex flex-col md:text-sm space-y-2">
-                  <!-- Row 5 -->
-                  <div class="flex items-center font-semibold">
-                    <div class="flex-1">Price</div>
-                    <div class="flex-1 text-right">{{ item.mrp }}/-</div>
-                  </div>
+              <!-- Content -->
+              <div class="w-full">
+                <!-- Title and jewel code -->
+                <div class="flex justify-between gap-2 items-start pb-2">
+                  <h3
+                    class="text-lg font-semibold text-sm leading-snug truncate"
+                  >
+                    {{ item.product_category | titlecase }}
+                    {{ item.sub_category | titlecase }}
+                  </h3>
+                  <b class="text-sm ml-auto">{{ item.jewel_code }}</b>
                 </div>
-              </div>
-              <div class="">
-                <div class="flex flex-col md:text-sm space-y-2">
-                  <!-- Row 5 -->
-                  <div class="flex items-center font-semibold">
-                    <div class="flex-1">Dis.</div>
-                    <div class="flex-1 text-right">
-                      {{ item.discount_amount }}/-
+
+                <div class="">
+                  <div class="flex flex-col text-sm space-y-2">
+                    <!-- Row 5 -->
+                    <div class="flex items-center">
+                      <div class="flex-1 text-xs">Price</div>
+                      <div class="flex-1 text-right">{{ item.mrp }}/-</div>
                     </div>
                   </div>
                 </div>
-              </div>
+                <div class="">
+                  <div class="flex flex-col text-sm space-y-2">
+                    <!-- Row 5 -->
+                    <div class="flex items-center">
+                      <div class="flex-1 text-xs">Discount</div>
+                      <div class="flex-1 text-right">
+                        {{ item.discount_amount }}/-
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              <!-- Details block -->
-              <div class="bg-gray-200 dark:bg-gray-800 rounded-lg">
-                <div class="p-3">
-                  <div class="rounded-lg">
-                    <div class="flex flex-col md:text-sm space-y-2">
-                      <!-- Row 5 -->
-                      <div class="flex items-center font-semibold">
-                        <div class="flex-1">Payble amt.</div>
-                        <div class="flex-1 text-right">
-                          {{ item.final_price | number: "1.2-2" }}/-
+                <!-- Details block -->
+                <div class="bg-emerald-100 mt-2 dark:bg-gray-800 rounded-lg">
+                  <div class="p-2">
+                    <div class="rounded-lg">
+                      <div class="flex flex-col text-sm space-y-2">
+                        <!-- Row 5 -->
+                        <div class="flex items-center font-semibold">
+                          <div class="flex-1">Payble amt.</div>
+                          <div class="flex-1 text-right">
+                            {{ item.final_price | number: "1.2-2" }}/-
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <p-button
+                icon="pi pi-times"
+                [text]="true"
+                severity="danger"
+                [rounded]="true"
+                size="small"
+                class="absolute top-0 right-0"
+                (click)="removeItemfromfavList(item._id)"
+              >
+              </p-button>
             </div>
+          </p-card>
+        } @empty {
+          <small class="py-4">Oops! No saved list!</small>
+        }
+        @if (myChoiceList().length > 1) {
+          <p-button
+            routerLink="/products/compare"
+            icon="pi pi-arrow-right-arrow-left"
+            severity="contrast"
+            label="Compare"
+            styleClass="w-full"
+            class="fixed bottom-3 left-0 w-full px-4"
+          ></p-button>
+        } @else {
+          <div
+            class="flex justify-center items-center flex-col gap-3 h-full pt-3"
+          >
             <p-button
-              icon="pi pi-trash"
-              [text]="true"
+              routerLink="/products/view-all"
+              icon="pi pi-search"
+              serviority="contrast"
               severity="contrast"
-              class="absolute top-0 right-0"
-              (click)="removeItemfromfavList(item._id)"
+              pTooltip="Search"
+              tooltipPosition="top"
+              [rounded]="true"
+              label="Search Products"
             >
             </p-button>
+
+            <span class="text-gray-500 text-sm">
+              <i class="pi pi-info-circle text-yellow-500"></i>
+              Add one more to see comparison</span
+            >
           </div>
-        </p-card>
-      } @empty {
-        <small class="py-4">Oops! No saved list!</small>
-      }
-      @if (myChoiceList().length > 0) {
-        <p-button
-          routerLink="/products/compare"
-          icon="pi pi-arrow-right-arrow-left"
-          severity="contrast"
-          label="Compare"
-          styleClass="w-full"
-          class="fixed bottom-3 left-0 w-full px-4"
-        ></p-button>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <div class="flex justify-center items-center h-full">
+        <p class="text-gray-500 text-sm">Oops! No saved list!</p>
+      </div>
+    }
   </p-drawer>
 </div>

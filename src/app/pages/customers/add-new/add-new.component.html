@@ -61,6 +61,29 @@
         }
       </div>
 
+      <!-- Product category -->
+      <div class="fieldset">
+        <p-floatlabel variant="in">
+          <p-select
+            [options]="categoryList"
+            optionLabel="name"
+            optionValue="name"
+            [filter]="true"
+            filterBy="name"
+            [showClear]="true"
+            class="w-full"
+            formControlName="itemCategory"
+          ></p-select>
+          <label for="itemCategory">Item Category</label>
+        </p-floatlabel>
+        @if (
+          customerForm.controls["itemCategory"].invalid &&
+          customerForm.controls["itemCategory"].touched
+        ) {
+          <p class="text-red-500 text-xs mt-1">Item Category is required.</p>
+        }
+      </div>
+
       <!-- Product price -->
       <div class="fieldset">
         <p-floatlabel variant="in" class="w-full">

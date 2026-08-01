@@ -1,5 +1,18 @@
+<div class="flex gap-2 justify-between items-center mb-4">
+  <h2 class="text-xl font-semibold">Comparision</h2>
+  <p-button
+    icon="pi pi-plus"
+    severity="contrast"
+    rounded="true"
+    routerLink="/products/view-all"
+  >
+  </p-button>
+</div>
+
 @if (SavedItems().length > 0) {
-  <div class="overflow-x-auto shadow-md rounded-md bg-white dark:bg-gray-900">
+  <div
+    class="overflow-x-auto shadow-md rounded-md bg-white dark:bg-gray-900 my-3"
+  >
     <div class="min-w-max">
       <table class="w-full table-auto border border-gray-200">
         <!-- Header -->
@@ -29,10 +42,15 @@
 
                   <p-button
                     type="button"
-                    class="absolute top-0 right-0 text-gray-400 hover:text-red-500 cursor-pointer"
+                    icon="pi pi-times"
+                    severity="danger"
+                    text="true"
+                    rounded="true"
+                    size="small"
+                    class="absolute top-0 right-0"
+                    pRipple
                     (click)="removeItemfromfavList(item._id)"
                   >
-                    <i class="pi pi-times"></i>
                   </p-button>
                 </div>
               </th>

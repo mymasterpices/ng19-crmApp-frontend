@@ -11,7 +11,7 @@ import { ApiService } from '../../../services/api.service';
 import { SaveitemsService } from '../../../services/saveitems.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { environment } from '../../../../environments/environment';
-import { MessageService } from 'primeng/api';
+import { MessageService, MenuItem } from 'primeng/api';
 import { ImageModule } from 'primeng/image';
 import { FloatLabel } from 'primeng/floatlabel';
 
@@ -262,57 +262,29 @@ export class ViewDetailsComponent implements OnInit {
   }
 
   myChoiceList = signal<any[]>([]);
+  product_image_url = signal('');
   placeholder = 'notfound.svg';
   getList() {
     const savedItems = this._saveItemsService.getSavedList();
     if (savedItems && savedItems.length > 0) {
       this.myChoiceList.set(savedItems);
-
-      // Resolve product images dynamically
       this.myChoiceList().forEach((item) => this.resolveProductImage(item));
     }
   }
 
   private resolveProductImage(item: any) {
-    const code = item?.jewel_code;
-    if (!code) {
-      item.product_image_url = this.placeholder;
-      return;
-    }
+    const url = `${environment.SYNC_IMAGE_URL}/${encodeURIComponent(item.jewel_code)}.jpg`;
 
-    let prefix = code.match(/^[A-Za-z]+/)?.[0] || '';
-
-    // Special case: DB1–DB8
-    if (/^DB[1-8]/i.test(code)) {
-      prefix = code.substring(0, 3).toUpperCase(); // "DB1" from "DB100007"
-    } else if (/^[Bb][1-8]/.test(code)) {
-      prefix = code.substring(0, 2).toUpperCase(); // "B1" from "B100007"
-    } else {
-      prefix = prefix.toUpperCase(); // Normal prefix
-    }
-
-    const extensions = ['jpg', 'jpeg', 'JPG', 'JPEG'];
-    const baseUrl = `${environment.SYNC_IMAGE_URL}/${prefix}/${code}`;
-
-    let found = false;
-    for (const ext of extensions) {
-      const img = new Image();
-      const testUrl = `${baseUrl}.${ext}`;
-      img.onload = () => {
-        if (!found) {
-          found = true;
-          item.product_image_url = testUrl;
-        }
-      };
-
-      img.onerror = () => {
-        if (!found && ext === extensions[extensions.length - 1]) {
-          item.product_image_url = this.placeholder;
-        }
-      };
-
-      img.src = testUrl;
-    }
+    const img = new Image();
+    img.onload = () => {
+      item.product_image_url = img.src;
+      // trigger change detection for the signal since we mutated an object inside it
+      this.myChoiceList.set([...this.myChoiceList()]);
+    };
+    img.onerror = () => {
+      item.product_image_url = '';
+    };
+    img.src = url;
   }
   removeItemfromfavList(id: string) {
     this._saveItemsService.removeItem(id);

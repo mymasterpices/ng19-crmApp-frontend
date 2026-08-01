@@ -67,7 +67,7 @@ export class ProductsViewAllComponent {
   isUploading = signal<string>('Upload');
 
   // --- Component Variables ---
-  loginedUser = this._authService.getUserName();
+  loggedUser = this._authService.getUserRole();
   visible: boolean = false; // CSV upload dialog
   selectedFile: File | null = null;
   lastScanned: string | null = null;
