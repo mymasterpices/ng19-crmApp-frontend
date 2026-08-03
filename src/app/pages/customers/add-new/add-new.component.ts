@@ -29,6 +29,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { OrderServices } from '../../../services/orders/order-services';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 interface FileWithPreview {
   files: File[];
@@ -51,6 +52,7 @@ interface FileWithPreview {
     FileUpload,
     ButtonModule,
     CheckboxModule,
+    MultiSelectModule,
   ],
 })
 export class AddNewComponent implements OnInit {
