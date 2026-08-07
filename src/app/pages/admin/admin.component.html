@@ -133,7 +133,19 @@
               class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
             >
               <span class="flex-1 text-left">
-                <i class="pi pi-replay px-2"></i> Follow-up
+                <i class="pi pi-replay px-2"></i>Today's FU
+              </span>
+            </a>
+          </li>
+          <li>
+            <a
+              (click)="drawerNavigation = false; toggleMenu('followup')"
+              routerLink="/followup/missed"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-exclamation-triangle px-2"></i> Missed FU
               </span>
             </a>
           </li>

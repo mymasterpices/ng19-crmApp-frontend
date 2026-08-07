@@ -31,6 +31,7 @@
                     [src]="item.product_image_url || placeholder"
                     alt="Product Image"
                     class="w-24 h-24 object-cover rounded mb-2"
+                    loading="lazy"
                   />
                   <span class="font-semibold text-sm text-center">
                     {{ item.product_category | titlecase }} <br />

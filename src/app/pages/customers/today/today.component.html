@@ -1,7 +1,7 @@
 <div class="flex justify-between items-center">
   <h2 class="text-xl font-semibold">Todays</h2>
   <p-button
-    icon="pi pi-list"
+    icon="pi pi-exclamation-triangle"
     class="mt-3 right-3"
     routerLink="/followup/missed"
     severity="contrast"
@@ -23,6 +23,7 @@
             [src]="backedAppUrl + '/' + customer.productImage"
             [alt]="customer.productName"
             class="w-20 h-28 object-cover rounded"
+            loading="lazy"
           />
         </div>
 
