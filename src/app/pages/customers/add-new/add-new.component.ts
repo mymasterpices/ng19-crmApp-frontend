@@ -74,6 +74,9 @@ export class AddNewComponent implements OnInit {
   selectedFile: File | null = null;
   checked: boolean = false;
 
+  //set todays date for max date in visitedOn
+  maxDate: Date = new Date();
+
   // ── Lists ───────────────────────────────
   categoryList: any[] = [];
 

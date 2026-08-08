@@ -46,6 +46,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DrawerModule } from 'primeng/drawer';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -111,6 +113,8 @@ interface PersonAgg {
     InputTextModule,
     CommonModule,
     RouterLink,
+    DrawerModule,
+    MultiSelectModule ,
   ],
   templateUrl: './footfall-data.component.html',
   styleUrl: './footfall-data.component.css',
@@ -124,6 +128,8 @@ export class FootfallData implements OnInit {
   private _authService = inject(AuthService);
 
   userRole = this._authService.getUserRole();
+  //set todays date for max date in date picker
+  maxDate: Date = new Date();
 
   filterOptions = [
     { label: 'Weekly', value: 'weekly' },
@@ -157,6 +163,8 @@ export class FootfallData implements OnInit {
 
   loading = signal<boolean>(false);
   tableLoading = computed(() => this.loading());
+
+  pcCategories: any[] = [];
 
   accountabilityDate: Date | null = null;
   private cachedReports: any = [];
@@ -236,6 +244,7 @@ export class FootfallData implements OnInit {
     this.setupBarChartOptions();
     this.loadSalesPersons();
     this.loadDashboard();
+    this.getPCcategory();
   }
 
   private loadDashboard(): void {
@@ -560,6 +569,21 @@ export class FootfallData implements OnInit {
       },
       error: (err) => console.error('Failed to load sales persons:', err),
     });
+  }
+
+  //get PC product categories list
+
+  getPCcategory() {
+    this.svc.getPCategory().subscribe({
+      next: (res: any) => {
+        console.log('PC Categories:', res);
+        this.pcCategories = res;
+      },
+      error: (err) => console.error('Failed to load PC categories:', err),
+    });
+  }
+  getCategoryName(id: string): string {
+    return this.pcCategories.find((c) => c._id === id)?.name || id || '';
   }
 
   private buildEntryForm(): void {

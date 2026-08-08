@@ -200,4 +200,8 @@ export class FootfallService {
       `${environment.API_URL}/api/footfall/footfalldata/delete/${entryId}`,
     );
   }
+
+  getPCategory() {
+    return this.http.get(`${environment.API_URL}/api/orders/category/get`);
+  }
 }

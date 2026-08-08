@@ -17,7 +17,7 @@
       optionValue="value"
       aria-labelledby="basic"
     />
-    <p-floatlabel variant="in">
+    <p-floatlabel variant="on">
       <p-datepicker
         [(ngModel)]="rangeDates"
         (ngModelChange)="onDateChange()"
@@ -357,13 +357,11 @@
 <!-- ═══════════════════════════════════════════════════════
      ADD NEW ENTRY DIALOG
 ════════════════════════════════════════════════════════ -->
-<p-dialog
+<p-drawer
   [(visible)]="entryFromVisible"
   header="Footfall Entry"
   [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="md:w-[58rem] w-full"
+  styleClass="!w-full md:!w-4xl"
 >
   <form
     [formGroup]="footfallForm"
@@ -371,46 +369,56 @@
     class="max-sm:flex max-sm:flex-col"
   >
     <div class="flex justify-end mt-4">
-      <p-floatlabel class="flex-1" variant="in">
+      <p-floatlabel class="flex-1" variant="on">
         <p-datepicker
           [iconDisplay]="'input'"
           [showIcon]="true"
           inputId="icondisplay"
           formControlName="date"
+          [maxDate]="maxDate"
         />
         <label for="icondisplay">Back date entry</label>
       </p-floatlabel>
-
-      <p-button
-        type="submit"
-        label="Save"
-        severity="contrast"
-        icon="pi pi-check"
-      ></p-button>
     </div>
 
     <div formArrayName="form" class="space-y-4 py-4">
       @for (person of form.controls; track $index; let i = $index) {
-        <div [formGroupName]="i" class="flex gap-4 flex-row">
+        <div [formGroupName]="i" class="flex gap-2 md:flex-row flex-col">
           <input
             pInputText
             [disabled]="true"
             [value]="form.at(i).get('sales_person')?.value | titlecase"
           />
-          <p-floatlabel variant="in">
-            <input pInputText formControlName="ff" />
+          <p-floatlabel variant="on">
+            <input pInputText formControlName="ff" class="w-full" />
             <label>FF</label>
           </p-floatlabel>
-          <p-floatlabel variant="in">
-            <input pInputText formControlName="con" />
+          <p-floatlabel variant="on">
+            <input pInputText formControlName="con" class="w-full" />
             <label>CO</label>
           </p-floatlabel>
-          <p-floatlabel variant="in">
-            <input pInputText formControlName="pc" />
+          <p-floatlabel variant="on" class="w-full">
+            <p-multiselect
+              [options]="pcCategories"
+              optionLabel="name"
+              optionValue="name"
+              [filter]="true"
+              filterBy="name"
+              [showClear]="true"
+              class="w-full"
+              formControlName="pc"
+            ></p-multiselect>
+
             <label>PC</label>
           </p-floatlabel>
         </div>
       }
     </div>
+    <p-button
+      type="submit"
+      label="Save"
+      severity="contrast"
+      icon="pi pi-check"
+    ></p-button>
   </form>
-</p-dialog>
+</p-drawer>
