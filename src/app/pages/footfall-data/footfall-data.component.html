@@ -31,16 +31,14 @@
       <label>Custom Range</label>
     </p-floatlabel>
 
-    @if (userRole !== "user") {
-      <p-button
-        icon="pi pi-plus"
-        pTooltip="Add New Entry"
-        tooltipPosition="left"
-        severity="contrast"
-        (click)="addEntryVisible()"
-        [rounded]="true"
-      ></p-button>
-    }
+    <p-button
+      icon="pi pi-plus"
+      pTooltip="Add New Entry"
+      tooltipPosition="left"
+      severity="contrast"
+      (click)="addEntryVisible()"
+      [rounded]="true"
+    ></p-button>
   </div>
 </div>
 
@@ -383,35 +381,40 @@
 
     <div formArrayName="form" class="space-y-4 py-4">
       @for (person of form.controls; track $index; let i = $index) {
-        <div [formGroupName]="i" class="flex gap-2 md:flex-row flex-col">
-          <input
-            pInputText
-            [disabled]="true"
-            [value]="form.at(i).get('sales_person')?.value | titlecase"
-          />
-          <p-floatlabel variant="on">
-            <input pInputText formControlName="ff" class="w-full" />
-            <label>FF</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on">
-            <input pInputText formControlName="con" class="w-full" />
-            <label>CO</label>
-          </p-floatlabel>
-          <p-floatlabel variant="on" class="w-full">
-            <p-multiselect
-              [options]="pcCategories"
-              optionLabel="name"
-              optionValue="name"
-              [filter]="true"
-              filterBy="name"
-              [showClear]="true"
-              class="w-full"
-              formControlName="pc"
-            ></p-multiselect>
-
-            <label>PC</label>
-          </p-floatlabel>
-        </div>
+        @if (
+          userRole === "user"
+            ? person.get("sales_person")?.value === userName()
+            : true
+        ) {
+          <div [formGroupName]="i" class="flex gap-2 md:flex-row flex-col">
+            <input
+              pInputText
+              [disabled]="true"
+              [value]="form.at(i).get('sales_person')?.value | titlecase"
+            />
+            <p-floatlabel variant="on">
+              <input pInputText formControlName="ff" class="w-full" />
+              <label>FF</label>
+            </p-floatlabel>
+            <p-floatlabel variant="on">
+              <input pInputText formControlName="con" class="w-full" />
+              <label>CO</label>
+            </p-floatlabel>
+            <p-floatlabel variant="on" class="w-full">
+              <p-multiselect
+                [options]="pcCategories"
+                optionLabel="name"
+                optionValue="name"
+                [filter]="true"
+                filterBy="name"
+                [showClear]="true"
+                class="w-full"
+                formControlName="pc"
+              ></p-multiselect>
+              <label>PC</label>
+            </p-floatlabel>
+          </div>
+        }
       }
     </div>
     <p-button

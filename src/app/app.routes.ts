@@ -128,7 +128,6 @@ export const routes: Routes = [
           import('./pages/footfall-data/footfall-data.component').then(
             (m) => m.FootfallData,
           ),
-        data: { expectedRole: 'admin' },
         canActivate: [rolecheckGuard],
       },
 

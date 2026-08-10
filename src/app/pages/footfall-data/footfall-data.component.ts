@@ -114,7 +114,7 @@ interface PersonAgg {
     CommonModule,
     RouterLink,
     DrawerModule,
-    MultiSelectModule ,
+    MultiSelectModule,
   ],
   templateUrl: './footfall-data.component.html',
   styleUrl: './footfall-data.component.css',
@@ -128,6 +128,8 @@ export class FootfallData implements OnInit {
   private _authService = inject(AuthService);
 
   userRole = this._authService.getUserRole();
+  userName = signal<string>('');
+
   //set todays date for max date in date picker
   maxDate: Date = new Date();
 
@@ -242,6 +244,7 @@ export class FootfallData implements OnInit {
 
   ngOnInit(): void {
     this.setupBarChartOptions();
+    this.userName.set(this._authService.getUserName());
     this.loadSalesPersons();
     this.loadDashboard();
     this.getPCcategory();
