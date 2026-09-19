@@ -65,7 +65,7 @@ export class CustomerViewAllComponent implements OnInit {
     { label: 'Swarnteras', value: 'Swarnteras' },
   ]);
 
-  userRole: string = '';
+  userRole: string = '' ;
   loginUser: string = '';
   addNewCustomer: boolean = false;
   backendAppUrl = environment.API_URL;
@@ -161,7 +161,7 @@ export class CustomerViewAllComponent implements OnInit {
 
   searchCustomer(): void {
     const isPrivileged =
-      this.userRole === 'admin' || this.userRole === 'superadmin';
+      this.userRole === 'admin' || this.userRole === 'superadmin' || this.userRole === 'viewer';
     const { salesperson, status } = this.searchForm.value;
     let params = new HttpParams();
 
@@ -184,7 +184,7 @@ export class CustomerViewAllComponent implements OnInit {
 
   getAllcustomers(): void {
     const isPrivileged =
-      this.userRole === 'admin' || this.userRole === 'superadmin';
+      this.userRole === 'admin' || this.userRole === 'superadmin' || this.userRole === 'viewer';
     let params = new HttpParams();
 
     if (!isPrivileged) {

@@ -40,7 +40,12 @@ export class AddNewUserComponent implements OnInit {
   roles: any[] = [];
 
   ngOnInit(): void {
-    this.roles = [{ name: 'user' }, { name: 'admin' }, { name: 'karigar' }];
+    this.roles = [
+      { name: 'user' },
+      { name: 'admin' },
+      { name: 'karigar' },
+      { name: 'viewer' },
+    ];
   }
 
   //form data
