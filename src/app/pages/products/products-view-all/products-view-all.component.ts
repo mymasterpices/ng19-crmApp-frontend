@@ -26,6 +26,7 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ApiService } from '../../../services/api.service';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
+import { MessageModule } from 'primeng/message';
 
 interface UploadEvent {
   files: File[];
@@ -50,6 +51,7 @@ interface UploadEvent {
     DecimalPipe,
     InputGroupModule,
     InputGroupAddonModule,
+    MessageModule,
   ],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',

@@ -28,7 +28,6 @@ export const appConfig: ApplicationConfig = {
         options: {
           darkModeSelector: '.my-app-dark',
         },
-        
       },
     }),
     provideServiceWorker('ngsw-worker.js', {

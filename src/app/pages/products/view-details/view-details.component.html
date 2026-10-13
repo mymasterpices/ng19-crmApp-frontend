@@ -1,295 +1,305 @@
+<!-- ═════════════ Product details + discount ═════════════ -->
 <section class="flex flex-col lg:flex-row gap-4 mt-4 mb-20">
+  <!-- ───── Left: product card ───── -->
   <div class="container w-full lg:w-5/7">
-    @for (item of searchResult(); track item.id) {
-      <p-card styleClass="mb-4 bg-white shadow-sm ">
-        <div
-          class="flex justify-start w-full gap-4 relative flex-col md:flex-row"
-        >
-          <a
-            class="w-[60%] md:w-[20%] mx-auto mb-2 rounded-2xl overflow-hidden"
-            routerLink="/view-details/{{ item.jewel_code }}"
+    @if (currentItem(); as item) {
+      @if (pricing(); as p) {
+        <p-card styleClass="mb-4 bg-white shadow-sm ">
+          <div
+            class="flex justify-start w-full gap-4 relative flex-col md:flex-row"
           >
-            @if (productImageUrl()) {
-              <p-image
-                [src]="productImageUrl()"
-                [alt]="item.jewel_code"
-                class="rounded-2xl w-full object-cover"
-                [preview]="true"
-              />
-            } @else {
-              <img
-                src="imagenotfound.jpg"
-                [alt]="item.jewel_code"
-                class="w-full object-cover"
-              />
-            }
-          </a>
+            <!-- Image -->
+            <a
+              class="w-[60%] md:w-[20%] mx-auto mb-2 rounded-2xl overflow-hidden"
+            >
+              @if (productImageUrl()) {
+                <img
+                  [src]="productImageUrl()"
+                  [alt]="item.jewel_code"
+                  class="rounded-2xl w-full object-cover"
+                />
+              } @else {
+                <div class="flex justify-center items-center p-3">
+                  <p-message severity="warn">Image not found</p-message>
+                </div>
+              }
+            </a>
 
-          <div class="rounded-xl w-full flex-1">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="card-title text-base md:text-lg">
-                <b class="text-emerald-500"
-                  >{{ item.product_category | titlecase }} -</b
-                >
-                {{ item.sub_category | titlecase }}
-              </h3>
-              <b class="ml-auto text-sm md:text-base">{{ item.jewel_code }}</b>
-            </div>
-
-            <div class="rounded-lg overflow-x-auto">
-              <table
-                class="w-full text-left text-xs md:text-sm border-collapse min-w-[500px]"
-              >
-                <thead>
-                  <tr
-                    class="bg-emerald-500 border-b border-[#00c285] text-white font-semibold"
+            <div class="rounded-xl w-full flex-1">
+              <!-- Title -->
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="card-title text-base md:text-lg">
+                  <b class="text-emerald-500"
+                    >{{ item.product_category | titlecase }} -</b
                   >
-                    <th class="p-2 w-[25%]">Description</th>
-                    <th class="p-2 text-center w-[12%]">Wt.</th>
-                    <th class="p-2 text-center w-[12%]">Pcs.</th>
-                    <th class="p-2 text-center w-[12%]">Size/Shape</th>
-                    <th class="p-2 text-center w-[12%]">Rate</th>
-                    <th class="p-2 text-center w-[12%]">Qlty</th>
-                    <th class="p-2 text-right w-[15%]">Price</th>
-                  </tr>
-                </thead>
+                  {{ item.sub_category | titlecase }}
+                </h3>
+                <b class="ml-auto text-sm md:text-base">{{ item.jewel_code }}</b>
+              </div>
 
-                <tbody
-                  class="divide-y divide-gray-100 text-gray-700 dark:text-gray-200"
+              <!-- Price table -->
+              <div class="rounded-lg overflow-x-auto">
+                <table
+                  class="w-full text-left text-xs md:text-sm border-collapse min-w-[500px]"
                 >
-                  <!-- Net wt -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td
-                      class="p-2 font-semibold text-gray-900 dark:text-gray-300"
-                    >
-                      Net wt.
-                    </td>
-                    <td class="p-2 text-center">{{ item.net_wt }} Gms</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center font-medium">
-                      {{ item.material ? item.material + "K" : "-" }}
-                    </td>
-                    <td
-                      class="p-2 text-right font-semibold text-gray-900 dark:text-gray-300"
-                    >
-                      {{ item.metal_amt || 0 | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                  <!-- Making charge -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 font-semibold">Making</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">
-                      @if (item.making_charge && item.making_charge !== 0) {
-                        {{ item.making_charge }}%
-                      } @else if (item.making_amt && item.making_amt !== 0) {
-                        Fixed
-                      } @else {
-                        -
-                      }
-                    </td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-right">
-                      {{ getMakingChargeAmount(item) || 0 | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-
-                  <!-- diamonds calculation -->
-                  @if (item.diamonds && item.diamonds.length > 0) {
-                    @for (dia of item.diamonds; track $index) {
-                      <tr class="hover:bg-gray-50/50">
-                        <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_wt || "-" }} Cts
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.diamond_pcs || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_size || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_rate || "-" }}
-                        </td>
-                        <td class="p-2 text-center font-medium">
-                          @if (dia.diamond_colour || dia.diamond_clarity) {
-                            {{ dia.diamond_colour || "" }}
-                            {{ dia.diamond_clarity || "" }}
-                          } @else {
-                            {{ dia.quality_code || "-" }}
-                          }
-                        </td>
-                        <td
-                          class="p-2 text-right text-gray-600 dark:text-gray-300"
-                        >
-                          {{ dia.dia_amt | number: "1.2-2" }}/-
-                        </td>
-                      </tr>
-                    }
-
-                    <!-- total diamonds -->
+                  <thead>
                     <tr
-                      class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
+                      class="bg-emerald-500 border-b border-[#00c285] text-white font-semibold"
                     >
-                      <td class="p-2 pl-4">Total Dia. (B)</td>
-                      <td class="p-2 text-center">
-                        {{
-                          getTotaldiamondWeight(item.diamonds) | number: "1.2-2"
-                        }}
-                        Cts
-                      </td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
+                      <th class="p-2 w-[25%]">Description</th>
+                      <th class="p-2 text-center w-[12%]">Wt.</th>
+                      <th class="p-2 text-center w-[12%]">Pcs.</th>
+                      <th class="p-2 text-center w-[12%]">Size/Shape</th>
+                      <th class="p-2 text-center w-[12%]">Rate</th>
+                      <th class="p-2 text-center w-[12%]">Qlty</th>
+                      <th class="p-2 text-right w-[15%]">Price</th>
+                    </tr>
+                  </thead>
+
+                  <tbody
+                    class="divide-y divide-gray-100 text-gray-700 dark:text-gray-200"
+                  >
+                    <!-- Net weight / metal -->
+                    <tr class="hover:bg-gray-50/50">
                       <td
-                        class="p-2 text-right text-gray-900 dark:text-gray-50"
+                        class="p-2 font-semibold text-gray-900 dark:text-gray-300"
                       >
-                        {{
-                          getTotalDiamondAmount(item.diamonds)
-                            | number: "1.2-2"
-                        }}/-
+                        Net wt.
+                      </td>
+                      <td class="p-2 text-center">{{ item.net_wt }} Gms</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center font-medium">
+                        {{ item.material ? item.material + "K" : "-" }}
+                      </td>
+                      <td
+                        class="p-2 text-right font-semibold text-gray-900 dark:text-gray-300"
+                      >
+                        {{ p.metal | number: "1.2-2" }}/-
                       </td>
                     </tr>
-                  }
 
-                  <!-- colour stones -->
-                  @if (item.stones && item.stones.length > 0) {
-                    @for (stone of item.stones; track $index) {
-                      <tr class="hover:bg-gray-50/50">
-                        <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
+                    <!-- Making charge -->
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-2 font-semibold">Making</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">
+                        @if (p.makingType === "percent") {
+                          @if (makingDiscountPercent() > 0) {
+                            <del class="text-gray-400 dark:text-gray-500">
+                              {{ item.making_charge }}%
+                            </del>
+                          }
+                          {{ p.makingPercent | number: "1.2-2" }}%
+                        } @else if (p.makingType === "fixed") {
+                          Fixed
+                        } @else {
+                          -
+                        }
+                      </td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-right">
+                        {{ p.makingAmount | number: "1.2-2" }}/-
+                      </td>
+                    </tr>
+
+                    <!-- Diamonds -->
+                    @if (item.diamonds && item.diamonds.length > 0) {
+                      @for (dia of item.diamonds; track $index) {
+                        <tr class="hover:bg-gray-50/50">
+                          <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_wt || "-" }} Cts
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.diamond_pcs || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_size || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_rate || "-" }}
+                          </td>
+                          <td class="p-2 text-center font-medium">
+                            @if (dia.diamond_colour || dia.diamond_clarity) {
+                              {{ dia.diamond_colour || "" }}
+                              {{ dia.diamond_clarity || "" }}
+                            } @else {
+                              {{ dia.quality_code || "-" }}
+                            }
+                          </td>
+                          <td
+                            class="p-2 text-right text-gray-600 dark:text-gray-300"
+                          >
+                            {{ dia.dia_amt | number: "1.2-2" }}/-
+                          </td>
+                        </tr>
+                      }
+
+                      <!-- Total diamonds -->
+                      <tr
+                        class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
+                      >
+                        <td class="p-2 pl-4">Total Dia. (B)</td>
                         <td class="p-2 text-center">
-                          {{ stone.stone_wt }} Cts
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_pcs || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_type || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_rate || "-" }}
+                          {{ p.diamondWt | number: "1.2-2" }} Cts
                         </td>
                         <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
                         <td
-                          class="p-2 text-right text-gray-600 dark:text-gray-300"
+                          class="p-2 text-right text-gray-900 dark:text-gray-50"
                         >
-                          {{ stone.stone_amt | number: "1.2-2" }}/-
+                          {{ p.diamonds | number: "1.2-2" }}/-
                         </td>
                       </tr>
                     }
-                    <!-- total diamonds -->
+
+                    <!-- Colour stones -->
+                    @if (item.stones && item.stones.length > 0) {
+                      @for (stone of item.stones; track $index) {
+                        <tr class="hover:bg-gray-50/50">
+                          <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_wt }} Cts
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_pcs || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_type || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_rate || "-" }}
+                          </td>
+                          <td class="p-2 text-center">-</td>
+                          <td
+                            class="p-2 text-right text-gray-600 dark:text-gray-300"
+                          >
+                            {{ stone.stone_amt | number: "1.2-2" }}/-
+                          </td>
+                        </tr>
+                      }
+
+                      <!-- Total stones -->
+                      <tr
+                        class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
+                      >
+                        <td class="p-2 pl-4">Total Stone (B)</td>
+                        <td class="p-2 text-center">
+                          {{ p.stoneWt | number: "1.2-2" }} Cts
+                        </td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td
+                          class="p-2 text-right text-gray-900 dark:text-gray-50"
+                        >
+                          {{ p.stones | number: "1.2-2" }}/-
+                        </td>
+                      </tr>
+                    }
+
+                    <!-- Subtotal -->
                     <tr
                       class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
                     >
-                      <td class="p-2 pl-4">Total Stone (B)</td>
-                      <td class="p-2 text-center">
-                        {{ getTotalStoneWeight(item.stones) | number: "1.2-2" }}
-                        Cts
-                      </td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td
-                        class="p-2 text-right text-gray-900 dark:text-gray-50"
-                      >
-                        {{
-                          getTotalStoneAmount(item.stones) | number: "1.2-2"
-                        }}/-
+                      <td class="p-2">Subtotal (A+B+C)</td>
+                      <td colspan="5" class="p-2"></td>
+                      <td class="p-2 text-right">
+                        {{ p.subtotal | number: "1.2-2" }}/-
                       </td>
                     </tr>
-                  }
 
-                  <!-- sub total -->
-                  <tr
-                    class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
-                  >
-                    <td class="p-2">Subtotal (A+B+C)</td>
-                    <td colspan="5" class="p-2"></td>
-                    <td class="p-2 text-right">
-                      {{
-                        item.metal_amt +
-                          getTotalDiamondAmount(item.diamonds) +
-                          getTotalStoneAmount(item.stones) +
-                          getMakingChargeAmount(item) | number: "1.2-2"
-                      }}/-
-                    </td>
-                  </tr>
+                    <!-- GST -->
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-2 font-semibold">GST</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">3%</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-right">
+                        ₹{{ p.gst | number: "1.2-2" }}
+                      </td>
+                    </tr>
 
-                  <!-- gst -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 font-semibold">GST</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">3%</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-right">
-                      ₹{{
-                        getGrandTotal(item) -
-                          (getMakingChargeAmount(item) +
-                            item.metal_amt +
-                            getTotalDiamondAmount(item.diamonds) +
-                            getTotalStoneAmount(item.stones)) | number: "1.2-2"
-                      }}
-                    </td>
-                  </tr>
-
-                  <tr
-                    class="bg-emerald-100 text-dark font-bold text-sm md:text-base rounded-b-xl"
-                  >
-                    <td class="p-3 rounded-bl-lg dark:text-gray-950">
-                      RKJ Price
-                      <span
-                        class="text-xs font-normal text-emerald-100 dark:text-gray-600"
-                        >(Inc. GST)</span
-                      >
-                    </td>
-                    <td colspan="5" class="p-3"></td>
-                    <td
-                      class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-950"
+                    <!-- Grand total -->
+                    <tr
+                      class="bg-emerald-100 text-dark font-bold text-sm md:text-base rounded-b-xl"
                     >
-                      {{ getGrandTotal(item) | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <td class="p-3 rounded-bl-lg dark:text-gray-950">
+                        RKJ Price
+                        <span
+                          class="text-xs font-normal text-emerald-100 dark:text-gray-600"
+                          >(Inc. GST)</span
+                        >
+                      </td>
+                      <td colspan="5" class="p-3"></td>
+                      <td
+                        class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-950"
+                      >
+                        {{ p.total | number: "1.2-2" }}/-
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-      </p-card>
+        </p-card>
+      }
     }
   </div>
+
+  <!-- ───── Right: discount card ───── -->
   <div class="container w-full lg:w-2/7">
     <p-card class="max-sm:w-full bg-base-100 shadow-sm">
       <div class="card-body">
         <b>Apply Discount</b>
         <div class="price-breakup">
-          <div class="flex flex-col gap-4">
-            <div class="flex justify-between gap-3 items-center mb-1">
-              <div class="mt-1">
-                Discount <small class="text-[10px]">(in %)</small>
-              </div>
-              <div colspan="2">
-                {{ discountPercent().toFixed(2)
-                }}<small class="text-[10px]">%</small>
-              </div>
-            </div>
-            <p-floatlabel variant="in">
-              <input
-                pInputText
-                id="input"
-                class="input input-bordered rounded-lg w-full"
-                [(ngModel)]="userInput"
-                (change)="ApplyDiscount()"
-              />
-              <label for="on_label">Discount amt.</label>
-            </p-floatlabel>
+          <div class="flex flex-col gap-4 pt-2">
+            <!-- Effective discount on total -->
+          
+            @if (usesPercentDiscount()) {
+              <!-- Gold: discount in % off the making charge -->
+              <p-floatlabel variant="in">
+                <input
+                  pInputText
+                  id="discountPercent"
+                  type="number"
+                  min="0"
+                  [max]="currentItem()?.making_charge"
+                  class="input input-bordered rounded-lg w-full"
+                  [(ngModel)]="userInput"
+                  (change)="ApplyDiscount()"
+                />
+                <label for="discountPercent">Making discount %</label>
+              </p-floatlabel>
+              <small class="text-gray-500">
+                Reduces the making charge (max
+                {{ currentItem()?.making_charge }}%)
+              </small>
+            } @else {
+              <!-- Other products: flat discount amount -->
+              <p-floatlabel variant="in">
+                <input
+                  pInputText
+                  id="discountAmount"
+                  type="number"
+                  min="0"
+                  class="input input-bordered rounded-lg w-full"
+                  [(ngModel)]="userInput"
+                  (change)="ApplyDiscount()"
+                />
+                <label for="discountAmount">Discount amt.</label>
+              </p-floatlabel>
+            }
           </div>
         </div>
       </div>
@@ -297,10 +307,11 @@
   </div>
 </section>
 
+<!-- ═════════════ Bottom dock ═════════════ -->
 <p-card class="md:w-[70.5%] w-[93%]">
   <div class="flex justify-between">
     <div class="flex-1 justify-center items-start">
-      <h5>{{ item.product_category | titlecase }}</h5>
+      <h5>{{ currentItem()?.product_category | titlecase }}</h5>
       @if (priceAfterDiscount()) {
         <b class="dock-label">₹ {{ priceAfterDiscount().toFixed(2) }}/-</b>
       }
@@ -326,7 +337,7 @@
         tooltipPosition="top"
       >
         <div class="indicator">
-          @if (showIndicator() === true) {
+          @if (showIndicator()) {
             <span class="indicator-item status status-success"></span>
           }
         </div>
@@ -344,133 +355,133 @@
   </div>
 </p-card>
 
+<!-- ═════════════ Favorite list drawer ═════════════ -->
 <div class="savedList relative">
-  <!-- Open the modal using ID.showModal() method -->
   <p-drawer
-    class="modal modal-bottom"
     [(visible)]="visible"
     position="bottom"
-    header="Favorite List"
     [style]="{ height: '100%', width: '25%' }"
     styleClass="!w-full md:!w-80 lg:!w-[30rem]"
   >
-    @if (myChoiceList().length > 0) {
-      <!-- show the product card of favorite list -->
-      <div class="mb-12">
-        @for (item of myChoiceList(); track item._id) {
-          <p-card class="w-full mx-4 my-4 p-0">
-            <div
-              class="flex justify-start flex-col gap-4 items-center relative"
+    <!-- Header -->
+    <ng-template pTemplate="header">
+      <div class="w-full flex items-start justify-between">
+        <div>
+          <h2 class="font-semibold">Favorite List</h2>
+          <p class="text-sm">
+            {{ myChoiceList().length }}
+            {{ myChoiceList().length === 1 ? "item" : "items" }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="flex flex-col h-full">
+      <!-- List -->
+      <div class="flex-1 overflow-y-auto">
+        <div>
+          @for (fav of myChoiceList(); track fav._id) {
+            <article
+              class="flex gap-5 py-3 border-b border-[#e3d2c8] dark:border-[#333]"
             >
-              <div class="w-25">
-                <img
-                  [src]="item.product_image_url || placeholder"
-                  alt="{{ item.jewel_code }}"
-                  class="rounded-xl"
-                />
-              </div>
-              <!-- Content -->
-              <div class="w-full">
-                <!-- Title and jewel code -->
-                <div class="flex justify-between gap-2 items-start pb-2">
-                  <h3
-                    class="text-lg font-semibold text-sm leading-snug truncate"
-                  >
-                    {{ item.product_category | titlecase }}
-                    {{ item.sub_category | titlecase }}
-                  </h3>
-                  <b class="text-sm ml-auto">{{ item.jewel_code }}</b>
-                </div>
+              <!-- Image -->
+              <img
+                [src]="fav.product_image_url || placeholder"
+                [alt]="fav.jewel_code"
+                class="w-20 h-20 object-cover rounded-lg shrink-0"
+              />
 
-                <div class="">
-                  <div class="flex flex-col text-sm space-y-2">
-                    <!-- Row 5 -->
-                    <div class="flex items-center">
-                      <div class="flex-1 text-xs">Price</div>
-                      <div class="flex-1 text-right">{{ item.mrp }}/-</div>
-                    </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0 flex flex-col">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3>
+                      {{ fav.product_category | titlecase }}
+                      {{ fav.sub_category | titlecase }}
+                    </h3>
+                    <p class="text-sm">Tag No. {{ fav.jewel_code }}</p>
                   </div>
-                </div>
-                <div class="">
-                  <div class="flex flex-col text-sm space-y-2">
-                    <!-- Row 5 -->
-                    <div class="flex items-center">
-                      <div class="flex-1 text-xs">Discount</div>
-                      <div class="flex-1 text-right">
-                        {{ item.discount_amount }}/-
-                      </div>
-                    </div>
+
+                  <!-- Actions -->
+                  <div class="flex flex-col items-center shrink-0">
+                    <p-button
+                      type="button"
+                      severity="danger"
+                      text="true"
+                      (click)="removeItemfromfavList(fav._id)"
+                    >
+                      <i class="pi pi-trash text-base"></i>
+                    </p-button>
                   </div>
                 </div>
 
-                <!-- Details block -->
-                <div class="bg-emerald-100 mt-2 dark:bg-gray-800 rounded-lg">
-                  <div class="p-2">
-                    <div class="rounded-lg">
-                      <div class="flex flex-col text-sm space-y-2">
-                        <!-- Row 5 -->
-                        <div class="flex items-center font-semibold">
-                          <div class="flex-1">Payble amt.</div>
-                          <div class="flex-1 text-right">
-                            {{ item.final_price | number: "1.2-2" }}/-
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!-- Price after discount -->
+                <p class="mt-auto font-semibold">
+                  ₹ {{ fav.final_price | number: "1.0-0" : "en-IN" }}
+                </p>
               </div>
+            </article>
+          } @empty {
+            <div
+              class="flex flex-col items-center justify-center gap-4 py-24 text-center"
+            >
+              <i class="pi pi-heart text-3xl text-[#b9a4a9]"></i>
+              <p class="text-lg">No favorites yet</p>
               <p-button
-                icon="pi pi-times"
-                [text]="true"
-                severity="danger"
+                routerLink="/products/view-all"
+                icon="pi pi-search"
+                label="Browse products"
+                severity="contrast"
                 [rounded]="true"
-                size="small"
-                class="absolute top-0 right-0"
-                (click)="removeItemfromfavList(item._id)"
-              >
-              </p-button>
+              ></p-button>
             </div>
-          </p-card>
-        } @empty {
-          <small class="py-4">Oops! No saved list!</small>
-        }
-        @if (myChoiceList().length > 1) {
-          <p-button
-            routerLink="/products/compare"
-            icon="pi pi-arrow-right-arrow-left"
-            severity="contrast"
-            label="Compare"
-            styleClass="w-full"
-            class="fixed bottom-3 left-0 w-full px-4"
-          ></p-button>
-        } @else {
-          <div
-            class="flex justify-center items-center flex-col gap-3 h-full pt-3"
-          >
+          }
+        </div>
+
+        @if (myChoiceList().length === 1) {
+          <div class="flex flex-col items-center gap-3 pt-8 pb-4 text-center">
             <p-button
               routerLink="/products/view-all"
               icon="pi pi-search"
-              serviority="contrast"
+              label="Search products"
               severity="contrast"
-              pTooltip="Search"
-              tooltipPosition="top"
+              [outlined]="true"
               [rounded]="true"
-              label="Search Products"
-            >
-            </p-button>
-
-            <span class="text-gray-500 text-sm">
-              <i class="pi pi-info-circle text-yellow-500"></i>
-              Add one more to see comparison</span
-            >
+              size="small"
+            ></p-button>
+            <span class="text-sm">
+              <i class="pi pi-info-circle text-amber-600 mr-1"></i>
+              Add one more to compare
+            </span>
           </div>
         }
       </div>
-    } @else {
-      <div class="flex justify-center items-center h-full">
-        <p class="text-gray-500 text-sm">Oops! No saved list!</p>
-      </div>
-    }
+
+      <!-- Footer -->
+      @if (myChoiceList().length > 0) {
+        <footer class="grid grid-cols-[1fr_1.4fr] gap-3">
+          <p-button
+            icon="pi pi-arrow-right-arrow-left"
+            routerLink="/products/compare"
+            [disabled]="myChoiceList().length < 2"
+            label="Compare"
+            class="w-full"
+            styleClass="w-full"
+            severity="contrast"
+          >
+          </p-button>
+
+          <p-button
+            variant="outlined"
+            icon="pi pi-tag"
+            [label]="'Total ₹' + (grandTotal() | number: '1.0-0' : 'en-IN')"
+            class="w-full"
+            styleClass="w-full !cursor-default"
+            severity="contrast"
+          >
+          </p-button>
+        </footer>
+      }
+    </div>
   </p-drawer>
 </div>
