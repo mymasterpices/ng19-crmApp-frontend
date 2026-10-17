@@ -37,6 +37,7 @@ import { EditOrderComponent } from './pages/orders/edit-order/edit-order.compone
 import { KarigarDashboardComponent } from './pages/karigar/karigar-dashboard/karigar-dashboard.component';
 import { ImageSearchComponent } from './pages/image-search/image-search.component';
 import { ManageTargetComponent } from './pages/manage-target/manage-target.component';
+import { FeedbackComponent } from './pages/feedback/feedback.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -141,6 +142,10 @@ export const routes: Routes = [
         canActivate: [rolecheckGuard],
       },
     ],
+  },
+  {
+    path: 'feedback',
+    component: FeedbackComponent,
   },
   {
     path: 'myplaylist/:token',
