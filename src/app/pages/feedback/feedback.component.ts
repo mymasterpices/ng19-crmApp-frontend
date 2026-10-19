@@ -32,8 +32,6 @@ import {
   FeedbackService,
 } from '../../services/Feedback.service';
 
-/** Indian mobile: 10 digits, starts with 6-9 */
-const MOBILE_REGEX = /^[6-9]\d{9}$/;
 /** PAN: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F) */
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
@@ -77,7 +75,7 @@ export class FeedbackComponent implements OnInit {
   readonly status = signal<Status>(null);
 
   readonly form = this.fb.nonNullable.group({
-    mobile: ['', [Validators.required, Validators.pattern(MOBILE_REGEX)]],
+    mobile: ['', [Validators.required]],
     name: [''],
     address: [''],
     dob: this.fb.control<Date | null>(null),
@@ -100,7 +98,7 @@ export class FeedbackComponent implements OnInit {
   }
 
   /**
-   * When a complete, valid mobile is entered, look it up.
+   * When a mobile is entered, look it up.
    * Found  -> pre-fill the rest of the form for editing.
    * 404    -> treat as a new feedback.
    */
@@ -109,12 +107,12 @@ export class FeedbackComponent implements OnInit {
       .pipe(
         map((v) => (v ?? '').trim()),
         distinctUntilChanged(),
-        // Number edited or incomplete: drop any previously loaded record
+        // Number cleared: drop any previously loaded record
         tap((v) => {
-          if (!MOBILE_REGEX.test(v)) this.clearLookup();
+          if (!v) this.clearLookup();
         }),
         debounceTime(300),
-        filter((v) => MOBILE_REGEX.test(v)),
+        filter((v) => !!v),
         tap(() => {
           this.lookingUp.set(true);
           this.isNewMobile.set(false);

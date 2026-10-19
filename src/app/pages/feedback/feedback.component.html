@@ -7,11 +7,9 @@
   >
     <header class="flex justify-center items-center">
       <div class="brandInfo flex flex-col items-center pb-3">
-        <img src="rkj-logo-c.png" alt=""
-      class="w-30 h-auto">
-      <h1 class="text-xl font-semibold text-slate-900">Customer feedback</h1>
+        <img src="rkj-logo-c.png" alt="" class="w-30 h-auto" />
+        <h1 class="text-xl font-semibold text-slate-900">Customer feedback</h1>
       </div>
-      
     </header>
 
     <!-- Mobile -->
@@ -23,6 +21,7 @@
         id="mobile"
         pInputText
         type="tel"
+        rating-label
         inputmode="numeric"
         maxlength="10"
         placeholder="10-digit mobile number"
@@ -32,14 +31,8 @@
         [class.ng-dirty]="mobile.touched"
         (input)="onMobileInput($event)"
       />
-      @if (mobile.touched && mobile.errors) {
-        <small class="text-red-600">
-          @if (mobile.errors['required']) {
-            Enter a mobile number.
-          } @else {
-            Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.
-          }
-        </small>
+      @if (mobile.touched && mobile.errors?.["required"]) {
+        <small class="text-red-600">Enter a mobile number.</small>
       }
 
       @if (lookingUp()) {
@@ -68,7 +61,9 @@
 
     <!-- Address -->
     <div class="flex flex-col gap-1.5">
-      <label for="address" class="text-sm font-medium text-slate-700">Address</label>
+      <label for="address" class="text-sm font-medium text-slate-700"
+        >Address</label
+      >
       <textarea
         id="address"
         pTextarea
@@ -81,7 +76,9 @@
     <!-- Dates -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div class="flex flex-col gap-1.5">
-        <label for="dob" class="text-sm font-medium text-slate-700">Date of Birth</label>
+        <label for="dob" class="text-sm font-medium text-slate-700"
+          >Date of Birth</label
+        >
         <p-datepicker
           inputId="dob"
           formControlName="dob"
@@ -98,7 +95,9 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label for="anniversary" class="text-sm font-medium text-slate-700">Anniversary Date</label>
+        <label for="anniversary" class="text-sm font-medium text-slate-700"
+          >Anniversary Date</label
+        >
         <p-datepicker
           inputId="anniversary"
           formControlName="anniversary"
@@ -115,7 +114,9 @@
 
     <!-- PAN -->
     <div class="flex flex-col gap-1.5">
-      <label for="pan" class="text-sm font-medium text-slate-700">PAN No.</label>
+      <label for="pan" class="text-sm font-medium text-slate-700"
+        >PAN No.</label
+      >
       <input
         id="pan"
         pInputText
@@ -128,12 +129,14 @@
         [class.ng-dirty]="pan.touched"
         (input)="onPanInput($event)"
       />
-      @if (pan.touched && pan.errors?.['pan']) {
+      @if (pan.touched && pan.errors?.["pan"]) {
         <small class="text-red-600">
           PAN must be 5 letters, 4 digits, then 1 letter, like ABCDE1234F.
         </small>
       } @else {
-        <small class="text-slate-500">PAN is mandatory for transactions above ₹2 Lac.</small>
+        <small class="text-slate-500"
+          >PAN is mandatory for transactions above ₹2 Lac.</small
+        >
       }
     </div>
 
@@ -142,7 +145,11 @@
       <span class="text-sm font-medium text-slate-700" id="rating-label">
         How would you rate your experience?
       </span>
-      <p-rating formControlName="rating" [stars]="5" aria-labelledby="rating-label" />
+      <p-rating
+        formControlName="rating"
+        [stars]="5"
+        aria-labelledby="rating-label"
+      />
     </div>
 
     <!-- Remarks -->
@@ -164,9 +171,11 @@
       <div
         role="status"
         class="rounded-lg border px-4 py-3 text-sm"
-        [class]="s.type === 'success'
-          ? 'bg-green-50 border-green-200 text-green-800'
-          : 'bg-red-50 border-red-200 text-red-800'"
+        [class]="
+          s.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        "
       >
         {{ s.message }}
       </div>
