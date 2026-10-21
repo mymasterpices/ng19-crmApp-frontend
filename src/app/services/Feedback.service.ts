@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface FeedbackPayload {
   mobile: string;
+  countryCode?: string | null; // e.g. '+91'
+  countryIso?: string | null; // e.g. 'IN'
   name?: string | null;
   address?: string | null;
   dob?: string | null; // ISO string
@@ -31,6 +33,7 @@ export interface FeedbackQuery {
   page?: number;
   limit?: number;
   mobile?: string;
+  countryCode?: string;
   rating?: number;
 }
 
@@ -53,9 +56,15 @@ export class FeedbackService {
     return this.http.get<FeedbackPage>(this.baseUrl, { params });
   }
 
-  /** Latest feedback for a mobile number. Responds 404 when the number is new. */
-  getByMobile(mobile: string): Observable<Feedback> {
-    return this.http.get<Feedback>(`${this.baseUrl}/by-mobile/${mobile}`);
+  /**
+   * Latest feedback for a mobile number in a given country.
+   * Responds 404 when the number is new.
+   * encodeURIComponent is needed: a raw '+' in a query string is read as a space.
+   */
+  getByMobile(mobile: string, countryCode = '+91'): Observable<Feedback> {
+    return this.http.get<Feedback>(
+      `${this.baseUrl}/by-mobile/${mobile}?countryCode=${encodeURIComponent(countryCode)}`,
+    );
   }
 
   getById(id: string): Observable<Feedback> {

@@ -10,12 +10,14 @@ import {
 } from '@angular/forms';
 import {
   catchError,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
   finalize,
   map,
   of,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs';
@@ -24,13 +26,15 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { RatingModule } from 'primeng/rating';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 
-// Adjust this path to wherever the service lives in your project
+// Adjust these paths to wherever the files live in your project
 import {
   Feedback,
   FeedbackPayload,
   FeedbackService,
 } from '../../services/Feedback.service';
+import { COUNTRIES, Country, DEFAULT_COUNTRY_ISO } from './countries';
 
 /** PAN: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F) */
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
@@ -53,6 +57,7 @@ type Status = { type: 'success' | 'error'; message: string } | null;
     DatePickerModule,
     RatingModule,
     ButtonModule,
+    SelectModule,
   ],
   templateUrl: './feedback.component.html',
 })
@@ -62,6 +67,7 @@ export class FeedbackComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly today = new Date();
+  readonly countries = COUNTRIES;
 
   /** True while the save request is in flight */
   readonly submitting = signal(false);
@@ -75,6 +81,7 @@ export class FeedbackComponent implements OnInit {
   readonly status = signal<Status>(null);
 
   readonly form = this.fb.nonNullable.group({
+    country: [DEFAULT_COUNTRY_ISO], // ISO code, e.g. 'IN'
     mobile: ['', [Validators.required]],
     name: [''],
     address: [''],
@@ -85,6 +92,10 @@ export class FeedbackComponent implements OnInit {
     remarks: [''],
   });
 
+  get country() {
+    return this.form.controls.country;
+  }
+
   get mobile() {
     return this.form.controls.mobile;
   }
@@ -93,46 +104,56 @@ export class FeedbackComponent implements OnInit {
     return this.form.controls.pan;
   }
 
+  get selectedCountry(): Country {
+    return COUNTRIES.find((c) => c.iso === this.country.value) ?? COUNTRIES[0];
+  }
+
   ngOnInit(): void {
     this.watchMobile();
   }
 
   /**
-   * When a mobile is entered, look it up.
+   * When a mobile (or country) changes, look it up.
    * Found  -> pre-fill the rest of the form for editing.
    * 404    -> treat as a new feedback.
    */
   private watchMobile(): void {
-    this.mobile.valueChanges
+    combineLatest([
+      this.mobile.valueChanges.pipe(startWith(this.mobile.value)),
+      this.country.valueChanges.pipe(startWith(this.country.value)),
+    ])
       .pipe(
-        map((v) => (v ?? '').trim()),
-        distinctUntilChanged(),
+        map(([m, iso]) => ({ mobile: (m ?? '').trim(), iso })),
+        distinctUntilChanged(
+          (a, b) => a.mobile === b.mobile && a.iso === b.iso,
+        ),
         // Number cleared: drop any previously loaded record
-        tap((v) => {
-          if (!v) this.clearLookup();
+        tap(({ mobile }) => {
+          if (!mobile) this.clearLookup();
         }),
         debounceTime(300),
-        filter((v) => !!v),
+        filter(({ mobile }) => !!mobile),
         tap(() => {
           this.lookingUp.set(true);
           this.isNewMobile.set(false);
         }),
-        switchMap((mobile) =>
-          this.feedbackService.getByMobile(mobile).pipe(
+        switchMap(({ mobile, iso }) => {
+          const dial = this.selectedCountry.dial;
+          return this.feedbackService.getByMobile(mobile, dial).pipe(
             // 404 (or any failure) -> treat as new feedback
             catchError((err: HttpErrorResponse) => {
               if (err.status !== 404)
                 console.error('Mobile lookup failed:', err);
               return of(null);
             }),
-            map((record) => ({ mobile, record })),
-          ),
-        ),
+            map((record) => ({ mobile, iso, record })),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ mobile, record }) => {
-        // Ignore a stale response if the user already changed the number
-        if (this.mobile.value !== mobile) return;
+      .subscribe(({ mobile, iso, record }) => {
+        // Ignore a stale response if the user changed the number or country
+        if (this.mobile.value !== mobile || this.country.value !== iso) return;
 
         this.lookingUp.set(false);
         if (record) {
@@ -164,7 +185,7 @@ export class FeedbackComponent implements OnInit {
     this.form.markAsPristine();
   }
 
-  /** Forget the loaded record and blank everything except the mobile field */
+  /** Forget the loaded record and blank everything except country and mobile */
   private clearLookup(): void {
     const hadData = this.existing() !== null;
     this.lookingUp.set(false);
@@ -172,18 +193,32 @@ export class FeedbackComponent implements OnInit {
     this.existing.set(null);
 
     if (hadData) {
-      this.form.reset({ mobile: this.mobile.value }, { emitEvent: false });
+      this.form.reset(
+        { country: this.country.value, mobile: this.mobile.value },
+        { emitEvent: false },
+      );
     }
   }
 
-  /** Keep the mobile field numeric and capped at 10 digits */
+  /** Keep the mobile field numeric and capped at the country's max digits */
   onMobileInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    const digits = input.value
+      .replace(/\D/g, '')
+      .slice(0, this.selectedCountry.maxLength);
     if (input.value !== digits) {
       input.value = digits;
     }
     this.mobile.setValue(digits);
+  }
+
+  /** Trim an over-long number when switching to a country with fewer digits */
+  onCountryChange(): void {
+    const max = this.selectedCountry.maxLength;
+    const current = this.mobile.value;
+    if (current.length > max) {
+      this.mobile.setValue(current.slice(0, max));
+    }
   }
 
   /** Force PAN to uppercase alphanumerics, max 10 chars */
@@ -207,11 +242,20 @@ export class FeedbackComponent implements OnInit {
       return;
     }
 
-    const v = this.form.getRawValue();
+    // `country` (ISO) is form-only; it is saved as countryCode + countryIso
+    const {
+      country: _country,
+      dob,
+      anniversary,
+      ...rest
+    } = this.form.getRawValue();
+
     const payload: FeedbackPayload = {
-      ...v,
-      dob: v.dob ? v.dob.toISOString() : null,
-      anniversary: v.anniversary ? v.anniversary.toISOString() : null,
+      ...rest,
+      countryCode: this.selectedCountry.dial, // e.g. '+91'
+      countryIso: this.selectedCountry.iso, // e.g. 'IN'
+      dob: dob ? dob.toISOString() : null,
+      anniversary: anniversary ? anniversary.toISOString() : null,
     };
 
     const current = this.existing();
