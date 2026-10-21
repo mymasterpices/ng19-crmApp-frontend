@@ -35,6 +35,8 @@ import {
   FeedbackService,
 } from '../../services/Feedback.service';
 import { COUNTRIES, Country, DEFAULT_COUNTRY_ISO } from './countries';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 /** PAN: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F) */
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
@@ -58,10 +60,13 @@ type Status = { type: 'success' | 'error'; message: string } | null;
     RatingModule,
     ButtonModule,
     SelectModule,
+    ToastModule,
   ],
   templateUrl: './feedback.component.html',
+  providers: [MessageService],
 })
 export class FeedbackComponent implements OnInit {
+  private messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
   private readonly feedbackService = inject(FeedbackService);
   private readonly destroyRef = inject(DestroyRef);
@@ -272,11 +277,10 @@ export class FeedbackComponent implements OnInit {
     request$.pipe(finalize(() => this.submitting.set(false))).subscribe({
       next: (saved) => {
         console.log('Feedback saved:', saved);
-        this.status.set({
-          type: 'success',
-          message: current
-            ? 'Feedback updated successfully.'
-            : 'Thank you. Your feedback has been saved.',
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Thank you. Your feedback has been saved.',
         });
         this.existing.set(null);
         this.isNewMobile.set(false);
@@ -284,7 +288,11 @@ export class FeedbackComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         console.error('Feedback save failed:', err);
-        this.status.set({ type: 'error', message: this.errorMessage(err) });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: this.errorMessage(err),
+        });
       },
     });
   }
