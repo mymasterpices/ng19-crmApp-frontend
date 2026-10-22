@@ -83,7 +83,11 @@
         autocomplete="name"
         class="w-full"
       />
+       @if (name.touched && name.invalid) {
+    <small class="text-red-600">Name is required.</small>
+  }
     </div>
+    
 
     <!-- Address -->
     <div class="flex flex-col gap-1.5">

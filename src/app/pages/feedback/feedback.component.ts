@@ -88,7 +88,7 @@ export class FeedbackComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     country: [DEFAULT_COUNTRY_ISO], // ISO code, e.g. 'IN'
     mobile: ['', [Validators.required]],
-    name: [''],
+    name: ['', [Validators.required]],
     address: [''],
     dob: this.fb.control<Date | null>(null),
     anniversary: this.fb.control<Date | null>(null),
@@ -109,8 +109,17 @@ export class FeedbackComponent implements OnInit {
     return this.form.controls.pan;
   }
 
+  get name() {
+    return this.form.controls.name;
+  }
+
   get selectedCountry(): Country {
     return COUNTRIES.find((c) => c.iso === this.country.value) ?? COUNTRIES[0];
+  }
+  /** Rejects values that are empty or only whitespace */
+  noBlankValidator(control: AbstractControl): ValidationErrors | null {
+    const value = (control.value ?? '').toString();
+    return value.trim().length ? null : { blank: true };
   }
 
   ngOnInit(): void {
