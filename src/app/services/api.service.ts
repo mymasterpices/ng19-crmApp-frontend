@@ -152,6 +152,19 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/api/products/upload-csv`, formData);
   }
 
+  // get all product data
+  getProductAll(params: Record<string, string | number> = {}) {
+    return this.http.get<{
+      data: any[];
+      total: number;
+      page: number;
+      pages: number;
+    }>(`${this.appUrl}/api/products`, { params });
+  }
+
+  getProductFilters() {
+    return this.http.get<any>(`${this.appUrl}/api/products/filters`);
+  }
   getSavedList(): any[] {
     const data = localStorage.getItem('saveItems');
     return data ? JSON.parse(data) : [];

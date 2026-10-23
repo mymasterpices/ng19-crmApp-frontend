@@ -2,21 +2,22 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface ImageResult {
-  _id:           string;
-  filename:      string;
-  subfolder:     string;
+  _id: string;
+  filename: string;
+  subfolder: string;
   relative_path: string;
-  distance:      number;   // 0 = identical, higher = less similar
-  score:         number;   // 0–1  (1 = identical)
-  imageUrl:      string;   // https://syncdrive.jools.in/images/subfolder/file.jpg
+  distance?: number; // not returned by the CLIP/SigLIP service anymore
+  score: number; // 0–1  (1 = identical)
+  imageUrl: string; // built from environment.SYNC_IMAGE_URL + relative_path
 }
 
 export interface SearchResponse {
   success: boolean;
-  count:   number;
+  count: number;
   results: ImageResult[];
   message?: string;
 }
@@ -26,21 +27,36 @@ export class ImageSearchService {
   private http = inject(HttpClient);
   private base = '/api/image-search';
 
-  search(file: File, topK = 12): Observable<SearchResponse> {
+  private buildUrl(relativePath: string): string {
+    return `${environment.SYNC_IMAGE_URL}/${relativePath.replace(/^\/+/, '')}`;
+  }
+
+  async search(file: File, topK = 12): Promise<SearchResponse> {
     const form = new FormData();
     form.append('image', file);
-    return this.http.post<SearchResponse>(`${this.base}/search?top_k=${topK}`, form);
+
+    const res = await firstValueFrom(
+      this.http.post<SearchResponse>(`${this.base}/search?top_k=${topK}`, form),
+    );
+
+    return {
+      ...res,
+      results: (res.results ?? []).map((r) => ({
+        ...r,
+        imageUrl: this.buildUrl(r.relative_path),
+      })),
+    };
   }
 
-  stats(): Observable<any> {
-    return this.http.get(`${this.base}/stats`);
+  stats(): Promise<unknown> {
+    return firstValueFrom(this.http.get(`${this.base}/stats`));
   }
 
-  health(): Observable<any> {
-    return this.http.get(`${this.base}/health`);
+  health(): Promise<unknown> {
+    return firstValueFrom(this.http.get(`${this.base}/health`));
   }
 
-  triggerIndexAll(): Observable<any> {
-    return this.http.post(`${this.base}/index/all`, null);
+  triggerIndexAll(): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/index/all`, null));
   }
 }

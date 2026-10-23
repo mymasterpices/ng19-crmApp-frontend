@@ -173,7 +173,7 @@
               label="Create Order Now"
               icon="pi pi-shopping-bag"
               styleClass="w-full"
-              severity="warn"
+              severity="contrast"
               (onClick)="openOrderDrawer()"
             />
           </div>
@@ -236,7 +236,7 @@
             <p-button
               label="Order Now"
               icon="pi pi-shopping-bag"
-              severity="warn"
+              severity="contrast"
               (onClick)="openOrderDrawer()"
             />
           }
@@ -246,6 +246,7 @@
           @for (img of results(); track img._id) {
             <div
               class="group rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 cursor-pointer bg-white dark:bg-zinc-900 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              [routerLink]="['/view-details', jewelCode(img.filename)]"
             >
               <!-- Thumbnail -->
               <div
@@ -310,7 +311,7 @@
             <p-button
               label="Create Order"
               icon="pi pi-shopping-bag"
-              severity="warn"
+              severity="contrast"
               (onClick)="openOrderDrawer()"
             />
           </div>

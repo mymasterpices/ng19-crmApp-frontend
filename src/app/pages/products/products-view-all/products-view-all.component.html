@@ -1,334 +1,614 @@
-<div class="flex justify-between items-center mb-4">
-  <h2 class="text-xl font-semibold">Find Product</h2>
-  <div class="flex gap-2">
-    @if (loggedUser !== "user") {
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+  <!-- ================= MAIN COLUMN ================= -->
+  <div class="min-w-0">
+    <!-- Search bar (tag no.) -->
+    <form
+      [formGroup]="searchFrom"
+      (ngSubmit)="search()"
+      class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-2 shadow-sm mb-2"
+    >
+      <i class="pi pi-search text-emerald-700 px-3"></i>
+      <input
+        type="text"
+        pInputText
+        formControlName="jewel_code"
+        placeholder="Enter tag no. (e.g. DR00001)"
+        class="flex-1 !border-0 !shadow-none bg-transparent"
+        aria-label="Tag number"
+      />
       <p-button
-        icon="pi pi-upload"
-        (onClick)="visible = true"
+        icon="pi pi-camera"
+        [text]="true"
         severity="secondary"
-        label="Upload"
-      >
-      </p-button>
+        routerLink="/image-search"
+        ariaLabel="Search by image"
+      />
+      <p-button type="submit" label="Search" severity="contrast" />
+    </form>
+    @if (
+      searchFrom.controls["jewel_code"].touched &&
+      searchFrom.controls["jewel_code"].hasError("required")
+    ) {
+      <small class="text-red-600 block mb-3">Tag number is required</small>
     }
 
-    <p-button
-      icon="pi pi-sliders-v"
-      routerLink="/products/compare"
-      severity="contrast"
-      label="Compare"
-    >
-    </p-button>
-  </div>
-</div>
+    <!-- ============ SEARCH RESULTS (existing price-breakdown cards) ============ -->
+    @if (searchResult().length > 0) {
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-semibold">Search result</h2>
+        <p-button
+          label="Clear"
+          icon="pi pi-times"
+          [text]="true"
+          severity="secondary"
+          (onClick)="clearSearch()"
+        />
+      </div>
 
-<section class="flex flex-col items-center justify-start">
-  <div class="w-full md:w-[600px] flex justify-center items-center">
-    <div class="my-2 w-full">
-      <form [formGroup]="searchFrom" (ngSubmit)="search()">
-        <div class="feildset my-2">
-          <p-floatlabel variant="in">
+      @for (item of searchResult(); track item.jewel_code) {
+        <p-card
+          styleClass="mb-4 bg-white shadow-sm"
+          class="cursor-pointer"
+          routerLink="/view-details/{{ item.jewel_code }}"
+        >
+          <div class="flex gap-4 w-full flex-col md:flex-row">
+            <div
+              class="w-[60%] md:w-[20%] mx-auto mb-2 rounded-2xl overflow-hidden"
+            >
+              @if (!imageFailed().has(item.jewel_code)) {
+                <img
+                  [src]="imageUrl(item.jewel_code, item.product_image_url)"
+                  [alt]="item.jewel_code"
+                  (error)="onImgError(item.jewel_code)"
+                  class="rounded-2xl w-full object-cover"
+                />
+              } @else {
+                <div class="flex justify-center items-center p-3">
+                  <p-message severity="warn">Image not found</p-message>
+                </div>
+              }
+            </div>
+
+            <div class="rounded-xl w-full flex-1">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-base md:text-lg">
+                  <b class="text-emerald-700"
+                    >{{ item.product_category | titlecase }} -</b
+                  >
+                  {{ item.sub_category | titlecase }}
+                </h3>
+                <b class="ml-auto text-sm md:text-base">{{
+                  item.jewel_code
+                }}</b>
+              </div>
+
+              <div class="rounded-lg overflow-x-auto">
+                <table
+                  class="w-full text-left text-xs md:text-sm border-collapse min-w-[500px]"
+                >
+                  <thead>
+                    <tr class="bg-emerald-700 text-white font-semibold">
+                      <th class="p-2 w-[25%]">Description</th>
+                      <th class="p-2 text-center w-[12%]">Wt.</th>
+                      <th class="p-2 text-center w-[12%]">Pcs.</th>
+                      <th class="p-2 text-center w-[12%]">Size | Shape</th>
+                      <th class="p-2 text-center w-[12%]">Rate</th>
+                      <th class="p-2 text-center w-[12%]">Qlty</th>
+                      <th class="p-2 text-right w-[15%]">Price</th>
+                    </tr>
+                  </thead>
+
+                  <tbody
+                    class="divide-y divide-gray-100 text-gray-700 dark:text-gray-200"
+                  >
+                    <!-- Net wt -->
+                    <tr class="hover:bg-gray-50/50">
+                      <td
+                        class="p-2 font-semibold text-gray-900 dark:text-gray-300"
+                      >
+                        Net wt.
+                      </td>
+                      <td class="p-2 text-center">{{ item.net_wt }} Gms</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center font-medium">
+                        {{ item.material ? item.material + "K" : "-" }}
+                      </td>
+                      <td
+                        class="p-2 text-right font-semibold text-gray-900 dark:text-gray-300"
+                      >
+                        {{ item.metal_amt || 0 | number: "1.2-2" }}/-
+                      </td>
+                    </tr>
+
+                    <!-- Making -->
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-2 font-semibold">Making</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">
+                        @if (item.making_charge && item.making_charge !== 0) {
+                          {{ item.making_charge }}%
+                        } @else if (item.making_amt && item.making_amt !== 0) {
+                          Fixed
+                        } @else {
+                          -
+                        }
+                      </td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-right">
+                        {{
+                          getMakingChargeAmount(item) || 0 | number: "1.2-2"
+                        }}/-
+                      </td>
+                    </tr>
+
+                    <!-- Diamonds -->
+                    @if (item.diamonds && item.diamonds.length > 0) {
+                      @for (dia of item.diamonds; track $index) {
+                        <tr class="hover:bg-gray-50/50">
+                          <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_wt || "-" }} Cts
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.diamond_pcs || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_size }} | {{ dia.diamond_shape || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ dia.dia_rate || "-" }}
+                          </td>
+                          <td class="p-2 text-center font-medium">
+                            @if (dia.diamond_colour || dia.diamond_clarity) {
+                              {{ dia.diamond_colour || "" }}
+                              {{ dia.diamond_clarity || "" }}
+                            } @else {
+                              {{ dia.quality_code || "-" }}
+                            }
+                          </td>
+                          <td
+                            class="p-2 text-right text-gray-600 dark:text-gray-300"
+                          >
+                            {{ dia.dia_amt | number: "1.2-2" }}/-
+                          </td>
+                        </tr>
+                      }
+                      <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                        <td class="p-2 pl-4">Total Dia. (B)</td>
+                        <td class="p-2 text-center">
+                          {{
+                            getTotaldiamondWeight(item.diamonds)
+                              | number: "1.2-2"
+                          }}
+                          Cts
+                        </td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-right">
+                          {{
+                            getTotalDiamondAmount(item.diamonds)
+                              | number: "1.2-2"
+                          }}/-
+                        </td>
+                      </tr>
+                    }
+
+                    <!-- Colour stones -->
+                    @if (item.stones && item.stones.length > 0) {
+                      @for (stone of item.stones; track $index) {
+                        <tr class="hover:bg-gray-50/50">
+                          <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_wt }} Cts
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_pcs || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_type || "-" }}
+                          </td>
+                          <td class="p-2 text-center">
+                            {{ stone.stone_rate || "-" }}
+                          </td>
+                          <td class="p-2 text-center">-</td>
+                          <td
+                            class="p-2 text-right text-gray-600 dark:text-gray-300"
+                          >
+                            {{ stone.stone_amt | number: "1.2-2" }}/-
+                          </td>
+                        </tr>
+                      }
+                      <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                        <td class="p-2 pl-4">Total Stone (B)</td>
+                        <td class="p-2 text-center">
+                          {{
+                            getTotalStoneWeight(item.stones) | number: "1.2-2"
+                          }}
+                          Cts
+                        </td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-right">
+                          {{
+                            getTotalStoneAmount(item.stones) | number: "1.2-2"
+                          }}/-
+                        </td>
+                      </tr>
+                    }
+
+                    <!-- Subtotal -->
+                    <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                      <td class="p-2">Subtotal (A+B+C)</td>
+                      <td colspan="5" class="p-2"></td>
+                      <td class="p-2 text-right">
+                        {{ getSubtotal(item) | number: "1.2-2" }}/-
+                      </td>
+                    </tr>
+
+                    <!-- GST -->
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-2 font-semibold">GST</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-center">3%</td>
+                      <td class="p-2 text-center">-</td>
+                      <td class="p-2 text-right">
+                        ₹{{
+                          getGrandTotal(item) - getSubtotal(item)
+                            | number: "1.2-2"
+                        }}
+                      </td>
+                    </tr>
+
+                    <tr class="bg-emerald-100 font-bold text-sm md:text-base">
+                      <td class="p-3 rounded-bl-lg dark:text-gray-950">
+                        RKJ Price
+                        <span class="text-xs font-normal text-emerald-700"
+                          >(Inc. GST)</span
+                        >
+                      </td>
+                      <td colspan="5" class="p-3"></td>
+                      <td
+                        class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-950"
+                      >
+                        {{ getGrandTotal(item) | number: "1.2-2" }}/-
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </p-card>
+      }
+    }
+
+    <!-- Popular categories (carousel + search) -->
+    <section
+      class="mt-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
+    >
+      <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <h2 class="text-lg font-semibold">Popular Categories</h2>
+
+        <div class="flex items-center gap-1 w-full sm:w-auto">
+          <span class="relative flex-1 sm:w-56 sm:flex-none">
+            <i
+              class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+            ></i>
             <input
               type="text"
               pInputText
-              formControlName="jewel_code"
-              class="w-full"
-              (change)="search()"
-              clear
+              class="w-full !pl-9 !py-1.5 text-sm"
+              placeholder="Search category"
+              aria-label="Search category"
+              clear="true"
+              [ngModel]="catSearch()"
+              (ngModelChange)="onCatSearch($event)"
             />
-            <label for="jewel_code">Enter Tag No.</label>
-          </p-floatlabel>
+          </span>
+          @if (category()) {
+            <a
+              class="text-sm font-medium text-emerald-700 cursor-pointer mx-2 whitespace-nowrap"
+              (click)="setCategory(null)"
+              >Show all</a
+            >
+          }
+          <p-button
+            icon="pi pi-chevron-left"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            ariaLabel="Previous categories"
+            (onClick)="scrollCats(-1)"
+          />
+          <p-button
+            icon="pi pi-chevron-right"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            ariaLabel="Next categories"
+            (onClick)="scrollCats(1)"
+          />
+        </div>
+      </div>
 
-          @if (
-            searchFrom.controls["jewel_code"].touched &&
-            searchFrom.controls["jewel_code"].hasError("required")
-          ) {
-            <p class="mt-0">
-              <small class="text-red-600">Tag number is required</small>
-            </p>
+      @if (filteredCategories().length === 0) {
+        <p class="text-sm text-gray-500 py-4">
+          No category matches “{{ catSearch() }}”.
+        </p>
+      } @else {
+        <div
+          #catScroller
+          class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          @for (c of filteredCategories(); track c.key) {
+            <button
+              type="button"
+              (click)="setCategory(c.key)"
+              [attr.aria-pressed]="category() === c.key"
+              class="snap-start shrink-0 w-36 md:w-44 rounded-xl bg-white dark:bg-gray-900 border-2 text-center overflow-hidden shadow-sm transition focus-visible:ring-2 focus-visible:ring-emerald-600"
+              [class.border-emerald-600]="category() === c.key"
+              [class.border-transparent]="category() !== c.key"
+            >
+              <div class="relative h-24 bg-emerald-50 grid place-items-center">
+                <i class="pi pi-star text-emerald-300 text-2xl"></i>
+                <img
+                  [src]="'assets/categories/' + (c.key | lowercase) + '.jpg'"
+                  [alt]="c.label"
+                  class="absolute inset-0 w-full h-full object-cover"
+                  (error)="$any($event.target).style.display = 'none'"
+                />
+              </div>
+              <span
+                class="block py-2 text-sm"
+                [class.font-semibold]="category() === c.key"
+                >{{ c.label | titlecase }}</span
+              >
+            </button>
           }
         </div>
-      </form>
-    </div>
-  </div>
+      }
+    </section>
 
-  <div class="w-full lg:w-6/7 py-4">
-    @for (item of searchResult(); track item.jewel_code) {
-      <p-card
-        styleClass="mb-4 bg-white shadow-sm "
-        class="cursor-pointer"
-        routerLink="/view-details/{{ item.jewel_code }}"
-      >
-        <div
-          class="flex justify-start w-full gap-4 relative flex-col md:flex-row"
-        >
-          <a
-            class="w-[60%] md:w-[20%] mx-auto mb-2 rounded-2xl overflow-hidden"
-          >
-            @if (productImageUrl()) {
-              <img
-                [src]="productImageUrl()"
-                [alt]="item.jewel_code"
-                class="rounded-2xl w-full object-cover"
-              />
-            } @else {
-             <div class="flex justify-center items-center p-3">
-               <p-message severity="warn">Image not found</p-message>
-             </div>
-            }
-          </a>
-
-          <div class="rounded-xl w-full flex-1">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="card-title text-base md:text-lg">
-                <b class="text-emerald-500"
-                  >{{ item.product_category | titlecase }} -</b
-                >
-                {{ item.sub_category | titlecase }}
-              </h3>
-              <b class="ml-auto text-sm md:text-base">{{ item.jewel_code }}</b>
-            </div>
-
-            <div class="rounded-lg overflow-x-auto">
-              <table
-                class="w-full text-left text-xs md:text-sm border-collapse min-w-[500px]"
-              >
-                <thead>
-                  <tr
-                    class="bg-emerald-500 border-b border-[#00c285] text-white font-semibold"
-                  >
-                    <th class="p-2 w-[25%]">Description</th>
-                    <th class="p-2 text-center w-[12%]">Wt.</th>
-                    <th class="p-2 text-center w-[12%]">Pcs.</th>
-                    <th class="p-2 text-center w-[12%]">Size | Shape</th>
-                    <th class="p-2 text-center w-[12%]">Rate</th>
-                    <th class="p-2 text-center w-[12%]">Qlty</th>
-                    <th class="p-2 text-right w-[15%]">Price</th>
-                  </tr>
-                </thead>
-
-                <tbody
-                  class="divide-y divide-gray-100 text-gray-700 dark:text-gray-200"
-                >
-                  <!-- Net wt -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td
-                      class="p-2 font-semibold text-gray-900 dark:text-gray-300"
-                    >
-                      Net wt.
-                    </td>
-                    <td class="p-2 text-center">{{ item.net_wt }} Gms</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center font-medium">
-                      {{ item.material ? item.material + "K" : "-" }}
-                    </td>
-                    <td
-                      class="p-2 text-right font-semibold text-gray-900 dark:text-gray-300"
-                    >
-                      {{ item.metal_amt || 0 | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                  <!-- Making charge -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 font-semibold">Making</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">
-                      @if (item.making_charge && item.making_charge !== 0) {
-                        {{ item.making_charge }}%
-                      } @else if (item.making_amt && item.making_amt !== 0) {
-                        Fixed
-                      } @else {
-                        -
-                      }
-                    </td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-right">
-                      {{ getMakingChargeAmount(item) || 0 | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-
-                  <!-- diamonds calculation -->
-                  @if (item.diamonds && item.diamonds.length > 0) {
-                    @for (dia of item.diamonds; track $index) {
-                      <tr class="hover:bg-gray-50/50">
-                        <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_wt || "-" }} Cts
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.diamond_pcs || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_size }} | {{ dia.diamond_shape || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ dia.dia_rate || "-" }}
-                        </td>
-                        <td class="p-2 text-center font-medium">
-                          @if (dia.diamond_colour || dia.diamond_clarity) {
-                            {{ dia.diamond_colour || "" }}
-                            {{ dia.diamond_clarity || "" }}
-                          } @else {
-                            {{ dia.quality_code || "-" }}
-                          }
-                        </td>
-                        <td
-                          class="p-2 text-right text-gray-600 dark:text-gray-300"
-                        >
-                          {{ dia.dia_amt | number: "1.2-2" }}/-
-                        </td>
-                      </tr>
-                    }
-
-                    <!-- total diamonds -->
-                    <tr
-                      class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
-                    >
-                      <td class="p-2 pl-4">Total Dia. (B)</td>
-                      <td class="p-2 text-center">
-                        {{
-                          getTotaldiamondWeight(item.diamonds) | number: "1.2-2"
-                        }}
-                        Cts
-                      </td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td
-                        class="p-2 text-right text-gray-900 dark:text-gray-50"
-                      >
-                        {{
-                          getTotalDiamondAmount(item.diamonds)
-                            | number: "1.2-2"
-                        }}/-
-                      </td>
-                    </tr>
-                  }
-
-                  <!-- colour stones -->
-                  @if (item.stones && item.stones.length > 0) {
-                    @for (stone of item.stones; track $index) {
-                      <tr class="hover:bg-gray-50/50">
-                        <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_wt }} Cts
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_pcs || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_type || "-" }}
-                        </td>
-                        <td class="p-2 text-center">
-                          {{ stone.stone_rate || "-" }}
-                        </td>
-                        <td class="p-2 text-center">-</td>
-                        <td
-                          class="p-2 text-right text-gray-600 dark:text-gray-300"
-                        >
-                          {{ stone.stone_amt | number: "1.2-2" }}/-
-                        </td>
-                      </tr>
-                    }
-                    <!-- total diamonds -->
-                    <tr
-                      class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
-                    >
-                      <td class="p-2 pl-4">Total Stone (B)</td>
-                      <td class="p-2 text-center">
-                        {{ getTotalStoneWeight(item.stones) | number: "1.2-2" }}
-                        Cts
-                      </td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td class="p-2 text-center">-</td>
-                      <td
-                        class="p-2 text-right text-gray-900 dark:text-gray-50"
-                      >
-                        {{
-                          getTotalStoneAmount(item.stones) | number: "1.2-2"
-                        }}/-
-                      </td>
-                    </tr>
-                  }
-
-                  <!-- sub total -->
-                  <tr
-                    class="bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-gray-50"
-                  >
-                    <td class="p-2">Subtotal (A+B+C)</td>
-                    <td colspan="5" class="p-2"></td>
-                    <td class="p-2 text-right">
-                      {{
-                        item.metal_amt +
-                          getTotalDiamondAmount(item.diamonds) +
-                          getTotalStoneAmount(item.stones) +
-                          getMakingChargeAmount(item) | number: "1.2-2"
-                      }}/-
-                    </td>
-                  </tr>
-
-                  <!-- gst -->
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 font-semibold">GST</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-center">3%</td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-right">
-                      ₹{{
-                        getGrandTotal(item) -
-                          (getMakingChargeAmount(item) +
-                            item.metal_amt +
-                            getTotalDiamondAmount(item.diamonds) +
-                            getTotalStoneAmount(item.stones)) | number: "1.2-2"
-                      }}
-                    </td>
-                  </tr>
-
-                  <tr
-                    class="bg-emerald-100 text-dark font-bold text-sm md:text-base rounded-b-xl"
-                  >
-                    <td class="p-3 rounded-bl-lg dark:text-gray-950">
-                      RKJ Price
-                      <span
-                        class="text-xs font-normal text-emerald-100 dark:text-gray-600"
-                        >(Inc. GST)</span
-                      >
-                    </td>
-                    <td colspan="5" class="p-3"></td>
-                    <td
-                      class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-950"
-                    >
-                      {{ getGrandTotal(item) | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <!-- Featured products -->
+    <section class="mt-8">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-semibold">Featured Products</h2>
+        <div class="flex gap-1" role="tablist">
+          @for (t of tabs; track t.key) {
+            <button
+              type="button"
+              role="tab"
+              [attr.aria-selected]="tab() === t.key"
+              (click)="setTab(t.key)"
+              class="px-3 py-1 rounded-full text-sm"
+              [class]="
+                tab() === t.key
+                  ? 'bg-emerald-700 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              "
+            >
+              {{ t.label }}
+            </button>
+          }
         </div>
-      </p-card>
-    }
-  </div>
-</section>
+      </div>
 
-<p-dialog
+      @if (loading()) {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          @for (s of [1, 2, 3]; track s) {
+            <div
+              class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
+            ></div>
+          }
+        </div>
+      } @else if (visibleProducts().length === 0) {
+        <p-message severity="info">
+          No products match these filters. Try clearing a filter.
+        </p-message>
+      } @else {
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (p of visibleProducts(); track p.jewel_code) {
+            <article
+              class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 shadow-sm flex flex-col"
+            >
+              <div
+                class="relative rounded-lg overflow-hidden bg-orange-50 aspect-square"
+              >
+                @if (!imageFailed().has(p.jewel_code)) {
+                  <img
+                    [src]="imageUrl(p.jewel_code, p.product_image_url)"
+                    [alt]="p.sub_category"
+                    loading="lazy"
+                    (error)="onImgError(p.jewel_code)"
+                    class="w-full h-full object-cover"
+                  />
+                } @else {
+                  <div
+                    class="w-full h-full grid place-items-center text-xs text-gray-400"
+                  >
+                    No image
+                  </div>
+                }
+              </div>
+
+              <div class="flex gap-2 justify-between items-start">
+                <div class="flex-1">
+                  <h3 class="text-sm font-medium truncate">
+                    {{ p.sub_category | titlecase }}
+                  </h3>
+                  <p class="text-[11px] text-gray-500">{{ p.jewel_code }}</p>
+                  <p class="font-semibold mt-1">
+                    ₹{{ getGrandTotal(p) | number: "1.0-0" }}
+                  </p>
+                </div>
+                <p-button
+                  icon="pi pi-eye"
+                  severity="contrast"
+                  text="true"
+                  styleClass="w-full "
+                  [routerLink]="['/view-details', p.jewel_code]"
+                />
+              </div>
+            </article>
+          }
+        </div>
+
+        <p-paginator
+          [first]="(page() - 1) * limit"
+          [rows]="limit"
+          [totalRecords]="total()"
+          (onPageChange)="onPage($event)"
+          styleClass="mt-4"
+        />
+      }
+    </section>
+  </div>
+
+  <!-- ================= RIGHT RAIL ================= -->
+  <aside class="space-y-4">
+    <!-- Actions (existing: Upload, Compare) -->
+    <div
+      class="flex justify-between gap-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
+    >
+      @if (loggedUser !== "user") {
+        <p-button
+          icon="pi pi-upload"
+          (onClick)="visible = true"
+          severity="secondary"
+          label="Import "
+          class="w-full"
+        />
+      }
+      <p-button
+        icon="pi pi-sliders-v"
+        routerLink="/products/compare"
+        severity="contrast"
+        label="Compare"
+        class="w-full"
+      />
+    </div>
+
+    <section
+      class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3"
+    >
+      <h2 class="font-semibold mb-2">Quick Actions</h2>
+      @for (a of quickActions; track a.title) {
+        <a
+          [routerLink]="a.link"
+          class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          <span
+            class="w-10 h-10 grid place-items-center rounded-lg bg-emerald-50 text-emerald-700"
+          >
+            <i [class]="a.icon"></i>
+          </span>
+          <span class="flex-1">
+            <span class="block text-sm font-medium">{{ a.title }}</span>
+            <span class="block text-xs text-gray-500">{{ a.sub }}</span>
+          </span>
+          <i class="pi pi-angle-right text-gray-400"></i>
+        </a>
+      }
+    </section>
+
+    <section
+      class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold"><i class="pi pi-filter mr-2"></i>Filters</h2>
+        <a
+          class="text-xs text-emerald-700 cursor-pointer"
+          (click)="clearFilters()"
+          >Clear all</a
+        >
+      </div>
+
+      <label class="text-sm font-medium block mb-1">Price range</label>
+      <p-slider
+        [ngModel]="priceMax()"
+        (ngModelChange)="priceMax.set($event)"
+        (onSlideEnd)="reload()"
+        [min]="0"
+        [max]="500000"
+        [step]="5000"
+      />
+      <div class="flex justify-between text-xs text-gray-500 mt-2 mb-4">
+        <span>₹0</span>
+        <span
+          >₹{{ priceMax() | number }}{{ priceMax() >= 500000 ? "+" : "" }}</span
+        >
+      </div>
+
+      @for (f of filterGroups(); track f.key) {
+        <details
+          class="border-t border-gray-100 dark:border-gray-800 py-2 group"
+        >
+          <summary
+            class="flex justify-between items-center cursor-pointer text-sm font-medium list-none"
+          >
+            {{ f.label }}
+            <i
+              class="pi pi-angle-down text-gray-400 group-open:rotate-180 transition-transform"
+            ></i>
+          </summary>
+          <div class="flex flex-wrap gap-2 mt-2">
+            @for (o of f.options; track o) {
+              <button
+                type="button"
+                (click)="toggleFilter(f.key, o)"
+                class="px-2 py-1 rounded-full text-xs border"
+                [class]="
+                  filters()[f.key] === o
+                    ? 'bg-emerald-700 text-white border-emerald-700'
+                    : 'border-gray-300 text-gray-700 dark:text-gray-200'
+                "
+              >
+                {{ o }}
+              </button>
+            }
+          </div>
+        </details>
+      }
+    </section>
+
+    <a
+      routerLink="/products/top-selling"
+      class="flex items-center gap-3 rounded-xl bg-amber-50 dark:bg-gray-900 border border-amber-100 dark:border-gray-700 p-4"
+    >
+      <i class="pi pi-crown text-2xl text-amber-500"></i>
+      <span class="flex-1">
+        <span class="block text-sm font-semibold">Top Selling Products</span>
+        <span class="block text-xs text-gray-500"
+          >View what your customers love</span
+        >
+      </span>
+      <i class="pi pi-angle-right text-gray-400"></i>
+    </a>
+  </aside>
+</div>
+
+<!-- CSV import dialog (existing) -->
+<p-drawer
   header="Import Products (CSV)"
-  [modal]="true"
+  position="bottom"
   [(visible)]="visible"
-  styleClass="w-full md:w-[400px]"
+  [style]="{ height: '100%', width: '25%' }"
+  styleClass="!w-full md:!w-80 lg:!w-[30rem]"
 >
   <form
     [formGroup]="csvForm"
     (ngSubmit)="onSubmit()"
-    class="flex flex-col items-start justify-start gap-4"
+    class="flex justify-between items-start justify-start gap-4"
   >
     <p-fileUpload
       mode="basic"
@@ -338,15 +618,13 @@
       chooseLabel="Choose CSV file"
       chooseIcon="pi pi-file-excel"
       styleClass="w-auto"
-    >
-    </p-fileUpload>
-
+    />
     <p-button
       type="submit"
       [label]="isUploading()"
       severity="contrast"
       [disabled]="!selectedFile || isUploading() !== 'Upload'"
       styleClass="w-auto"
-    ></p-button>
+    />
   </form>
-</p-dialog>
+</p-drawer>

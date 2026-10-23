@@ -20,6 +20,7 @@ import {
   ImageResult,
 } from '../../services/imagesearch/image-search.service';
 import { NewOrderComponent } from '../orders/new-order/new-order.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-image-search',
@@ -32,6 +33,7 @@ import { NewOrderComponent } from '../orders/new-order/new-order.component';
     TooltipModule,
     DrawerModule,
     NewOrderComponent,
+    RouterLink,
   ],
   templateUrl: './image-search.component.html',
 })
@@ -50,7 +52,7 @@ export class ImageSearchComponent {
   isDragging = signal(false);
   searched = signal(false);
   lightbox = signal<ImageResult | null>(null);
-  orderDrawer = signal(false); // new order drawer visibility
+  orderDrawer = signal(false);
   topK = signal(12);
   maxDistance = signal(10);
 
@@ -67,15 +69,18 @@ export class ImageSearchComponent {
 
   hasResults = computed(() => this.results().length > 0);
 
-  // Show "Create Order" button when:
-  // - search done AND (no results OR no exact match found)
+  // Show "Create Order" when search is done AND (no results OR no identical match)
   showCreateOrder = computed(() => {
     if (!this.searched() || this.loading()) return false;
     const results = this.results();
-    if (results.length === 0) return true; // no matches at all
-    const hasExact = results.some((r) => r.score >= 0.95);
-    return !hasExact; // no identical match
+    if (results.length === 0) return true;
+    return !results.some((r) => r.score >= 0.95);
   });
+
+  // "R-1023.jpg" -> "R-1023"   |   "AB.123.png" -> "AB.123"
+  jewelCode(filename: string): string {
+    return filename.replace(/\.[^./\\]+$/, '');
+  }
 
   // ── File / Camera ─────────────────────────────────────────────────────────
   openFilePicker() {
@@ -116,58 +121,52 @@ export class ImageSearchComponent {
   }
 
   // ── Search ────────────────────────────────────────────────────────────────
-  search() {
+  async search() {
     const file = this.selectedFile();
     if (!file || this.loading()) return;
 
     this.loading.set(true);
     this.results.set([]);
 
-    this.svc.search(file, this.topK()).subscribe({
-      next: (res) => {
-        this.loading.set(false);
-        this.searched.set(true);
+    try {
+      const res = await this.svc.search(file, this.topK());
+      this.searched.set(true);
 
-        if (!res.success) {
-          this.msg.add({
-            severity: 'warn',
-            summary: 'Not ready',
-            detail: res.message || 'Images not indexed yet.',
-          });
-          return;
-        }
-
-        this.results.set(res.results);
-
-        if (res.count === 0) {
-          this.msg.add({
-            severity: 'info',
-            summary: 'No matches found',
-            detail: 'You can create a new order for this item.',
-          });
-        }
-      },
-      error: () => {
-        this.loading.set(false);
+      if (!res.success) {
         this.msg.add({
-          severity: 'error',
-          summary: 'Search failed',
-          detail: 'Make sure the Python service is running on port 8002.',
+          severity: 'warn',
+          summary: 'Not ready',
+          detail: res.message || 'Images not indexed yet.',
         });
-      },
-    });
+        return;
+      }
+
+      this.results.set(res.results);
+
+      if (res.count === 0) {
+        this.msg.add({
+          severity: 'info',
+          summary: 'No matches found',
+          detail: 'You can create a new order for this item.',
+        });
+      }
+    } catch {
+      this.msg.add({
+        severity: 'error',
+        summary: 'Search failed',
+        detail: 'Make sure the Python service is running on port 8002.',
+      });
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   // ── Order drawer ──────────────────────────────────────────────────────────
-
-  // Open order drawer — pass searched image as reference
   openOrderDrawer(refImage?: ImageResult) {
     if (refImage) {
-      // Use the matched product image as reference
       this.orderRefImage.set(refImage.imageUrl);
       this.orderRefName.set(refImage.filename);
     } else {
-      // Use the uploaded query image as reference
       this.orderRefImage.set(this.previewUrl());
       this.orderRefName.set(this.selectedFile()?.name || 'Searched image');
     }

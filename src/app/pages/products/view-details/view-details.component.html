@@ -1,6 +1,7 @@
 <!-- ═════════════ Product details + discount ═════════════ -->
 <section class="flex flex-col lg:flex-row gap-4 mt-4 mb-20">
   <!-- ───── Left: product card ───── -->
+   
   <div class="container w-full lg:w-5/7">
     @if (currentItem(); as item) {
       @if (pricing(); as p) {
@@ -34,7 +35,9 @@
                   >
                   {{ item.sub_category | titlecase }}
                 </h3>
-                <b class="ml-auto text-sm md:text-base">{{ item.jewel_code }}</b>
+                <b class="ml-auto text-sm md:text-base">{{
+                  item.jewel_code
+                }}</b>
               </div>
 
               <!-- Price table -->
@@ -265,7 +268,7 @@
         <div class="price-breakup">
           <div class="flex flex-col gap-4 pt-2">
             <!-- Effective discount on total -->
-          
+
             @if (usesPercentDiscount()) {
               <!-- Gold: discount in % off the making charge -->
               <p-floatlabel variant="in">

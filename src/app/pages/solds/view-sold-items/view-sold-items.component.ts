@@ -20,16 +20,13 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
-import { InputNumber } from 'primeng/inputnumber';
-import { FloatLabel } from 'primeng/floatlabel';
-import { DatePicker } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { CarouselModule } from 'primeng/carousel';
 import { AccordionModule } from 'primeng/accordion';
 import { AvatarModule } from 'primeng/avatar';
-import { BadgeModule } from "primeng/badge";
+import { BadgeModule } from 'primeng/badge';
 import { AuthService } from '../../../services/auth.service';
 
 interface UploadEvent {
@@ -57,8 +54,8 @@ interface UploadEvent {
     CarouselModule,
     AccordionModule,
     AvatarModule,
-    BadgeModule
-],
+    BadgeModule,
+  ],
   templateUrl: './view-sold-items.component.html',
   styleUrl: './view-sold-items.component.css',
 })
