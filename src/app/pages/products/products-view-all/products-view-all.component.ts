@@ -82,7 +82,7 @@ export class ProductsViewAllComponent implements OnInit {
   private _authService = inject(AuthService);
   private _messageService = inject(MessageService);
 
-  // ---------- Search state (existing) ----------
+  // ---------- Search state ----------
   searchResult = signal<any[]>([]);
   isUploading = signal<string>('Upload');
   imageFailed = signal<Set<string>>(new Set());
@@ -107,10 +107,13 @@ export class ProductsViewAllComponent implements OnInit {
     return this.viewMode() === 'list' ? 6 : 12;
   }
 
-  // ---------- Featured products (paginated, server-side filters) ----------
+  // ---------- Featured products ----------
+  // Price is calculated in the browser (getGrandTotal), so price sort, the price
+  // filter and pagination all run client-side on the full result set.
+  private readonly FETCH_ALL = 5000;
   readonly maxPriceLimit = 500000;
-  products = signal<any[]>([]);
-  total = signal(0);
+
+  allProducts = signal<any[]>([]);
   page = signal(1);
   loading = signal(false);
 
@@ -118,6 +121,28 @@ export class ProductsViewAllComponent implements OnInit {
   category = signal<string | null>(null);
   filters = signal<Partial<Record<FilterKey, string>>>({});
   priceMax = signal(500000);
+
+  /** Price-filtered and sorted by grand total (incl. GST) */
+  sortedProducts = computed(() => {
+    const max = this.priceMax();
+    const dir = this.tab() === 'price_asc' ? 1 : -1;
+
+    let rows = this.allProducts().map((p) => ({
+      p,
+      price: this.getGrandTotal(p),
+    }));
+    if (max < this.maxPriceLimit) rows = rows.filter((r) => r.price <= max);
+
+    return rows.sort((a, b) => (a.price - b.price) * dir).map((r) => r.p);
+  });
+
+  total = computed(() => this.sortedProducts().length);
+
+  /** Current page slice */
+  visibleProducts = computed(() => {
+    const start = (this.page() - 1) * this.limit;
+    return this.sortedProducts().slice(start, start + this.limit);
+  });
 
   facets = signal<Facets>({
     categories: [],
@@ -129,7 +154,6 @@ export class ProductsViewAllComponent implements OnInit {
     stone_types: [],
   });
 
-  visibleProducts = computed(() => this.products());
   categories = computed(() =>
     this.facets().categories.map((c) => ({ key: c, label: c })),
   );
@@ -238,10 +262,10 @@ export class ProductsViewAllComponent implements OnInit {
     } catch {
       /* storage unavailable – ignore */
     }
-    // page size differs per view, so restart from page 1
-    this.reload();
+    this.page.set(1); // page size differs per view
   }
 
+  // ---------- Data loading ----------
   loadFacets() {
     this._apiService.getProductFilters().subscribe({
       next: (f: Facets) => this.facets.set(f),
@@ -249,22 +273,20 @@ export class ProductsViewAllComponent implements OnInit {
     });
   }
 
+  /** Fetches everything matching the server-side filters (category etc.) */
   loadProducts() {
     this.loading.set(true);
     const params: Record<string, string | number> = {
-      page: this.page(),
-      limit: this.limit,
-      sort: this.tab(),
+      page: 1,
+      limit: this.FETCH_ALL,
     };
     if (this.category()) params['category'] = this.category()!;
-    if (this.priceMax() < this.maxPriceLimit)
-      params['maxPrice'] = this.priceMax();
     Object.entries(this.filters()).forEach(([k, v]) => v && (params[k] = v));
 
     this._apiService.getProductAll(params).subscribe({
       next: (res: any) => {
-        this.products.set(res.data ?? []);
-        this.total.set(res.total ?? 0);
+        this.allProducts.set(res.data ?? []);
+        this.page.set(1);
         this.loading.set(false);
       },
       error: () => {
@@ -278,19 +300,25 @@ export class ProductsViewAllComponent implements OnInit {
     });
   }
 
+  /** Re-fetch after server-side filters change */
   reload() {
-    this.page.set(1);
     this.loadProducts();
   }
 
   onPage(e: PaginatorState) {
     this.page.set((e.page ?? 0) + 1);
-    this.loadProducts();
   }
+
   setTab(t: TabKey) {
     this.tab.set(t);
-    this.reload();
+    this.page.set(1);
   }
+
+  onPriceChange(value: number) {
+    this.priceMax.set(value);
+    this.page.set(1);
+  }
+
   setCategory(c: string | null) {
     this.category.set(this.category() === c ? null : c);
     this.reload();
@@ -301,12 +329,14 @@ export class ProductsViewAllComponent implements OnInit {
       });
     }
   }
+
   toggleFilter(key: FilterKey, value: string) {
     const next = { ...this.filters() };
     next[key] === value ? delete next[key] : (next[key] = value);
     this.filters.set(next);
     this.reload();
   }
+
   clearFilters() {
     this.filters.set({});
     this.category.set(null);
@@ -314,7 +344,7 @@ export class ProductsViewAllComponent implements OnInit {
     this.reload();
   }
 
-  // ---------- Search by tag (existing) ----------
+  // ---------- Search by tag ----------
   search() {
     const searchValue =
       this.searchFrom.get('jewel_code')?.value || this.lastScanned;
@@ -356,7 +386,7 @@ export class ProductsViewAllComponent implements OnInit {
     this.imageFailed.update((s) => new Set(s).add(code));
   }
 
-  // ---------- Calculations (existing) ----------
+  // ---------- Calculations ----------
   getTotalDiamondAmount(diamonds: any[]): number {
     return (diamonds || []).reduce((t, d) => t + (d.dia_amt || 0), 0);
   }
@@ -396,7 +426,7 @@ export class ProductsViewAllComponent implements OnInit {
     return subtotal + subtotal * 0.03; // + 3% GST
   }
 
-  // ---------- CSV upload (existing) ----------
+  // ---------- CSV upload ----------
   onFileChange(event: any) {
     const file = event.files[0];
     if (!file || !file.name.endsWith('.csv')) {
@@ -439,5 +469,44 @@ export class ProductsViewAllComponent implements OnInit {
         this.isUploading.set('Upload');
       },
     });
+  }
+
+  //render categories images to list of categories
+  // ---------- Category images (public/category-img) ----------
+  private readonly CATEGORY_IMG_DIR = 'category-img';
+  private readonly CATEGORY_IMG_EXT = 'png';
+
+  // Only needed for files that don't follow the naming rule
+  private readonly CATEGORY_IMG_OVERRIDES: Record<string, string> = {
+    'DIAMOND BANGLE': 'diamondbangle.png',
+    'DIAMOND BRACELET': 'diamondbracelet.png',
+    'DIAMOND EARRING': 'diamondearring.png',
+    'DIAMOND MANGALSUTRA': 'diamondmangalsutra.png',
+    'DIAMOND NECKLACE': 'diamondnecklace.png',
+    'DIAMOND NECKLACE EARRING': 'diamondnecklaceearring.png',
+    'DIAMOND NOSE PIN': 'diamondnosepin.png',
+    'DIAMOND PENDANT': 'diamondpendant.png',
+    'DIAMOND RING': 'diamondring.png',
+    'GOLD BANGLE 2': 'goldbangle2.png',
+    'GOLD BANGLE 4': 'goldbangle4.png',
+    'GOLD BRACELET': 'goldbracelet.png',
+    'GOLD CHAIN': 'goldchain.png',
+    'GOLD EARRING': 'goldearring.png',
+    'GOLD EARRING OF PS': 'goldearringofps.png',
+    'GOLD HAR NECKLACE': 'goldharnecklace.png',
+    'GOLD HAR NECKLACE EARRINGS': 'goldharnecklaceearrings.png',
+    'GOLD KANTHI NECKLACE': 'goldkanthinecklace.png',
+    'GOLD KANTHI NECKLACE EARRING': 'goldkanthinecklaceearring.png',
+    'GOLD MANGALSUTRA': 'goldmangalsutra.png',
+    'GOLD PENDANT': 'goldpendant.png',
+    'GOLD PENDANT OF SET': 'goldpendantofset.png',
+    'GOLD RING': 'goldring.png',
+  };
+  categoryImage(name: string): string {
+    const override = this.CATEGORY_IMG_OVERRIDES[name];
+    if (override) return `${this.CATEGORY_IMG_DIR}/${override}`;
+
+    const slug = name.trim().toLowerCase().replace(/\s+/g, '-');
+    return `${this.CATEGORY_IMG_DIR}/${slug}.${this.CATEGORY_IMG_EXT}`;
   }
 }

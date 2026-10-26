@@ -119,8 +119,16 @@
               [class.border-emerald-600]="category() === c.key"
               [class.border-transparent]="category() !== c.key"
             >
-              <div class="relative h-24 bg-emerald-50 grid place-items-center">
-                <i class="pi pi-star text-emerald-300 text-2xl"></i>
+              <div class="relative h-20 grid place-items-center">
+                <!-- display categories images -->
+                <img
+                  [src]="categoryImage(c.key)"
+                  [alt]="c.label"
+                  loading="lazy"
+                  class="absolute inset-0 w-full h-full object-contain"
+                  (error)="$any($event.target).style.display = 'none'"
+                />
+                <!-- display categories names -->
                 <img
                   [src]="'assets/categories/' + (c.key | lowercase) + '.jpg'"
                   [alt]="c.label"
@@ -129,7 +137,7 @@
                 />
               </div>
               <span
-                class="block py-2 text-sm"
+                class="block pt-2 text-sm"
                 [class.font-semibold]="category() === c.key"
                 >{{ c.label | titlecase }}</span
               >
@@ -156,7 +164,7 @@
                 class="px-3 py-1 rounded-full text-sm"
                 [class]="
                   tab() === t.key
-                    ? 'bg-emerald-700 text-white'
+                    ? 'bg-gray-900 dark:bg-emerald-600 text-white'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 "
               >
@@ -180,7 +188,7 @@
               class="px-3 py-1.5 text-sm transition"
               [class]="
                 viewMode() === 'grid'
-                  ? 'bg-emerald-700 text-white'
+                  ? 'bg-gray-900 dark:bg-emerald-600 text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               "
             >
@@ -195,7 +203,7 @@
               class="px-3 py-1.5 text-sm transition border-l border-gray-200 dark:border-gray-700"
               [class]="
                 viewMode() === 'list'
-                  ? 'bg-emerald-700 text-white'
+                  ? 'bg-gray-900 dark:bg-emerald-600 text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               "
             >
@@ -360,8 +368,7 @@
       <label class="text-sm font-medium block mb-1">Price range</label>
       <p-slider
         [ngModel]="priceMax()"
-        (ngModelChange)="priceMax.set($event)"
-        (onSlideEnd)="reload()"
+        (ngModelChange)="onPriceChange($event)"
         [min]="0"
         [max]="500000"
         [step]="5000"
@@ -406,7 +413,6 @@
     </section>
 
     <a
-      routerLink="/products/top-selling"
       class="flex items-center gap-3 rounded-xl bg-amber-50 dark:bg-gray-900 border border-amber-100 dark:border-gray-700 p-4"
     >
       <i class="pi pi-crown text-2xl text-amber-500"></i>
@@ -449,7 +455,7 @@
       <div class="rounded-xl w-full flex-1">
         <div class="flex justify-between items-center mb-3">
           <h3 class="text-base md:text-lg">
-            <b class="text-emerald-700"
+            <b class="text-gray-800 dark:text-emerald-700"
               >{{ item.product_category | titlecase }} -</b
             >
             {{ item.sub_category | titlecase }}
@@ -462,7 +468,9 @@
             class="w-full text-left text-xs md:text-sm border-collapse min-w-[500px]"
           >
             <thead>
-              <tr class="bg-emerald-700 text-white font-semibold">
+              <tr
+                class="bg-gray-900 dark:bg-emerald-600 text-white font-semibold"
+              >
                 <th class="p-2 w-[25%]">Description</th>
                 <th class="p-2 text-center w-[12%]">Wt.</th>
                 <th class="p-2 text-center w-[12%]">Pcs.</th>
@@ -518,30 +526,6 @@
 
               <!-- Diamonds -->
               @if (item.diamonds && item.diamonds.length > 0) {
-                @for (dia of item.diamonds; track $index) {
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 pl-4">Dia {{ $index + 1 }}</td>
-                    <td class="p-2 text-center">{{ dia.dia_wt || "-" }} Cts</td>
-                    <td class="p-2 text-center">
-                      {{ dia.diamond_pcs || "-" }}
-                    </td>
-                    <td class="p-2 text-center">
-                      {{ dia.dia_size }} | {{ dia.diamond_shape || "-" }}
-                    </td>
-                    <td class="p-2 text-center">{{ dia.dia_rate || "-" }}</td>
-                    <td class="p-2 text-center font-medium">
-                      @if (dia.diamond_colour || dia.diamond_clarity) {
-                        {{ dia.diamond_colour || "" }}
-                        {{ dia.diamond_clarity || "" }}
-                      } @else {
-                        {{ dia.quality_code || "-" }}
-                      }
-                    </td>
-                    <td class="p-2 text-right text-gray-600 dark:text-gray-300">
-                      {{ dia.dia_amt | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                }
                 <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                   <td class="p-2 pl-4">Total Dia. (B)</td>
                   <td class="p-2 text-center">
@@ -562,25 +546,6 @@
 
               <!-- Colour stones -->
               @if (item.stones && item.stones.length > 0) {
-                @for (stone of item.stones; track $index) {
-                  <tr class="hover:bg-gray-50/50">
-                    <td class="p-2 pl-4">C.S. {{ $index + 1 }}</td>
-                    <td class="p-2 text-center">{{ stone.stone_wt }} Cts</td>
-                    <td class="p-2 text-center">
-                      {{ stone.stone_pcs || "-" }}
-                    </td>
-                    <td class="p-2 text-center">
-                      {{ stone.stone_type || "-" }}
-                    </td>
-                    <td class="p-2 text-center">
-                      {{ stone.stone_rate || "-" }}
-                    </td>
-                    <td class="p-2 text-center">-</td>
-                    <td class="p-2 text-right text-gray-600 dark:text-gray-300">
-                      {{ stone.stone_amt | number: "1.2-2" }}/-
-                    </td>
-                  </tr>
-                }
                 <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                   <td class="p-2 pl-4">Total Stone (B)</td>
                   <td class="p-2 text-center">
@@ -621,16 +586,19 @@
                 </td>
               </tr>
 
-              <tr class="bg-emerald-100 font-bold text-sm md:text-base">
-                <td class="p-3 rounded-bl-lg dark:text-gray-950">
+              <tr
+                class="bg-gray-200 dark:bg-gray-900 font-bold text-sm md:text-base"
+              >
+                <td class="p-3 rounded-bl-lg dark:text-gray-200">
                   RKJ Price
-                  <span class="text-xs font-normal text-emerald-700"
+                  <span
+                    class="text-xs font-normal text-emerald-700 dark:text-emerald-400"
                     >(Inc. GST)</span
                   >
                 </td>
                 <td colspan="5" class="p-3"></td>
                 <td
-                  class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-950"
+                  class="p-3 text-right rounded-br-lg tracking-wider dark:text-gray-200"
                 >
                   {{ getGrandTotal(item) | number: "1.2-2" }}/-
                 </td>
