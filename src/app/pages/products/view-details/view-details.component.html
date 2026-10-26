@@ -1,7 +1,7 @@
 <!-- ═════════════ Product details + discount ═════════════ -->
 <section class="flex flex-col lg:flex-row gap-4 mt-4 mb-20">
   <!-- ───── Left: product card ───── -->
-   
+
   <div class="container w-full lg:w-5/7">
     @if (currentItem(); as item) {
       @if (pricing(); as p) {
@@ -30,7 +30,7 @@
               <!-- Title -->
               <div class="flex justify-between items-center mb-3">
                 <h3 class="card-title text-base md:text-lg">
-                  <b class="text-emerald-500"
+                  <b class="text-gray-900 dark:text-emerald-500"
                     >{{ item.product_category | titlecase }} -</b
                   >
                   {{ item.sub_category | titlecase }}
@@ -47,7 +47,7 @@
                 >
                   <thead>
                     <tr
-                      class="bg-emerald-500 border-b border-[#00c285] text-white font-semibold"
+                      class="bg-gray-900 text-white font-semibold"
                     >
                       <th class="p-2 w-[25%]">Description</th>
                       <th class="p-2 text-center w-[12%]">Wt.</th>
@@ -234,7 +234,7 @@
 
                     <!-- Grand total -->
                     <tr
-                      class="bg-emerald-100 text-dark font-bold text-sm md:text-base rounded-b-xl"
+                      class="bg-gray-200 text-dark font-bold text-sm md:text-base rounded-b-xl"
                     >
                       <td class="p-3 rounded-bl-lg dark:text-gray-950">
                         RKJ Price
