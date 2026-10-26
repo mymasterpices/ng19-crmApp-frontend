@@ -34,6 +34,7 @@ import { AuthService } from '../../../services/auth.service';
 import { Drawer } from 'primeng/drawer';
 
 type TabKey = 'price_asc' | 'price_desc';
+type ViewMode = 'grid' | 'list';
 type FilterKey =
   | 'gender'
   | 'sub_category'
@@ -52,6 +53,8 @@ interface Facets {
   stone_types: string[];
 }
 
+const VIEW_MODE_KEY = 'products-view-mode';
+
 @Component({
   selector: 'app-products-view-all',
   standalone: true,
@@ -69,8 +72,8 @@ interface Facets {
     SliderModule,
     PaginatorModule,
     DecimalPipe,
-    Drawer
-],
+    Drawer,
+  ],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
 })
@@ -96,8 +99,15 @@ export class ProductsViewAllComponent implements OnInit {
     csv_file: new FormControl<File | null>(null, Validators.required),
   });
 
+  // ---------- View mode (grid / list) ----------
+  viewMode = signal<ViewMode>(this.readSavedView());
+
+  /** List cards are tall (full price breakdown), so show fewer per page. */
+  get limit(): number {
+    return this.viewMode() === 'list' ? 6 : 12;
+  }
+
   // ---------- Featured products (paginated, server-side filters) ----------
-  readonly limit = 12;
   readonly maxPriceLimit = 500000;
   products = signal<any[]>([]);
   total = signal(0);
@@ -180,11 +190,6 @@ export class ProductsViewAllComponent implements OnInit {
       title: 'Customer Focused',
       sub: 'Right product. Right customer.',
     },
-    // {
-    //   icon: 'pi pi-chart-line',
-    //   title: 'Boost Sales',
-    //   sub: 'Better suggestions. Higher conversions.',
-    // },
   ];
   tabs: { key: TabKey; label: string }[] = [
     { key: 'price_asc', label: 'Price: Low to High' },
@@ -209,17 +214,32 @@ export class ProductsViewAllComponent implements OnInit {
       sub: 'Follow up with customers',
       link: '/followup/todays',
     },
-    // {
-    //   icon: 'pi pi-folder-open',
-    //   title: 'Browse Collections',
-    //   sub: 'Explore all collections',
-    //   link: '/collections',
-    // },
   ];
 
   ngOnInit() {
     this.loadFacets();
     this.loadProducts();
+  }
+
+  // ---------- View toggle ----------
+  private readSavedView(): ViewMode {
+    try {
+      return localStorage.getItem(VIEW_MODE_KEY) === 'list' ? 'list' : 'grid';
+    } catch {
+      return 'grid';
+    }
+  }
+
+  setView(mode: ViewMode) {
+    if (this.viewMode() === mode) return;
+    this.viewMode.set(mode);
+    try {
+      localStorage.setItem(VIEW_MODE_KEY, mode);
+    } catch {
+      /* storage unavailable – ignore */
+    }
+    // page size differs per view, so restart from page 1
+    this.reload();
   }
 
   loadFacets() {
