@@ -7,7 +7,7 @@
       (ngSubmit)="search()"
       class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-2 shadow-sm mb-2"
     >
-      <i class="pi pi-search text-emerald-700 px-3"></i>
+     
       <input
         type="text"
         pInputText
@@ -23,7 +23,9 @@
         routerLink="/image-search"
         ariaLabel="Search by image"
       />
-      <p-button type="submit" label="Search" severity="contrast" />
+      <p-button type="submit" severity="contrast"
+      [rounded]="true"
+      icon="pi pi-search" />
     </form>
     @if (
       searchFrom.controls["jewel_code"].touched &&
@@ -273,13 +275,31 @@
                       ₹{{ getGrandTotal(p) | number: "1.0-0" }}
                     </p>
                   </div>
-                  <p-button
-                    icon="pi pi-eye"
-                    severity="contrast"
-                    text="true"
-                    styleClass="w-full "
-                    [routerLink]="['/view-details', p.jewel_code]"
-                  />
+                  <div class="flex gap-2 py-2">
+                    <p-button
+                      icon="pi pi-eye"
+                      severity="contrast"
+                      size="small"
+                      [text]="true"
+                      pTooltip="View"
+                      [rounded]="true"
+                      styleClass="w-full "
+                      [routerLink]="['/view-details', p.jewel_code]"
+                    />
+                    <p-button
+                      icon="pi pi-share-alt"
+                      size="small"
+                      pTooltip="Share"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="contrast"
+                      pTooltip="Share"
+                      ariaLabel="Share on WhatsApp"
+                      title="Share on WhatsApp"
+                      [loading]="sharingCode() === p.jewel_code"
+                      (onClick)="shareItem(p, $event)"
+                    />
+                  </div>
                 </div>
               </article>
             }
@@ -460,7 +480,24 @@
             >
             {{ item.sub_category | titlecase }}
           </h3>
-          <b class="ml-auto text-sm md:text-base">{{ item.jewel_code }}</b>
+          <div
+            class="ml-auto flex items-center gap-1"
+            (click)="$event.stopPropagation()"
+          >
+            <p-button
+              icon="pi pi-share-alt"
+              [rounded]="true"
+              [text]="true"
+              severity="contrast"
+              size="small"
+              pTooltip="Share"
+              ariaLabel="Share on WhatsApp"
+              title="Share on WhatsApp"
+              [loading]="sharingCode() === item.jewel_code"
+              (onClick)="shareItem(item, $event)"
+            />
+            <b class="text-sm md:text-base">{{ item.jewel_code }}</b>
+          </div>
         </div>
 
         <div class="rounded-lg overflow-x-auto">

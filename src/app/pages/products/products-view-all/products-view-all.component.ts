@@ -32,6 +32,9 @@ import { ApiService } from '../../../services/api.service';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
 import { Drawer } from 'primeng/drawer';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Tooltip } from 'primeng/tooltip';
 
 type TabKey = 'price_asc' | 'price_desc';
 type ViewMode = 'grid' | 'list';
@@ -73,6 +76,7 @@ const VIEW_MODE_KEY = 'products-view-mode';
     PaginatorModule,
     DecimalPipe,
     Drawer,
+    Tooltip,
   ],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
@@ -91,6 +95,8 @@ export class ProductsViewAllComponent implements OnInit {
   visible = false; // CSV dialog
   selectedFile: File | null = null;
   lastScanned: string | null = null;
+
+  sharingCode = signal<string | null>(null);
 
   searchFrom = new FormGroup({
     jewel_code: new FormControl('', [Validators.required]),
@@ -508,5 +514,183 @@ export class ProductsViewAllComponent implements OnInit {
 
     const slug = name.trim().toLowerCase().replace(/\s+/g, '-');
     return `${this.CATEGORY_IMG_DIR}/${slug}.${this.CATEGORY_IMG_EXT}`;
+  }
+
+  // ---------- Share as PDF (WhatsApp) ----------
+  async shareItem(item: any, ev?: Event) {
+    ev?.stopPropagation();
+    if (this.sharingCode()) return;
+    this.sharingCode.set(item.jewel_code);
+
+    try {
+      const blob = await this.buildItemPdf(item);
+      const fileName = `${item.jewel_code}.pdf`;
+      const file = new File([blob], fileName, { type: 'application/pdf' });
+      const text = `${item.product_category} - ${item.sub_category} (${item.jewel_code})\nRKJ Price: Rs. ${Math.round(this.getGrandTotal(item))} (Inc. GST)`;
+
+      // Mobile (and some desktops): native share sheet with the PDF attached
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: item.jewel_code, text });
+      } else {
+        // Fallback: download the PDF and open WhatsApp so it can be attached manually
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(text)}`,
+          '_blank',
+        );
+        this._messageService.add({
+          severity: 'info',
+          summary: 'PDF downloaded',
+          detail: 'Attach the downloaded PDF in WhatsApp.',
+        });
+      }
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        // AbortError = user closed the share sheet
+        console.error('Share error:', err);
+        this._messageService.add({
+          severity: 'error',
+          summary: 'Failed',
+          detail: 'Could not create the PDF',
+        });
+      }
+    } finally {
+      this.sharingCode.set(null);
+    }
+  }
+
+  private async buildItemPdf(item: any): Promise<Blob> {
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const fmt = (n: number) =>
+      (n || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+    // Header
+    doc.setFontSize(16).setFont('helvetica', 'bold');
+    doc.text(
+      `${item.product_category ?? ''} - ${item.sub_category ?? ''}`.toUpperCase(),
+      14,
+      18,
+    );
+    doc.setFontSize(12);
+    doc.text(item.jewel_code, pageW - 14, 18, { align: 'right' });
+
+    // Image (optional, skipped if it can't be loaded)
+    let y = 26;
+    const img = await this.toDataUrl(
+      this.imageUrl(item.jewel_code, item.product_image_url),
+    );
+    if (img) {
+      doc.addImage(img, 'JPEG', 14, y, 60, 60);
+      y += 66;
+    }
+
+    // Price breakdown (same rows as the on-screen card)
+    const body: any[] = [
+      [
+        'Net wt.',
+        `${item.net_wt ?? '-'} Gms`,
+        '-',
+        '-',
+        '-',
+        item.material ? item.material + 'K' : '-',
+        fmt(item.metal_amt),
+      ],
+      [
+        'Making',
+        '-',
+        '-',
+        '-',
+        item.making_charge
+          ? `${item.making_charge}%`
+          : item.making_amt
+            ? 'Fixed'
+            : '-',
+        '-',
+        fmt(this.getMakingChargeAmount(item)),
+      ],
+    ];
+    if (item.diamonds?.length) {
+      body.push([
+        'Total Dia. (B)',
+        `${this.getTotaldiamondWeight(item.diamonds).toFixed(2)} Cts`,
+        '-',
+        '-',
+        '-',
+        '-',
+        fmt(this.getTotalDiamondAmount(item.diamonds)),
+      ]);
+    }
+    if (item.stones?.length) {
+      body.push([
+        'Total Stone (B)',
+        `${this.getTotalStoneWeight(item.stones).toFixed(2)} Cts`,
+        '-',
+        '-',
+        '-',
+        '-',
+        fmt(this.getTotalStoneAmount(item.stones)),
+      ]);
+    }
+    const subtotal = this.getSubtotal(item);
+    const grand = this.getGrandTotal(item);
+    body.push(
+      ['Subtotal (A+B+C)', '', '', '', '', '', fmt(subtotal)],
+      ['GST', '-', '-', '-', '3%', '-', fmt(grand - subtotal)],
+      ['RKJ Price (Inc. GST)', '', '', '', '', '', fmt(grand)],
+    );
+
+    autoTable(doc, {
+      startY: y,
+      head: [
+        [
+          'Description',
+          'Wt.',
+          'Pcs.',
+          'Size | Shape',
+          'Rate',
+          'Qlty',
+          'Price (Rs.)',
+        ],
+      ],
+      body,
+      theme: 'grid',
+      headStyles: { fillColor: [17, 24, 39] },
+      styles: { fontSize: 9 },
+      columnStyles: { 6: { halign: 'right' } },
+      didParseCell: (d) => {
+        if (d.section === 'body' && d.row.index === body.length - 1) {
+          d.cell.styles.fontStyle = 'bold';
+          d.cell.styles.fillColor = [229, 231, 235];
+        }
+      },
+    });
+
+    return doc.output('blob');
+  }
+
+  /** Loads an image as a data URL; returns null on CORS/404 errors. */
+  private async toDataUrl(url: string): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
   }
 }
