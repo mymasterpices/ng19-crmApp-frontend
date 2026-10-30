@@ -93,6 +93,7 @@ export class ProductsViewAllComponent implements OnInit {
 
   loggedUser = this._authService.getUserRole();
   visible = false; // CSV dialog
+  filterOpen = signal<boolean>(false); // CSV dialog
   selectedFile: File | null = null;
   lastScanned: string | null = null;
 
@@ -107,7 +108,10 @@ export class ProductsViewAllComponent implements OnInit {
 
   // ---------- View mode (grid / list) ----------
   viewMode = signal<ViewMode>(this.readSavedView());
-
+  // show Filter
+  showFilter() {
+    this.filterOpen.set(true);
+  }
   /** List cards are tall (full price breakdown), so show fewer per page. */
   get limit(): number {
     return this.viewMode() === 'list' ? 6 : 12;

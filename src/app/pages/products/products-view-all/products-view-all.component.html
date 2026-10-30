@@ -7,7 +7,6 @@
       (ngSubmit)="search()"
       class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-2 shadow-sm mb-2"
     >
-     
       <input
         type="text"
         pInputText
@@ -23,9 +22,12 @@
         routerLink="/image-search"
         ariaLabel="Search by image"
       />
-      <p-button type="submit" severity="contrast"
-      [rounded]="true"
-      icon="pi pi-search" />
+      <p-button
+        type="submit"
+        severity="contrast"
+        [rounded]="true"
+        icon="pi pi-search"
+      />
     </form>
     @if (
       searchFrom.controls["jewel_code"].touched &&
@@ -152,9 +154,9 @@
     <!-- Featured products -->
     <section class="mt-8" #productsSection>
       <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h2 class="text-lg font-semibold">Featured Products</h2>
+        <h2 class="text-lg font-semibold hidden md:block">Featured Products</h2>
 
-        <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center justify-between gap-3 w-full">
           <!-- Sort tabs -->
           <div class="flex gap-1" role="tablist">
             @for (t of tabs; track t.key) {
@@ -163,7 +165,7 @@
                 role="tab"
                 [attr.aria-selected]="tab() === t.key"
                 (click)="setTab(t.key)"
-                class="px-3 py-1 rounded-full text-sm"
+                class="px-1 py-1 rounded-full text-sm"
                 [class]="
                   tab() === t.key
                     ? 'bg-gray-900 dark:bg-emerald-600 text-white'
@@ -177,40 +179,36 @@
 
           <!-- View toggle -->
           <div
-            class="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            class="flex items-center gap-1 bg-gray-50 rounded-3xl p-1 dark:border-gray-700 overflow-hidden"
             role="group"
             aria-label="Switch view"
           >
-            <button
-              type="button"
+            <p-button
+              icon="pi pi-th-large"
               (click)="setView('grid')"
               [attr.aria-pressed]="viewMode() === 'grid'"
               aria-label="Grid view"
-              title="Grid view"
-              class="px-3 py-1.5 text-sm transition"
-              [class]="
-                viewMode() === 'grid'
-                  ? 'bg-gray-900 dark:bg-emerald-600 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-              "
+              pTooltip="Grid view"
+              tooltipPosition="top"
+              class="text-sm transition"
+              [severity]="viewMode() === 'grid' ? 'contrast' : 'secondary'"
+              [rounded]="true"
+              size="small"
             >
-              <i class="pi pi-th-large"></i>
-            </button>
-            <button
-              type="button"
+            </p-button>
+            <p-button
               (click)="setView('list')"
               [attr.aria-pressed]="viewMode() === 'list'"
               aria-label="List view"
-              title="List view"
-              class="px-3 py-1.5 text-sm transition border-l border-gray-200 dark:border-gray-700"
-              [class]="
-                viewMode() === 'list'
-                  ? 'bg-gray-900 dark:bg-emerald-600 text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-              "
+              pTooltip="List View"
+              tooltipPosition="top"
+              icon="pi pi-list"
+              class="text-sm transition"
+              [severity]="viewMode() === 'list' ? 'contrast' : 'secondary'"
+              [rounded]="true"
+              size="small"
             >
-              <i class="pi pi-list"></i>
-            </button>
+            </p-button>
           </div>
         </div>
       </div>
@@ -402,7 +400,7 @@
 
       @for (f of filterGroups(); track f.key) {
         <details
-          class="border-t border-gray-100 dark:border-gray-800 py-2 group"
+          class="border-t border-gray-100 dark:border-gray-800 py-3 group"
         >
           <summary
             class="flex justify-between items-center cursor-pointer text-sm font-medium list-none"
