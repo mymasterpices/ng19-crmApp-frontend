@@ -1,4 +1,3 @@
-import { Viewfootfalldetail } from './pages/viewfootfalldetail/viewfootfalldetail.component';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { AdminComponent } from './pages/admin/admin.component';
@@ -25,8 +24,6 @@ import { ProductsViewAllComponent } from './pages/products/products-view-all/pro
 import { ViewDetailsComponent } from './pages/products/view-details/view-details.component';
 import { CustomerViewAllComponent } from './pages/customers/customer-view-all/customer-view-all.component';
 import { CompareComponent } from './pages/products/compare/compare.component';
-import { ShowFootfallComponent } from './pages/footfall/show-footfall/show-footfall.component';
-import { ViewFootfallEntryComponent } from './pages/footfall/view-footfall-entry/view-footfall-entry.component';
 import { OrderDashboardComponent } from './pages/orders/order-dashboard/order-dashboard.component';
 import { NewOrderComponent } from './pages/orders/new-order/new-order.component';
 import { AllOrdersComponent } from './pages/orders/all-orders/all-orders.component';
@@ -75,16 +72,6 @@ export const routes: Routes = [
         data: { expectedRole: 'admin' },
       },
       {
-        path: 'footfall/show-footfall',
-        component: ShowFootfallComponent,
-        data: { expectedRole: 'admin' },
-      },
-      {
-        path: 'footfall/view-footfall-entry/:user_id',
-        component: ViewFootfallEntryComponent,
-        data: { expectedRole: 'admin' },
-      },
-      {
         path: 'orders/order-dashboard',
         component: OrderDashboardComponent,
       },
@@ -102,44 +89,6 @@ export const routes: Routes = [
         component: KarigarDashboardComponent,
         canActivate: [rolecheckGuard],
         data: { expectedRole: 'karigar' },
-      },
-
-      // temp routes
-      {
-        path: 'footfall/footfall-sheet',
-        loadComponent: () =>
-          import('./pages/footfall-sheet/footfall-sheet').then(
-            (m) => m.FootfallSheetComponent,
-          ),
-        data: { expectedRole: 'admin' },
-        canActivate: [rolecheckGuard],
-      },
-      {
-        path: 'footfall',
-        loadComponent: () =>
-          import('./pages/footfall/report.component').then(
-            (m) => m.ReportComponent,
-          ),
-        data: { expectedRole: 'admin' },
-        canActivate: [rolecheckGuard],
-      },
-      {
-        path: 'footfall/footfall-data',
-        loadComponent: () =>
-          import('./pages/footfall-data/footfall-data.component').then(
-            (m) => m.FootfallData,
-          ),
-        canActivate: [rolecheckGuard],
-      },
-
-      {
-        path: 'footfall/view-footfall-detail/:user_id',
-        loadComponent: () =>
-          import('./pages/viewfootfalldetail/viewfootfalldetail.component').then(
-            (m) => m.Viewfootfalldetail,
-          ),
-        data: { expectedRole: 'admin' },
-        canActivate: [rolecheckGuard],
       },
     ],
   },

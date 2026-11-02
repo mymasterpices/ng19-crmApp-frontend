@@ -33,238 +33,6 @@
   </div>
 </p-card>
 
-<!-- ============ Footfall analytics ============ -->
-<section class="my-5">
-  <div
-    class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3"
-  >
-    <h3 class="flex items-center gap-2 text-lg font-semibold">
-      <i class="pi pi-chart-bar text-blue-900"></i> Footfall Analytics
-    </h3>
-
-    <div class="flex items-center gap-2 flex-wrap">
-      <p-button
-        label="Weekly"
-        size="small"
-        [rounded]="true"
-        severity="contrast"
-        [outlined]="range !== 'weekly'"
-        (onClick)="setRange('weekly')"
-      />
-      <p-button
-        label="Monthly"
-        size="small"
-        [rounded]="true"
-        severity="contrast"
-        [outlined]="range !== 'monthly'"
-        (onClick)="setRange('monthly')"
-      />
-      <p-datepicker
-        [ngModel]="customDates"
-        (ngModelChange)="onCustomRangeChange($event)"
-        selectionMode="range"
-        [readonlyInput]="true"
-        [showIcon]="true"
-        placeholder="Custom Range"
-        dateFormat="dd M yy"
-        appendTo="body"
-        size="small"
-      ></p-datepicker>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    @for (c of footCards; track c.label) {
-      <p-card>
-        <div class="flex items-center gap-4 flex-col md:flex-row">
-          <span
-            class="grid place-items-center size-14 rounded-full bg-blue-100 text-blue-900 shrink-0"
-          >
-            <i class="pi {{ c.icon }} !text-2xl"></i>
-          </span>
-          <div>
-            <div class="text-sm">{{ c.label }}</div>
-            <div
-              class="font-bold leading-tight truncate"
-              [class]="('' + c.value).length > 8 ? 'text-xl' : 'text-3xl'"
-            >
-              {{ c.value }}
-            </div>
-            @if (c.delta !== null) {
-              <div
-                class="text-xs font-semibold flex items-center gap-1"
-                [class]="c.deltaGood ? 'text-green-600' : 'text-red-600'"
-              >
-                <i
-                  class="pi !text-[10px]"
-                  [class.pi-arrow-up]="c.delta >= 0"
-                  [class.pi-arrow-down]="c.delta < 0"
-                ></i>
-                {{ c.delta < 0 ? -c.delta : c.delta }}%
-              </div>
-              <div class="text-[11px] text-surface-500">
-                vs. previous {{ rangeLabel }}
-              </div>
-            } @else {
-              <div class="text-xs text-surface-500">{{ c.sub }}</div>
-            }
-          </div>
-        </div>
-      </p-card>
-    }
-  </div>
-
-  <div class="grid lg:grid-cols-[7fr_5fr] gap-4 mt-4">
-    <p-card>
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="flex items-center gap-2 text-sm font-semibold">
-          <i class="pi pi-calendar text-blue-900"></i> Recent Footfall Entries
-        </h4>
-        <p-button
-          label="View All"
-          icon="pi pi-arrow-right"
-          iconPos="right"
-          size="small"
-          severity="contrast"
-          [rounded]="true"
-          routerLink="/footfall/footfall-data"
-        />
-      </div>
-
-      <p-table [value]="recentFootfall" size="small" class="overflow-scroll">
-        <ng-template #header>
-          <tr>
-            <th>Date</th>
-            <th>FF</th>
-            <th>CC</th>
-            <th>PC List</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-e>
-          <tr>
-            <td class="whitespace-nowrap text-sm">
-              {{ e.date | date: "dd-MMM-yy" }}
-            </td>
-            <td>{{ e.footfall }}</td>
-            <td class="font-semibold text-green-600">{{ e.conversion }}</td>
-            <td>
-              @if (e.pcs?.length) {
-                <span class="flex flex-wrap gap-1">
-                  @for (pc of e.pcs; track pc) {
-                    <p-tag [value]="pc" severity="info" [rounded]="true" />
-                  }
-                </span>
-              } @else {
-                <span class="text-surface-400">–</span>
-              }
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-          <tr>
-            <td colspan="4" class="text-center text-surface-500 py-6">
-              No footfall entries yet.
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card>
-      <h4 class="flex items-center gap-2 text-sm font-semibold mb-2">
-        <i class="pi pi-chart-bar text-blue-900"></i> Footfall vs Conversion
-      </h4>
-      <div class="h-56 w-full">
-        <p-chart
-          class="block h-full w-full"
-          type="bar"
-          [data]="footChartData"
-          [options]="barOptions"
-          height="100%"
-        ></p-chart>
-      </div>
-    </p-card>
-  </div>
-</section>
-
-<!-- ============ Store-wide achievement (target) ============ -->
-<p-card
-  class="block my-5"
-  styleClass="!bg-linear-to-r from-orange-50 to-blue-100"
->
-  <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-    <div class="flex items-center gap-3 lg:w-1/4">
-      <span
-        class="grid place-items-center size-12 rounded-full bg-blue-200 text-blue-900 dark:bg-blue-200 dark:text-blue-900 shrink-0"
-      >
-        <i class="pi pi-trophy !text-xl"></i>
-      </span>
-      <div class="flex flex-col gap-1">
-        <span class="font-semibold text-blue-900">Store-Wide Achievement</span>
-        <p-datepicker
-          [ngModel]="selectedDate"
-          (ngModelChange)="onTargetMonthChange($event)"
-          view="month"
-          dateFormat="MM yy"
-          [readonlyInput]="true"
-          appendTo="body"
-          size="small"
-        ></p-datepicker>
-      </div>
-    </div>
-
-    <div class="flex-1 lg:border-l border-surface-300 lg:pl-6">
-      @if (targetVm) {
-        <div class="flex items-center justify-between mb-1 text-sm">
-          <span class="font-semibold">
-            {{ targetVm.achieved | number }} / {{ targetVm.target | number }}
-          </span>
-          <p-tag
-            [value]="targetVm.status"
-            [severity]="getStatusSeverity(targetVm.status)"
-            [rounded]="true"
-          />
-        </div>
-        <p-progressbar [value]="targetVm.percent" [showValue]="true" />
-      } @else {
-        <div class="text-center">
-          <div
-            class="flex items-center justify-center gap-2 font-semibold text-zinc-900"
-          >
-            <i class="pi pi-bullseye text-zinc-900"></i> No Target Found
-          </div>
-          <div class="text-xs text-zinc-600">
-            No performance targets were set for the store in {{ periodLabel }}.
-          </div>
-        </div>
-      }
-    </div>
-
-    <div class="flex gap-2 justify-end">
-      @if (targetVm) {
-        <p-button
-          label="Sync"
-          icon="pi pi-sync"
-          size="small"
-          severity="secondary"
-          [outlined]="true"
-          [rounded]="true"
-          [loading]="isSyncing"
-          (onClick)="syncData()"
-        />
-      }
-      <p-button
-        label="Add Target"
-        icon="pi pi-plus"
-        size="small"
-        severity="contrast"
-        [rounded]="true"
-        routerLink="/manage-targets"
-      />
-    </div>
-  </div>
-</p-card>
-
 @if (!isKarigar) {
   <!-- ============ Customers, follow-ups, seriousness ============ -->
   <section class="grid lg:grid-cols-[2fr_1fr] gap-4 my-5">
@@ -470,3 +238,80 @@
 } @else {
   <app-karigar-dashboard></app-karigar-dashboard>
 }
+<!-- ============ Store-wide achievement (target) ============ -->
+<p-card
+  class="block my-5"
+  styleClass="!bg-linear-to-r from-orange-50 to-blue-100"
+>
+  <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+    <div class="flex items-center gap-3 lg:w-1/4">
+      <span
+        class="grid place-items-center size-12 rounded-full bg-blue-200 text-blue-900 dark:bg-blue-200 dark:text-blue-900 shrink-0"
+      >
+        <i class="pi pi-trophy !text-xl"></i>
+      </span>
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold text-blue-900">Store-Wide Achievement</span>
+        <p-datepicker
+          [ngModel]="selectedDate"
+          (ngModelChange)="onTargetMonthChange($event)"
+          view="month"
+          dateFormat="MM yy"
+          [readonlyInput]="true"
+          appendTo="body"
+          size="small"
+        ></p-datepicker>
+      </div>
+    </div>
+
+    <div class="flex-1 lg:border-l border-surface-300 lg:pl-6">
+      @if (targetVm) {
+        <div class="flex items-center justify-between mb-1 text-sm">
+          <span class="font-semibold">
+            {{ targetVm.achieved | number }} / {{ targetVm.target | number }}
+          </span>
+          <p-tag
+            [value]="targetVm.status"
+            [severity]="getStatusSeverity(targetVm.status)"
+            [rounded]="true"
+          />
+        </div>
+        <p-progressbar [value]="targetVm.percent" [showValue]="true" />
+      } @else {
+        <div class="text-center">
+          <div
+            class="flex items-center justify-center gap-2 font-semibold text-zinc-900"
+          >
+            <i class="pi pi-bullseye text-zinc-900"></i> No Target Found
+          </div>
+          <div class="text-xs text-zinc-600">
+            No performance targets were set for the store in {{ periodLabel }}.
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="flex gap-2 justify-end">
+      @if (targetVm) {
+        <p-button
+          label="Sync"
+          icon="pi pi-sync"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          [rounded]="true"
+          [loading]="isSyncing"
+          (onClick)="syncData()"
+        />
+      }
+      <p-button
+        label="Add Target"
+        icon="pi pi-plus"
+        size="small"
+        severity="contrast"
+        [rounded]="true"
+        routerLink="/manage-targets"
+      />
+    </div>
+  </div>
+</p-card>

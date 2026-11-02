@@ -17,11 +17,7 @@ import { MessageService } from 'primeng/api';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { TargetService } from '../../services/target/target.service';
-import {
-  FeedEntry,
-  FootfallService,
-  KpiResponse,
-} from '../../services/footfall/footfall.service';
+
 import { KarigarDashboardComponent } from '../karigar/karigar-dashboard/karigar-dashboard.component';
 
 /* ---------- types ---------- */
@@ -91,7 +87,7 @@ export class OverviewComponent implements OnInit {
   private _authService = inject(AuthService);
   private _apiServices = inject(ApiService);
   private _targetService = inject(TargetService);
-  private _footfallService = inject(FootfallService);
+
   private _orderService = inject(OrderServices);
   private _messageService = inject(MessageService);
 
@@ -114,8 +110,6 @@ export class OverviewComponent implements OnInit {
   range: Range = 'weekly';
   customDates: Date[] | null = null;
   footCards: FootCard[] = [];
-  feed: FeedEntry[] = []; // from FootfallService.getFeed()
-  recentFootfall: FeedEntry[] = [];
   footChartData: any;
 
   /* ---------- target ---------- */
@@ -209,7 +203,6 @@ export class OverviewComponent implements OnInit {
     this.range = r;
     this.customDates = null;
     this.loadFootfallKpis();
-    this.buildFootChart();
   }
 
   onCustomRangeChange(dates: Date[] | null) {
@@ -218,7 +211,6 @@ export class OverviewComponent implements OnInit {
     if (dates?.[0] && dates?.[1]) {
       this.range = 'custom';
       this.loadFootfallKpis();
-      this.buildFootChart();
     }
   }
 
@@ -250,113 +242,10 @@ export class OverviewComponent implements OnInit {
     const { from, to } = this.period();
     const fmt = (d: Date) => formatDate(d, 'yyyy-MM-dd', 'en-US');
     const custom = this.range === 'custom';
-
-    this._footfallService
-      .getKpis(
-        this.range,
-        custom ? fmt(from) : undefined,
-        custom ? fmt(to) : undefined,
-      )
-      .subscribe({
-        next: (k) => this.buildFootCards(k),
-        error: (err) => {
-          console.error('Footfall KPIs failed:', err);
-          this.footCards = [];
-        },
-      });
   }
 
   loadFeed() {
     const admin = this.userRole === 'admin' || this.userRole === 'superadmin';
-    this._footfallService.getFeed(admin ? undefined : this.userName).subscribe({
-      next: (res: any) => {
-        this.feed = Array.isArray(res) ? res : (res?.data ?? []);
-        this.recentFootfall = [...this.feed]
-          .sort((a, b) => +new Date(b.date) - +new Date(a.date))
-          .slice(0, 5);
-        this.buildFootChart();
-      },
-      error: (err) => console.error('Footfall feed failed:', err),
-    });
-  }
-
-  private buildFootCards(k: KpiResponse) {
-    // API returns the % change vs the previous period
-    this.footCards = [
-      {
-        label: 'Total Footfall',
-        value: k.totalFootfall,
-        icon: 'pi-users',
-        delta: k.footfallChange,
-        deltaGood: k.footfallChange >= 0,
-      },
-      {
-        label: 'Converted',
-        value: k.totalConversion,
-        icon: 'pi-bullseye',
-        delta: k.conversionChange,
-        deltaGood: k.conversionChange >= 0,
-      },
-      {
-        label: 'Conversion Rate',
-        value: `${k.conversionRate}%`,
-        icon: 'pi-percentage',
-        delta: k.rateChange,
-        deltaGood: k.rateChange >= 0,
-      },
-      {
-        label: 'Top Performer',
-        value: k.topPerformer?.name ?? '—',
-        icon: 'pi-crown',
-        delta: null,
-        deltaGood: true,
-        sub: k.topPerformer ? `${k.topPerformer.sales} sales` : 'No data',
-      },
-    ];
-  }
-
-  /** one bar group per day in the selected range, zero-filled, from the feed */
-  private buildFootChart() {
-    const { from, to } = this.period();
-    const keyOf = (d: Date | string) => formatDate(d, 'yyyy-MM-dd', 'en-US');
-
-    const byDay = new Map<string, { f: number; c: number }>();
-    this.feed
-      .filter((e) => this.inRange(e.date, from, to))
-      .forEach((e) => {
-        const k = keyOf(e.date);
-        const cur = byDay.get(k) ?? { f: 0, c: 0 };
-        cur.f += +e.footfall || 0;
-        cur.c += +e.conversion || 0;
-        byDay.set(k, cur);
-      });
-
-    const days: Date[] = [];
-    const d = new Date(from);
-    while (d <= to && days.length < 366) {
-      days.push(new Date(d));
-      d.setDate(d.getDate() + 1);
-    }
-
-    this.footChartData = {
-      labels: days.map((x) => formatDate(x, 'MMM d', 'en-US')),
-      datasets: [
-        {
-          label: 'Footfall',
-          data: days.map((x) => byDay.get(keyOf(x))?.f ?? 0),
-          backgroundColor: '#3B82F6',
-          borderRadius: 6,
-          maxBarThickness: 36,
-        },
-        {
-          label: 'Conversion',
-          data: days.map((x) => byDay.get(keyOf(x))?.c ?? 0),
-          backgroundColor: '#10B981',
-          borderRadius: 6,
-          maxBarThickness: 36,
-        },
-      ],
-    };
   }
 
   /* =====================================================================

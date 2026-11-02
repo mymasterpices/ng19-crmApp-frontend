@@ -20,13 +20,12 @@ import { AddNewUserComponent } from '../add-new-user/add-new-user.component';
 import { DrawerModule } from 'primeng/drawer'; // Fixed import for v19
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { FootfallService } from '../../../services/footfall/footfall.service';
 import { HttpParams } from '@angular/common/http';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AvatarModule } from "primeng/avatar";
-import { InputIconModule } from "primeng/inputicon";
-import { IconFieldModule } from "primeng/iconfield";
+import { AvatarModule } from 'primeng/avatar';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 
 @Component({
   selector: 'app-all-users',
@@ -48,14 +47,13 @@ import { IconFieldModule } from "primeng/iconfield";
     InputTextModule,
     AvatarModule,
     InputIconModule,
-    IconFieldModule
-],
+    IconFieldModule,
+  ],
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',
 })
 export class AllUsersComponent implements OnInit {
   private loginService = inject(ApiService);
-  private _footfallService = inject(FootfallService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
@@ -148,27 +146,6 @@ export class AllUsersComponent implements OnInit {
         this.getAllCustomer();
       },
       error: (err) => console.error(err),
-    });
-  }
-
-  onStatusToggle(user: any, isChecked: boolean) {
-    const newStatus = isChecked ? 'active' : 'inactive';
-    this._footfallService.updateUserStatus(user._id, newStatus).subscribe({
-      next: () => {
-        user.status = newStatus;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Updated',
-          detail: `${user.username} is ${newStatus}`,
-        });
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to update status',
-        });
-      },
     });
   }
 
