@@ -58,14 +58,13 @@ export class CustomerViewAllComponent implements OnInit {
   customers = signal<any[]>([]);
   salespersonOptions = signal<any[]>([]);
   statusOptions = signal<any[]>([
-    { label: 'Cold', value: 'Cold' },
-    { label: 'Open', value: 'Open' },
+    { label: 'Inquiry', value: 'Inquiry' },
+    { label: 'Conversation', value: 'Conversation' },
+    { label: 'Negotiation', value: 'Negotiation' },
     { label: 'Close', value: 'Close' },
-    { label: 'Failed', value: 'Failed' },
-    { label: 'Swarnteras', value: 'Swarnteras' },
   ]);
 
-  userRole: string = '' ;
+  userRole: string = '';
   loginUser: string = '';
   addNewCustomer: boolean = false;
   backendAppUrl = environment.API_URL;
@@ -161,7 +160,9 @@ export class CustomerViewAllComponent implements OnInit {
 
   searchCustomer(): void {
     const isPrivileged =
-      this.userRole === 'admin' || this.userRole === 'superadmin' || this.userRole === 'viewer';
+      this.userRole === 'admin' ||
+      this.userRole === 'superadmin' ||
+      this.userRole === 'viewer';
     const { salesperson, status } = this.searchForm.value;
     let params = new HttpParams();
 
@@ -184,7 +185,9 @@ export class CustomerViewAllComponent implements OnInit {
 
   getAllcustomers(): void {
     const isPrivileged =
-      this.userRole === 'admin' || this.userRole === 'superadmin' || this.userRole === 'viewer';
+      this.userRole === 'admin' ||
+      this.userRole === 'superadmin' ||
+      this.userRole === 'viewer';
     let params = new HttpParams();
 
     if (!isPrivileged) {

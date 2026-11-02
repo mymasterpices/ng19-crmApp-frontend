@@ -64,10 +64,10 @@ export class AddNewComponent implements OnInit {
   private _orderServices = inject(OrderServices);
 
   status = [
-    { name: 'Open' },
-    { name: 'Cold' },
+    { name: 'Inquiry' },
+    { name: 'Conversation' },
+    { name: 'Negotiation' },
     { name: 'Close' },
-    { name: 'Swarnteras' },
   ];
   seriousness = [{ name: 'High' }, { name: 'Low' }, { name: 'Neutral' }];
 

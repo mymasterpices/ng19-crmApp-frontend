@@ -1,192 +1,472 @@
-<h2 class="text-xl font-semibold">Overview</h2>
+<p-toast />
 
-<div
-  class="rounded-xl md:h-40 h-40 bg-cover w-full my-4 bg-center center"
-  style="
-    background-image: url(&quot;https://cdn.pixabay.com/photo/2018/08/16/08/39/hallstatt-3609863_1280.jpg&quot;);
-  "
->
-  <div
-    class="backdrop-blur-xl w-full h-[100%] rounded-xl md:p-5 p-0 flex justify-start items-center"
-  >
-    <div class="flex justify-between md:flex-row flex-col gap-4 w-full">
-      <div class="greetings flex justify-start items-center gap-4">
-        <div class="text-5xl">👋</div>
-        <div class="flex flex-col gap-0">
-          <h1 class="font-bold md:text-4xl text-3xl text-stone-50">
-            Welcome <span class="text-2xl font-light">{{ userName }}</span>
-          </h1>
-          <p class="md:text-lg md:font-medium font-light text-stone-100">
-            Hope! you have amazing day a head.
-          </p>
-        </div>
-      </div>
-      <div class="flex md:justify-between justify-end gap-2 items-center pr-4">
-        <h1 class="icon font-bold md:text-4xl">📆</h1>
-        <h1 class="font-bold md:text-4xl text-stone-50">
-          <div class="flex justify-between items-center md:gap-3 gap-1">
-            <!-- Day of week -->
-            <div class="md:text-4xl">
-              {{ today | date: "EEE" }}
-            </div>
-
-            <!-- Day number -->
-            <div class="md:text-4xl">{{ today | date: "d" }},</div>
-
-            <!-- Month and Year -->
-            <div
-              class="text-lg font-light flex md:flex-col text-right md:gap-0 gap-2"
-            >
-              <span class="md:leading-4">{{ today | date: "MMM" }}</span>
-              <span class="md:leading-4md:">{{ today | date: "yyyy" }}</span>
-            </div>
-          </div>
+<!-- ============ Welcome banner ============ -->
+<p-card styleClass="!bg-linear-to-r from-orange-50 to-blue-100">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <span
+        class="grid place-items-center size-14 rounded-full bg-blue-200 text-blue-900"
+      >
+        <i class="pi pi-heart !text-2xl"></i>
+      </span>
+      <div>
+        <h1 class="text-2xl font-bold text-blue-900">
+          Welcome, {{ userName }}
         </h1>
+        <p class="text-sm text-zinc-700 text">
+          Here's what's happening at your jewellery store today.
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="flex items-center gap-3 bg-white rounded-xl px-4 py-3 self-start md:self-auto"
+    >
+      <i class="pi pi-calendar !text-3xl text-blue-900"></i>
+      <div>
+        <div class="font-semibold text-blue-900">
+          {{ today | date: "EEE, dd MMM yyyy" }}
+        </div>
+        <div class="text-xs text-zinc-600">{{ greeting }}!</div>
       </div>
     </div>
   </div>
-</div>
+</p-card>
 
-<!-- footfall data analytics -->
-<app-footfall-data></app-footfall-data>
+<!-- ============ Footfall analytics ============ -->
+<section class="my-5">
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3"
+  >
+    <h3 class="flex items-center gap-2 text-lg font-semibold">
+      <i class="pi pi-chart-bar text-blue-900"></i> Footfall Analytics
+    </h3>
 
-<!-- target analytics -->
-<app-target-view></app-target-view>
+    <div class="flex items-center gap-2 flex-wrap">
+      <p-button
+        label="Weekly"
+        size="small"
+        [rounded]="true"
+        severity="contrast"
+        [outlined]="range !== 'weekly'"
+        (onClick)="setRange('weekly')"
+      />
+      <p-button
+        label="Monthly"
+        size="small"
+        [rounded]="true"
+        severity="contrast"
+        [outlined]="range !== 'monthly'"
+        (onClick)="setRange('monthly')"
+      />
+      <p-datepicker
+        [ngModel]="customDates"
+        (ngModelChange)="onCustomRangeChange($event)"
+        selectionMode="range"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        placeholder="Custom Range"
+        dateFormat="dd M yy"
+        appendTo="body"
+        size="small"
+      ></p-datepicker>
+    </div>
+  </div>
 
-@if (userRole !== "karigar") {
-  <section class="my-6">
-    <h3 class="text-lg font-semibold my-2">Customer & Follow-ups</h3>
-
-    <div class="customerOverviews grid md:grid-cols-4 gap-4 my-5">
-      <p-card routerLink="/customers/view-all" class="cursor-pointer">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Total</p>
-            <h1 class="text-3xl font-bold">
-              {{ customers.length }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-users text-sky-600 !text-4xl"></i>
-          </span>
-        </div>
-      </p-card>
-      <p-card routerLink="/followup/missed" class="cursor-pointer">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Missed</p>
-            <h1 class="text-3xl font-bold">
-              {{ missedFollow.length }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-exclamation-triangle text-yellow-600 !text-4xl"></i>
-          </span>
-        </div>
-      </p-card>
-      <p-card routerLink="/followup/todays" class="cursor-pointer">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Up-coming</p>
-            <h1 class="text-3xl font-bold">
-              {{ todaysFollow.length }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-clipboard text-teal-600 !text-4xl"></i>
-          </span>
-        </div>
-      </p-card>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    @for (c of footCards; track c.label) {
       <p-card>
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Failed</p>
-            <h1 class="text-3xl font-bold">
-              {{ failedCount }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-user-minus text-orange-600 !text-4xl"></i>
+        <div class="flex items-center gap-4 flex-col md:flex-row">
+          <span
+            class="grid place-items-center size-14 rounded-full bg-blue-100 text-blue-900 shrink-0"
+          >
+            <i class="pi {{ c.icon }} !text-2xl"></i>
           </span>
+          <div>
+            <div class="text-sm">{{ c.label }}</div>
+            <div
+              class="font-bold leading-tight truncate"
+              [class]="('' + c.value).length > 8 ? 'text-xl' : 'text-3xl'"
+            >
+              {{ c.value }}
+            </div>
+            @if (c.delta !== null) {
+              <div
+                class="text-xs font-semibold flex items-center gap-1"
+                [class]="c.deltaGood ? 'text-green-600' : 'text-red-600'"
+              >
+                <i
+                  class="pi !text-[10px]"
+                  [class.pi-arrow-up]="c.delta >= 0"
+                  [class.pi-arrow-down]="c.delta < 0"
+                ></i>
+                {{ c.delta < 0 ? -c.delta : c.delta }}%
+              </div>
+              <div class="text-[11px] text-surface-500">
+                vs. previous {{ rangeLabel }}
+              </div>
+            } @else {
+              <div class="text-xs text-surface-500">{{ c.sub }}</div>
+            }
+          </div>
         </div>
       </p-card>
-    </div>
+    }
+  </div>
 
-    <div class="grid md:grid-cols-3 gap-4">
-      <p-card class="md:col-span-2" header="Status">
+  <div class="grid lg:grid-cols-[7fr_5fr] gap-4 mt-4">
+    <p-card>
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="flex items-center gap-2 text-sm font-semibold">
+          <i class="pi pi-calendar text-blue-900"></i> Recent Footfall Entries
+        </h4>
+        <p-button
+          label="View All"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          size="small"
+          severity="contrast"
+          [rounded]="true"
+          routerLink="/footfall/footfall-data"
+        />
+      </div>
+
+      <p-table [value]="recentFootfall" size="small" class="overflow-scroll">
+        <ng-template #header>
+          <tr>
+            <th>Date</th>
+            <th>FF</th>
+            <th>CC</th>
+            <th>PC List</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-e>
+          <tr>
+            <td class="whitespace-nowrap text-sm">
+              {{ e.date | date: "dd-MMM-yy" }}
+            </td>
+            <td>{{ e.footfall }}</td>
+            <td class="font-semibold text-green-600">{{ e.conversion }}</td>
+            <td>
+              @if (e.pcs?.length) {
+                <span class="flex flex-wrap gap-1">
+                  @for (pc of e.pcs; track pc) {
+                    <p-tag [value]="pc" severity="info" [rounded]="true" />
+                  }
+                </span>
+              } @else {
+                <span class="text-surface-400">–</span>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="4" class="text-center text-surface-500 py-6">
+              No footfall entries yet.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card>
+      <h4 class="flex items-center gap-2 text-sm font-semibold mb-2">
+        <i class="pi pi-chart-bar text-blue-900"></i> Footfall vs Conversion
+      </h4>
+      <div class="h-56 w-full">
         <p-chart
+          class="block h-full w-full"
           type="bar"
-          [data]="chartData"
-          [options]="chartOptions"
+          [data]="footChartData"
+          [options]="barOptions"
+          height="100%"
         ></p-chart>
-      </p-card>
-      <p-card class="col-span-1 min-h-full" header="Seriousness">
-        <p-chart
-          type="doughnut"
-          [data]="seriousnessChartData"
-          [options]="seriousnessChartOptions"
+      </div>
+    </p-card>
+  </div>
+</section>
+
+<!-- ============ Store-wide achievement (target) ============ -->
+<p-card
+  class="block my-5"
+  styleClass="!bg-linear-to-r from-orange-50 to-blue-100"
+>
+  <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+    <div class="flex items-center gap-3 lg:w-1/4">
+      <span
+        class="grid place-items-center size-12 rounded-full bg-blue-200 text-blue-900 dark:bg-blue-200 dark:text-blue-900 shrink-0"
+      >
+        <i class="pi pi-trophy !text-xl"></i>
+      </span>
+      <div class="flex flex-col gap-1">
+        <span class="font-semibold text-blue-900">Store-Wide Achievement</span>
+        <p-datepicker
+          [ngModel]="selectedDate"
+          (ngModelChange)="onTargetMonthChange($event)"
+          view="month"
+          dateFormat="MM yy"
+          [readonlyInput]="true"
+          appendTo="body"
+          size="small"
+        ></p-datepicker>
+      </div>
+    </div>
+
+    <div class="flex-1 lg:border-l border-surface-300 lg:pl-6">
+      @if (targetVm) {
+        <div class="flex items-center justify-between mb-1 text-sm">
+          <span class="font-semibold">
+            {{ targetVm.achieved | number }} / {{ targetVm.target | number }}
+          </span>
+          <p-tag
+            [value]="targetVm.status"
+            [severity]="getStatusSeverity(targetVm.status)"
+            [rounded]="true"
+          />
+        </div>
+        <p-progressbar [value]="targetVm.percent" [showValue]="true" />
+      } @else {
+        <div class="text-center">
+          <div
+            class="flex items-center justify-center gap-2 font-semibold text-zinc-900"
+          >
+            <i class="pi pi-bullseye text-zinc-900"></i> No Target Found
+          </div>
+          <div class="text-xs text-zinc-600">
+            No performance targets were set for the store in {{ periodLabel }}.
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="flex gap-2 justify-end">
+      @if (targetVm) {
+        <p-button
+          label="Sync"
+          icon="pi pi-sync"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          [rounded]="true"
+          [loading]="isSyncing"
+          (onClick)="syncData()"
+        />
+      }
+      <p-button
+        label="Add Target"
+        icon="pi pi-plus"
+        size="small"
+        severity="contrast"
+        [rounded]="true"
+        routerLink="/manage-targets"
+      />
+    </div>
+  </div>
+</p-card>
+
+@if (!isKarigar) {
+  <!-- ============ Customers, follow-ups, seriousness ============ -->
+  <section class="grid lg:grid-cols-[2fr_1fr] gap-4 my-5">
+    <p-card>
+      <ng-template #header>
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-5 pt-4"
         >
-        </p-chart>
-      </p-card>
-    </div>
+          <h3 class="flex items-center gap-2 font-semibold">
+            <i class="pi pi-users text-blue-900"></i> Customer &amp; Follow-ups
+          </h3>
+          <div class="flex items-center gap-2 flex-wrap">
+            <p-button
+              label="Weekly"
+              size="small"
+              [rounded]="true"
+              severity="contrast"
+              [outlined]="custRange !== 'weekly'"
+              (onClick)="setCustRange('weekly')"
+            />
+            <p-button
+              label="Monthly"
+              size="small"
+              [rounded]="true"
+              severity="contrast"
+              [outlined]="custRange !== 'monthly'"
+              (onClick)="setCustRange('monthly')"
+            />
+            <p-datepicker
+              [ngModel]="custDates"
+              (ngModelChange)="onCustDatesChange($event)"
+              selectionMode="range"
+              [readonlyInput]="true"
+              [showIcon]="true"
+              placeholder="Custom Range"
+              dateFormat="dd M yy"
+              appendTo="body"
+              size="small"
+            ></p-datepicker>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        @for (s of customerStats; track s.label) {
+          <a
+            [routerLink]="s.link"
+            class="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 hover:shadow-sm transition-shadow"
+          >
+            <span
+              class="grid place-items-center size-11 rounded-full"
+              [class]="s.iconClass"
+            >
+              <i class="pi {{ s.icon }}"></i>
+            </span>
+            <span>
+              <span class="block text-xs text-surface-500">{{ s.label }}</span>
+              <span class="block text-2xl font-bold">{{ s.value }}</span>
+            </span>
+          </a>
+        }
+      </div>
+
+      <div class="h-64 mt-4">
+        <p-chart
+          class="block h-full w-full"
+          type="bar"
+          [data]="custChartData"
+          [options]="barOptions"
+          height="100%"
+        ></p-chart>
+      </div>
+    </p-card>
+
+    <p-card>
+      <ng-template #header>
+        <h3 class="flex items-center gap-2 font-semibold px-5 pt-4">
+          <i class="pi pi-heart text-blue-900"></i> Seriousness
+        </h3>
+      </ng-template>
+
+      <div
+        class="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center justify-center gap-6 py-2"
+      >
+        <div class="relative size-44">
+          <p-chart
+            class="block h-full w-full"
+            type="doughnut"
+            [data]="seriousnessChartData"
+            [options]="seriousnessChartOptions"
+            height="100%"
+          ></p-chart>
+          <div
+            class="absolute inset-0 grid place-content-center text-center pointer-events-none"
+          >
+            <span class="text-xs text-surface-500">Total</span>
+            <span class="text-2xl font-bold">{{ customers.length }}</span>
+          </div>
+        </div>
+
+        <ul class="space-y-3 text-sm">
+          @for (s of seriousnessLegend; track s.label) {
+            <li class="flex items-center gap-3">
+              <span
+                class="size-2.5 rounded-full"
+                [style.background]="s.color"
+              ></span>
+              <span class="w-16">{{ s.label }}</span>
+              <span class="font-semibold">{{ s.count }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </p-card>
   </section>
 
-  <section class="my-6">
-    <h3 class="text-lg font-semibold my-2">Shared Videos</h3>
+  <!-- ============ Orders ============ -->
+  <p-card class="block my-5">
+    <ng-template #header>
+      <h3 class="flex items-center gap-2 font-semibold px-5 pt-4">
+        <i class="pi pi-shopping-cart text-blue-900"></i> Orders
+      </h3>
+    </ng-template>
 
-    <div class="flex justify-between md:flex-row flex-col gap-4">
-      <p-card class="md:flex-1/4 cursor-pointer" routerLink="/videos/view-all">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Total Videos</p>
-            <h1 class="text-3xl font-bold">
-              {{ sharedCount }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-video text-orange-600 !text-4xl"></i>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      @for (o of orderStats; track o.label) {
+        <a
+          routerLink="/orders/all-orders/"
+          [queryParams]="{ status: o.label }"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 hover:shadow-sm transition-shadow"
+          [class]="o.bgClass"
+        >
+          <span
+            class="grid place-items-center size-9 rounded-full bg-white/70"
+            [class]="o.iconClass"
+          >
+            <i class="pi {{ o.icon }}"></i>
           </span>
-        </div>
-      </p-card>
-
-      <p-card class="md:flex-1/4">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Shared Links</p>
-            <h1 class="text-3xl font-bold">
-              {{ sharedLinks }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-share-alt text-sky-600 !text-4xl"></i>
+          <span class="flex-1">
+            <span class="block text-xs text-zinc-600">{{ o.label }}</span>
+            <span class="block text-xl font-bold text-zinc-900">{{
+              o.value
+            }}</span>
           </span>
-        </div>
-      </p-card>
-      <p-card class="md:flex-1/4">
-        <div class="flex justify-between items-center gap-4">
-          <div class="text">
-            <p>Selections</p>
-            <h1 class="text-3xl font-bold">
-              {{ selectionCount }}
-            </h1>
-          </div>
-
-          <span class="text-4xl">
-            <i class="pi pi-list-check text-teal-600 !text-4xl"></i>
-          </span>
-        </div>
-      </p-card>
+          <i class="pi pi-chevron-right !text-xs text-surface-500"></i>
+        </a>
+      }
     </div>
-  </section>
+
+    <div class="flex items-center justify-between mt-5 mb-2">
+      <h4 class="flex items-center gap-2 text-sm font-semibold">
+        <i class="pi pi-calendar text-blue-900"></i> Recent Orders
+      </h4>
+      <p-button
+        label="View All"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        size="small"
+        severity="contrast"
+        [rounded]="true"
+        routerLink="/orders/all-orders"
+      />
+    </div>
+
+    <p-table
+      [value]="recentOrders"
+      size="small"
+      [tableStyle]="{ 'min-width': '40rem' }"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Order Status</th>
+          <th>Date</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-o>
+        <tr>
+          <td>#{{ o.orderNumber }}</td>
+          <td>{{ o.party }}</td>
+          <td>{{ o.itemCategory }}</td>
+          <td>
+            <p-tag
+              [value]="o.status"
+              [severity]="statusSeverity(o.status)"
+              [rounded]="true"
+            />
+          </td>
+          <td>{{ o.timestamp | date: "dd-MMM-yyyy hh:mm a" }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="text-center text-surface-500 py-6">
+            No orders yet.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 } @else {
   <app-karigar-dashboard></app-karigar-dashboard>
-}
-@if (userRole !== "user") {
-  <!-- customer/sales person reporting -->
 }

@@ -44,10 +44,10 @@
             <span
               class="px-2 py-0.5 mx-2 rounded-2xl text-white text-xs"
               [ngClass]="{
-                'bg-blue-500': customer.status === 'Open',
-                'bg-yellow-500': customer.status === 'Cold',
-                'bg-green-500': customer.status === 'Close',
-                'bg-red-500': customer.status === 'Failed',
+                'bg-blue-500': customer.status === 'Inquiry',
+                'bg-yellow-500': customer.status === 'Conversation',
+                'bg-green-500': customer.status === 'Negotiation',
+                'bg-red-500': customer.status === 'Close',
               }"
             >
               {{ customer.status }}
@@ -71,6 +71,7 @@
             [text]="true"
             severity="danger"
             (click)="deleteCustomer(customer._id)"
+            [rounded]="true"
           ></p-button>
         </div>
       }
