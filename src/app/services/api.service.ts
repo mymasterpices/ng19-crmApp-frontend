@@ -103,6 +103,13 @@ export class ApiService {
     });
   }
 
+  updateUserStatus(userId: string, status: 'active' | 'inactive') {
+    return this.http.patch(`${this.baseUrl}/api/auth/status`, {
+      id: userId,
+      status,
+    });
+  }
+
   //delete a staff
   deleteSalesstaff(userID: string) {
     return this.http.delete(`${this.baseUrl}/api/auth/delete/` + userID);

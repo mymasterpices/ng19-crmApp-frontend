@@ -1,7 +1,202 @@
-<div class="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
-  <!-- ================= MAIN COLUMN ================= -->
+<!--
+  CRM Catalog Desk — three panes:
+  left = enquiry · centre = catalogue · right = shortlist + message.
+  ≥1180px: 3 columns · 760–1179px: shortlist drops below · <760px: single column.
+-->
+<div
+  class="grid grid-cols-1 min-[760px]:grid-cols-[260px_minmax(0,1fr)] min-[1180px]:grid-cols-[290px_minmax(0,1fr)_330px] gap-4 items-start"
+>
+  <!-- ================= LEFT: ENQUIRY ================= -->
+  <aside
+    class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 space-y-4 min-w-0"
+    aria-label="Enquiry"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <div>
+        <h2 class="text-lg font-semibold leading-tight">Enquiries</h2>
+        <span
+          class="text-[11px]"
+          role="status"
+          [class]="
+            syncState() === 'offline' ? 'text-amber-700' : 'text-gray-500'
+          "
+        >
+          @switch (syncState()) {
+            @case ("saved") {
+              <i class="pi pi-check text-emerald-600 text-[10px]"></i> Saved
+            }
+            @case ("saving") {
+              <i class="pi pi-spin pi-spinner text-[10px]"></i> Saving…
+            }
+            @default {
+              <i class="pi pi-exclamation-triangle text-[10px]"></i> Offline –
+              saved on this device, will sync
+            }
+          }
+        </span>
+      </div>
+      <p-button
+        label="New"
+        icon="pi pi-plus"
+        size="small"
+        severity="secondary"
+        (onClick)="newEnquiry()"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto">
+      @for (e of enquiries(); track e.id) {
+        <div
+          class="rounded-lg border grid grid-cols-[1fr_auto] items-center"
+          [class]="
+            e.id === cur().id
+              ? 'border-emerald-600 bg-emerald-50 dark:bg-gray-800'
+              : 'border-gray-200 dark:border-gray-700'
+          "
+        >
+          <button
+            type="button"
+            (click)="selectEnquiry(e.id)"
+            [attr.aria-pressed]="e.id === cur().id"
+            class="text-left px-3 py-2 min-w-0 grid grid-cols-[1fr_auto] gap-x-2 gap-y-0.5 items-center"
+          >
+            <b class="text-sm truncate">{{ e.name || "New customer" }}</b>
+            <p-tag
+              [value]="status(e).label"
+              [severity]="status(e).severity"
+              styleClass="!text-[11px]"
+            />
+            <span class="col-span-2 text-xs text-gray-500">
+              {{ e.channel }} · {{ e.market }} · {{ ago(e.createdAt) }}
+            </span>
+          </button>
+          <p-button
+            icon="pi pi-trash"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            severity="secondary"
+            [ariaLabel]="'Delete enquiry for ' + (e.name || 'new customer')"
+            pTooltip="Delete enquiry"
+            (onClick)="removeEnquiry(e.id, $event)"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="space-y-3">
+      <p class="text-xs font-semibold text-gray-500">Customer</p>
+      <div class="grid grid-cols-2 gap-2">
+        <label class="flex flex-col gap-1 text-xs text-gray-500">
+          Name
+          <input
+            pInputText
+            class="w-full"
+            [ngModel]="cur().name"
+            (ngModelChange)="patchEnquiry({ name: $event })"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-gray-500">
+          WhatsApp no.
+          <input
+            pInputText
+            class="w-full"
+            inputmode="tel"
+            [ngModel]="cur().phone"
+            (ngModelChange)="patchEnquiry({ phone: $event })"
+          />
+        </label>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <label class="flex flex-col gap-1 text-xs text-gray-500">
+          Came via
+          <p-select
+            [options]="channelOpts"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [ngModel]="cur().channel"
+            (ngModelChange)="patchEnquiry({ channel: $event })"
+          />
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-gray-500">
+          Market
+          <p-select
+            [options]="marketOpts"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [ngModel]="cur().market"
+            (ngModelChange)="patchEnquiry({ market: $event })"
+          />
+        </label>
+      </div>
+      <label class="flex flex-col gap-1 text-xs text-gray-500">
+        What they asked for (their words)
+        <textarea
+          pTextarea
+          rows="2"
+          class="w-full"
+          [ngModel]="cur().need"
+          (ngModelChange)="patchEnquiry({ need: $event })"
+        ></textarea>
+      </label>
+      <label class="flex flex-col gap-1 text-xs text-gray-500">
+        Occasion
+        <p-select
+          [options]="occasionOpts"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Not asked yet"
+          [showClear]="true"
+          appendTo="body"
+          [ngModel]="cur().occasion"
+          (ngModelChange)="patchEnquiry({ occasion: $event ?? '' })"
+        />
+      </label>
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold text-gray-500 mb-1">
+        Where this enquiry stands
+      </p>
+      <ol class="flex flex-col gap-0.5">
+        @for (s of STAGES; track s.title; let i = $index) {
+          <li
+            class="grid grid-cols-[20px_1fr] gap-2 items-start py-1 text-sm"
+            [class]="
+              i < cur().stage
+                ? 'text-gray-900 dark:text-gray-100'
+                : i === cur().stage
+                  ? 'font-bold text-gray-900 dark:text-gray-100'
+                  : 'text-gray-500'
+            "
+          >
+            <span
+              class="w-4 h-4 mt-0.5 rounded-full border-2"
+              [class]="
+                i < cur().stage
+                  ? 'bg-emerald-600 border-emerald-600'
+                  : i === cur().stage
+                    ? 'border-emerald-600 bg-emerald-50'
+                    : 'border-gray-300 dark:border-gray-600'
+              "
+            ></span>
+            <span>
+              {{ s.title }}
+              <small class="block font-normal text-xs text-gray-500">{{
+                s.hint
+              }}</small>
+            </span>
+          </li>
+        }
+      </ol>
+    </div>
+  </aside>
+
+  <!-- ================= CENTRE: CATALOGUE ================= -->
   <div class="min-w-0">
-    <!-- Search bar (tag no.) -->
+    <!-- Tag number lookup (existing) -->
     <form
       [formGroup]="searchFrom"
       (ngSubmit)="search()"
@@ -11,7 +206,7 @@
         type="text"
         pInputText
         formControlName="jewel_code"
-        placeholder="Enter tag no. (e.g. DR00001)"
+        placeholder="Look up a tag no. (e.g. DR00001)"
         class="flex-1 !border-0 !shadow-none bg-transparent"
         aria-label="Tag number"
       />
@@ -27,6 +222,7 @@
         severity="contrast"
         [rounded]="true"
         icon="pi pi-search"
+        ariaLabel="Find tag"
       />
     </form>
     @if (
@@ -36,7 +232,7 @@
       <small class="text-red-600 block mb-3">Tag number is required</small>
     }
 
-    <!-- ============ SEARCH RESULTS ============ -->
+    <!-- Tag search result -->
     @if (searchResult().length > 0) {
       <div class="flex items-center justify-between mb-2">
         <h2 class="text-lg font-semibold">Search result</h2>
@@ -48,7 +244,6 @@
           (onClick)="clearSearch()"
         />
       </div>
-
       @for (item of searchResult(); track item.jewel_code) {
         <ng-container
           *ngTemplateOutlet="priceCard; context: { $implicit: item }"
@@ -56,195 +251,199 @@
       }
     }
 
-    <!-- Popular categories (carousel + search) -->
-    <section
-      class="mt-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
-    >
-      <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <h2 class="text-lg font-semibold">Popular Categories</h2>
-
-        <div class="flex items-center gap-1 w-full sm:w-auto">
-          <span class="relative flex-1 sm:w-56 sm:flex-none">
-            <i
-              class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
-            ></i>
-            <input
-              type="text"
-              pInputText
-              class="w-full !pl-9 !py-1.5 text-sm"
-              placeholder="Search category"
-              aria-label="Search category"
-              clear="true"
-              [ngModel]="catSearch()"
-              (ngModelChange)="onCatSearch($event)"
-            />
-          </span>
-          @if (category()) {
-            <a
-              class="text-sm font-medium text-emerald-700 cursor-pointer mx-2 whitespace-nowrap"
-              (click)="setCategory(null)"
-              >Show all</a
-            >
-          }
-          <p-button
-            icon="pi pi-chevron-left"
-            [rounded]="true"
-            [text]="true"
-            severity="secondary"
-            ariaLabel="Previous categories"
-            (onClick)="scrollCats(-1)"
-          />
-          <p-button
-            icon="pi pi-chevron-right"
-            [rounded]="true"
-            [text]="true"
-            severity="secondary"
-            ariaLabel="Next categories"
-            (onClick)="scrollCats(1)"
-          />
-        </div>
+    <!-- Free-text search + filters -->
+    <div class="mt-4 space-y-3">
+      <div class="flex gap-2 flex-wrap">
+        <input
+          type="search"
+          pInputText
+          class="flex-1 min-w-[240px]"
+          placeholder="Type what the customer wants — e.g. diamond studs under 1 lakh"
+          aria-label="Search catalogue"
+          autocomplete="off"
+          [ngModel]="q()"
+          (ngModelChange)="setQuery($event)"
+        />
+        <p-button
+          label="Clear all"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="clearAll()"
+        />
       </div>
 
-      @if (filteredCategories().length === 0) {
-        <p class="text-sm text-gray-500 py-4">
-          No category matches “{{ catSearch() }}”.
-        </p>
-      } @else {
-        <div
-          #catScroller
-          class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          @for (c of filteredCategories(); track c.key) {
+      <div class="flex flex-wrap gap-2 items-center">
+        @for (s of primarySelects(); track s.key) {
+          <p-select
+            [options]="s.options"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="s.placeholder"
+            [showClear]="s.key !== 'avail'"
+            appendTo="body"
+            size="small"
+            [ngModel]="f()[s.key]"
+            (ngModelChange)="setFilter(s.key, $event)"
+          />
+        }
+      </div>
+
+      @if (moreSelects().length) {
+        <details class="group" [open]="moreActive()">
+          <summary
+            class="cursor-pointer text-sm text-emerald-700 dark:text-emerald-400 list-none flex items-center gap-1"
+          >
+            <i
+              class="pi pi-angle-right group-open:rotate-90 transition-transform"
+            ></i>
+            More filters
+          </summary>
+          <div class="flex flex-wrap gap-2 mt-2">
+            @for (s of moreSelects(); track s.key) {
+              <p-select
+                [options]="s.options"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="s.placeholder"
+                [showClear]="true"
+                appendTo="body"
+                size="small"
+                [ngModel]="f()[s.key]"
+                (ngModelChange)="setFilter(s.key, $event)"
+              />
+            }
+          </div>
+        </details>
+      }
+
+      @if (f().category && subCategories().length) {
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            (click)="setSub('')"
+            [attr.aria-pressed]="!f().sub"
+            class="px-3 py-1 rounded-full text-xs font-semibold border"
+            [class]="
+              !f().sub
+                ? 'bg-gray-900 text-white border-gray-900 dark:bg-emerald-600 dark:border-emerald-600'
+                : 'border-gray-300 text-gray-600 dark:text-gray-300'
+            "
+          >
+            All {{ f().category | lowercase }}
+          </button>
+          @for (s of subCategories(); track s) {
             <button
               type="button"
-              (click)="setCategory(c.key)"
-              [attr.aria-pressed]="category() === c.key"
-              class="snap-start shrink-0 w-36 md:w-44 rounded-xl bg-white dark:bg-gray-900 border-2 text-center overflow-hidden shadow-sm transition focus-visible:ring-2 focus-visible:ring-emerald-600"
-              [class.border-emerald-600]="category() === c.key"
-              [class.border-transparent]="category() !== c.key"
+              (click)="setSub(s)"
+              [attr.aria-pressed]="f().sub === s"
+              class="px-3 py-1 rounded-full text-xs font-semibold border"
+              [class]="
+                f().sub === s
+                  ? 'bg-gray-900 text-white border-gray-900 dark:bg-emerald-600 dark:border-emerald-600'
+                  : 'border-gray-300 text-gray-600 dark:text-gray-300'
+              "
             >
-              <div class="relative h-20 grid place-items-center">
-                <!-- display categories images -->
-                <img
-                  [src]="categoryImage(c.key)"
-                  [alt]="c.label"
-                  loading="lazy"
-                  class="absolute inset-0 w-full h-full object-contain"
-                  (error)="$any($event.target).style.display = 'none'"
-                />
-                <!-- display categories names -->
-                <img
-                  [src]="'assets/categories/' + (c.key | lowercase) + '.jpg'"
-                  [alt]="c.label"
-                  class="absolute inset-0 w-full h-full object-cover"
-                  (error)="$any($event.target).style.display = 'none'"
-                />
-              </div>
-              <span
-                class="block pt-2 text-sm"
-                [class.font-semibold]="category() === c.key"
-                >{{ c.label | titlecase }}</span
-              >
+              {{ s | titlecase }}
             </button>
           }
         </div>
       }
-    </section>
+    </div>
 
-    <!-- Featured products -->
-    <section class="mt-8" #productsSection>
-      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h2 class="text-lg font-semibold hidden md:block">Featured Products</h2>
+    <!-- Results -->
+    <section class="mt-6">
+      <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <span class="text-sm text-gray-500 tabular-nums">{{
+          countText()
+        }}</span>
 
-        <div class="flex items-center justify-between gap-3 w-full">
-          <!-- Sort tabs -->
-          <div class="flex gap-1" role="tablist">
-            @for (t of tabs; track t.key) {
-              <button
-                type="button"
-                role="tab"
-                [attr.aria-selected]="tab() === t.key"
-                (click)="setTab(t.key)"
-                class="px-1 py-1 rounded-full text-sm"
-                [class]="
-                  tab() === t.key
-                    ? 'bg-gray-900 dark:bg-emerald-600 text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                "
-              >
-                {{ t.label }}
-              </button>
-            }
-          </div>
-
-          <!-- View toggle -->
+        <div class="flex items-center gap-2">
+          <p-select
+            [options]="SORT_OPTIONS"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+            appendTo="body"
+            [ngModel]="sort()"
+            (ngModelChange)="sort.set($event)"
+            ariaLabel="Sort"
+          />
           <div
-            class="flex items-center gap-1 bg-gray-50 rounded-3xl p-1 dark:border-gray-700 overflow-hidden"
+            class="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 rounded-3xl p-1"
             role="group"
             aria-label="Switch view"
           >
             <p-button
               icon="pi pi-th-large"
-              (click)="setView('grid')"
+              (onClick)="setView('grid')"
               [attr.aria-pressed]="viewMode() === 'grid'"
-              aria-label="Grid view"
+              ariaLabel="Grid view"
               pTooltip="Grid view"
               tooltipPosition="top"
-              class="text-sm transition"
               [severity]="viewMode() === 'grid' ? 'contrast' : 'secondary'"
               [rounded]="true"
               size="small"
-            >
-            </p-button>
+            />
             <p-button
-              (click)="setView('list')"
-              [attr.aria-pressed]="viewMode() === 'list'"
-              aria-label="List view"
-              pTooltip="List View"
-              tooltipPosition="top"
               icon="pi pi-list"
-              class="text-sm transition"
+              (onClick)="setView('list')"
+              [attr.aria-pressed]="viewMode() === 'list'"
+              ariaLabel="List view"
+              pTooltip="List view"
+              tooltipPosition="top"
               [severity]="viewMode() === 'list' ? 'contrast' : 'secondary'"
               [rounded]="true"
               size="small"
-            >
-            </p-button>
+            />
           </div>
         </div>
       </div>
 
       @if (loading()) {
-        @if (viewMode() === "grid") {
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            @for (s of [1, 2, 3]; track s) {
-              <div
-                class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
-              ></div>
-            }
-          </div>
-        } @else {
-          <div class="flex flex-col gap-4">
-            @for (s of [1, 2, 3]; track s) {
-              <div
-                class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
-              ></div>
-            }
-          </div>
-        }
+        <div
+          [class]="
+            viewMode() === 'grid'
+              ? 'grid grid-cols-2 lg:grid-cols-3 gap-4'
+              : 'flex flex-col gap-4'
+          "
+        >
+          @for (s of [1, 2, 3]; track s) {
+            <div
+              class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
+            ></div>
+          }
+        </div>
       } @else if (visibleProducts().length === 0) {
-        <p-message severity="info">
-          No products match these filters. Try clearing a filter.
-        </p-message>
+        <div
+          class="py-10 px-4 text-center text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl"
+        >
+          Nothing matches. Remove a filter or widen the budget.
+          <div class="mt-3">
+            <p-button
+              label="Clear all filters"
+              size="small"
+              severity="secondary"
+              (onClick)="clearAll()"
+            />
+          </div>
+        </div>
       } @else {
         @if (viewMode() === "grid") {
           <!-- ============ GRID VIEW ============ -->
           <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
             @for (p of visibleProducts(); track p.jewel_code) {
               <article
-                class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-2 shadow-sm flex flex-col"
+                class="rounded-xl bg-white dark:bg-gray-900 border p-2 shadow-sm flex flex-col"
+                [class]="
+                  isPicked(p.jewel_code)
+                    ? 'border-emerald-600 ring-2 ring-emerald-100 dark:ring-emerald-900'
+                    : 'border-gray-200 dark:border-gray-700'
+                "
               >
-                <div
-                  class="relative rounded-lg overflow-hidden bg-orange-50 aspect-square"
+                <a
+                  [routerLink]="['/view-details', p.jewel_code]"
+                  class="relative block rounded-lg overflow-hidden bg-orange-50 aspect-square"
+                  [attr.aria-label]="'Open ' + p.jewel_code"
                 >
                   @if (!imageFailed().has(p.jewel_code)) {
                     <img
@@ -261,41 +460,75 @@
                       No image
                     </div>
                   }
+                  <span class="absolute top-2 left-2 flex gap-1 flex-wrap">
+                    @if (p.model_shot_url) {
+                      <p-tag
+                        value="Model shot"
+                        severity="secondary"
+                        styleClass="!text-[10px]"
+                      />
+                    }
+                    @if (statusOf(p) !== "In store") {
+                      <p-tag
+                        [value]="statusOf(p)"
+                        [severity]="statusSeverity(statusOf(p))"
+                        styleClass="!text-[10px]"
+                      />
+                    }
+                  </span>
+                </a>
+
+                <div class="pt-2 flex flex-col gap-0.5 flex-1">
+                  <span class="text-[11px] font-mono text-gray-500">{{
+                    p.jewel_code
+                  }}</span>
+                  <h3 class="text-sm font-semibold truncate">
+                    {{ itemTitle(p) }}
+                  </h3>
+                  <p class="text-xs text-gray-500 line-clamp-2">
+                    {{ specLine(p) }}
+                  </p>
                 </div>
 
-                <div class="flex gap-2 justify-between items-start">
-                  <div class="flex-1">
-                    <h3 class="text-sm font-medium truncate">
-                      {{ p.sub_category | titlecase }}
-                    </h3>
-                    <p class="text-[11px] text-gray-500">{{ p.jewel_code }}</p>
-                    <p class="font-semibold mt-1">
-                      ₹{{ getGrandTotal(p) | number: "1.0-0" }}
-                    </p>
-                  </div>
-                  <div class="flex gap-2 py-2">
+                <div class="flex items-center justify-between gap-1 pt-2">
+                  <span class="font-semibold tabular-nums">{{
+                    marketPrice(p, cur().market)
+                  }}</span>
+                  <div class="flex items-center gap-1 justify-center">
                     <p-button
                       icon="pi pi-eye"
                       severity="contrast"
                       size="small"
                       [text]="true"
-                      pTooltip="View"
                       [rounded]="true"
-                      styleClass="w-full "
+                      pTooltip="View"
+                      ariaLabel="View details"
                       [routerLink]="['/view-details', p.jewel_code]"
                     />
                     <p-button
                       icon="pi pi-share-alt"
                       size="small"
-                      pTooltip="Share"
                       [rounded]="true"
                       [text]="true"
                       severity="contrast"
-                      pTooltip="Share"
+                      pTooltip="Share PDF"
                       ariaLabel="Share on WhatsApp"
-                      title="Share on WhatsApp"
                       [loading]="sharingCode() === p.jewel_code"
                       (onClick)="shareItem(p, $event)"
+                    />
+                    <p-button
+                      [icon]="
+                        isPicked(p.jewel_code) ? '  pi pi-check' : 'pi pi-plus'
+                      "
+                      size="small"
+                      [outlined]="!isPicked(p.jewel_code)"
+                      [disabled]="
+                        !isPicked(p.jewel_code) &&
+                        cur().picked.length >= MAX_PICKS
+                      "
+                      (onClick)="togglePick(p.jewel_code, $event)"
+                      [rounded]="true"
+                      severity="contrast"
                     />
                   </div>
                 </div>
@@ -324,9 +557,146 @@
     </section>
   </div>
 
-  <!-- ================= RIGHT RAIL ================= -->
-  <aside class="space-y-4">
-    <!-- Actions (existing: Upload, Compare) -->
+  <!-- ================= RIGHT: SHORTLIST + MESSAGE ================= -->
+  <aside
+    class="min-[760px]:col-span-2 min-[1180px]:col-span-1 space-y-4 min-w-0"
+    aria-label="Shortlist"
+  >
+    <section
+      class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 space-y-3"
+    >
+      <div class="flex items-baseline justify-between gap-2">
+        <h2 class="text-lg font-semibold">Shortlist</h2>
+        <span class="text-xs text-gray-500 tabular-nums"
+          >{{ picked().length }} of 3–4</span
+        >
+      </div>
+
+      <div class="flex gap-1" aria-hidden="true">
+        @for (i of [0, 1, 2, 3]; track i) {
+          <span
+            class="flex-1 h-1 rounded-sm"
+            [class]="
+              i < picked().length
+                ? 'bg-emerald-600'
+                : 'bg-gray-200 dark:bg-gray-700'
+            "
+          ></span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        @for (p of picked(); track p.jewel_code) {
+          <div
+            class="grid grid-cols-[44px_1fr_auto] gap-2 items-center border border-gray-200 dark:border-gray-700 rounded-lg p-1.5"
+          >
+            <div class="w-11 h-11 rounded-md overflow-hidden bg-orange-50">
+              @if (!imageFailed().has(p.jewel_code)) {
+                <img
+                  [src]="imageUrl(p.jewel_code, p.product_image_url)"
+                  [alt]="p.jewel_code"
+                  (error)="onImgError(p.jewel_code)"
+                  class="w-full h-full object-cover"
+                />
+              }
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-mono">{{ p.jewel_code }}</div>
+              <div class="text-xs text-gray-500 truncate">
+                {{ itemTitle(p) }} · {{ marketPrice(p, cur().market) }}
+              </div>
+            </div>
+            <p-button
+              icon="pi pi-times"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              severity="secondary"
+              [ariaLabel]="'Remove ' + p.jewel_code"
+              (onClick)="togglePick(p.jewel_code, $event)"
+            />
+          </div>
+        } @empty {
+          <div
+            class="py-5 px-3 text-center text-sm text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg"
+          >
+            Add 3–4 pieces from the catalogue. They'll appear here and in the
+            message.
+          </div>
+        }
+        @if (picked().length > 4) {
+          <p class="text-xs text-amber-700">
+            More than 4 can overwhelm the customer. Keep the best 3–4.
+          </p>
+        }
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <p class="text-xs font-semibold text-gray-500">Message to send</p>
+        <div
+          class="grid grid-cols-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+          role="group"
+          aria-label="Message type"
+        >
+          @for (t of TEMPLATES; track t.key) {
+            <button
+              type="button"
+              (click)="setTemplate(t.key)"
+              [attr.aria-pressed]="tpl() === t.key"
+              class="px-2 py-1.5 text-xs font-semibold whitespace-nowrap"
+              [class]="
+                tpl() === t.key
+                  ? 'bg-gray-900 text-white dark:bg-emerald-600'
+                  : 'text-gray-600 dark:text-gray-300'
+              "
+            >
+              {{ t.label }}
+            </button>
+          }
+        </div>
+
+        <textarea
+          pTextarea
+          rows="9"
+          class="w-full text-sm leading-relaxed"
+          aria-label="Message text"
+          [ngModel]="message()"
+          (ngModelChange)="draft.set($event)"
+        ></textarea>
+
+        <div class="flex flex-wrap gap-2">
+          <p-button
+            label="Copy message"
+            icon="pi pi-copy"
+            size="small"
+            severity="contrast"
+            (onClick)="copyMessage()"
+          />
+          <p-button
+            label="Open WhatsApp chat"
+            icon="pi pi-whatsapp"
+            size="small"
+            severity="secondary"
+            (onClick)="openWhatsApp()"
+          />
+          <p-button
+            label="Mark as sent"
+            icon="pi pi-check"
+            size="small"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="markSent()"
+          />
+        </div>
+        <p class="text-xs text-gray-500">{{ priceNote() }}</p>
+        <p class="text-xs text-gray-500">
+          Photos go separately: open each piece and send its model shot. Every
+          image carries its Jewel Code.
+        </p>
+      </div>
+    </section>
+
+    <!-- Existing tools -->
     <div
       class="flex justify-between gap-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
     >
@@ -335,7 +705,7 @@
           icon="pi pi-upload"
           (onClick)="visible = true"
           severity="secondary"
-          label="Import "
+          label="Import"
           class="w-full"
         />
       }
@@ -368,65 +738,6 @@
           </span>
           <i class="pi pi-angle-right text-gray-400"></i>
         </a>
-      }
-    </section>
-
-    <section
-      class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4"
-    >
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold"><i class="pi pi-filter mr-2"></i>Filters</h2>
-        <a
-          class="text-xs text-emerald-700 cursor-pointer"
-          (click)="clearFilters()"
-          >Clear all</a
-        >
-      </div>
-
-      <label class="text-sm font-medium block mb-1">Price range</label>
-      <p-slider
-        [ngModel]="priceMax()"
-        (ngModelChange)="onPriceChange($event)"
-        [min]="0"
-        [max]="500000"
-        [step]="5000"
-      />
-      <div class="flex justify-between text-xs text-gray-500 mt-2 mb-4">
-        <span>₹0</span>
-        <span
-          >₹{{ priceMax() | number }}{{ priceMax() >= 500000 ? "+" : "" }}</span
-        >
-      </div>
-
-      @for (f of filterGroups(); track f.key) {
-        <details
-          class="border-t border-gray-100 dark:border-gray-800 py-3 group"
-        >
-          <summary
-            class="flex justify-between items-center cursor-pointer text-sm font-medium list-none"
-          >
-            {{ f.label }}
-            <i
-              class="pi pi-angle-down text-gray-400 group-open:rotate-180 transition-transform"
-            ></i>
-          </summary>
-          <div class="flex flex-wrap gap-2 mt-2">
-            @for (o of f.options; track o) {
-              <button
-                type="button"
-                (click)="toggleFilter(f.key, o)"
-                class="px-2 py-1 rounded-full text-xs border"
-                [class]="
-                  filters()[f.key] === o
-                    ? 'bg-emerald-700 text-white border-emerald-700'
-                    : 'border-gray-300 text-gray-700 dark:text-gray-200'
-                "
-              >
-                {{ o }}
-              </button>
-            }
-          </div>
-        </details>
       }
     </section>
 
@@ -471,7 +782,7 @@
       </div>
 
       <div class="rounded-xl w-full flex-1">
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex justify-between items-center mb-1">
           <h3 class="text-base md:text-lg">
             <b class="text-gray-800 dark:text-emerald-700"
               >{{ item.product_category | titlecase }} -</b
@@ -483,19 +794,48 @@
             (click)="$event.stopPropagation()"
           >
             <p-button
+              [icon]="
+                isPicked(item.jewel_code) ? '  pi pi-check' : 'pi pi-plus'
+              "
+              [outlined]="!isPicked(item.jewel_code)"
+              [disabled]="
+                !isPicked(item.jewel_code) && cur().picked.length >= MAX_PICKS
+              "
+              (onClick)="togglePick(item.jewel_code, $event)"
+              severity="contrast"
+              [rounded]="true"
+              size="small"
+            />
+            <p-button
               icon="pi pi-share-alt"
               [rounded]="true"
               [text]="true"
               severity="contrast"
               size="small"
-              pTooltip="Share"
+              pTooltip="Share PDF"
               ariaLabel="Share on WhatsApp"
-              title="Share on WhatsApp"
               [loading]="sharingCode() === item.jewel_code"
               (onClick)="shareItem(item, $event)"
             />
             <b class="text-sm md:text-base">{{ item.jewel_code }}</b>
           </div>
+        </div>
+
+        <div class="flex items-center gap-2 mb-3 text-sm">
+          @if (statusOf(item) !== "In store") {
+            <p-tag
+              [value]="statusOf(item)"
+              [severity]="statusSeverity(statusOf(item))"
+            />
+          }
+          @if (cur().market !== "India") {
+            <span class="text-gray-500">
+              {{ cur().market }} price:
+              <b class="text-gray-900 dark:text-gray-100">{{
+                marketPrice(item, cur().market)
+              }}</b>
+            </span>
+          }
         </div>
 
         <div class="rounded-lg overflow-x-auto">
@@ -646,7 +986,7 @@
   </p-card>
 </ng-template>
 
-<!-- CSV import dialog (existing) -->
+<!-- CSV import drawer (existing) -->
 <p-drawer
   header="Import Products (CSV)"
   position="bottom"

@@ -1,11 +1,12 @@
 import {
   Component,
   computed,
-  ElementRef,
+  effect,
   inject,
+  OnDestroy,
   OnInit,
   signal,
-  ViewChild,
+  untracked,
 } from '@angular/core';
 import {
   FormControl,
@@ -17,34 +18,58 @@ import {
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-// PrimeNG
+// PrimeNG v19
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
-import { SliderModule } from 'primeng/slider';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
-
-import { ApiService } from '../../../services/api.service';
-import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../services/auth.service';
 import { Drawer } from 'primeng/drawer';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { Tooltip } from 'primeng/tooltip';
 
-type TabKey = 'price_asc' | 'price_desc';
+import { Subscription } from 'rxjs';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+import { ApiService } from '../../../services/api.service';
+import { AuthService } from '../../../services/auth.service';
+import { DeskStateService } from '../../../services/desk-state.service';
+import { environment } from '../../../../environments/environment';
+import {
+  AVAIL_OPTIONS,
+  BUDGET_OPTIONS,
+  CHANNELS,
+  DeskFilters,
+  DIA_WT_OPTIONS,
+  Enquiry,
+  enquiryStatus,
+  GOLD_WT_OPTIONS,
+  blankFilters,
+  ItemStatus,
+  MAKE_TYPES,
+  MakeType,
+  MARKETS,
+  Market,
+  MESSAGE_COPY,
+  MsgTpl,
+  OCCASIONS,
+  Opt,
+  parseQuery,
+  SORT_OPTIONS,
+  STAGE_AFTER_SEND,
+  STAGES,
+  TagSeverity,
+  TEMPLATES,
+} from '../../../models/desk.models';
+
 type ViewMode = 'grid' | 'list';
-type FilterKey =
-  | 'gender'
-  | 'sub_category'
-  | 'metal'
-  | 'purity'
-  | 'collection'
-  | 'stone_type';
+type SortKey = (typeof SORT_OPTIONS)[number]['value'];
 
 interface Facets {
   categories: string[];
@@ -56,7 +81,40 @@ interface Facets {
   stone_types: string[];
 }
 
+interface SelectDef {
+  key: keyof DeskFilters;
+  placeholder: string;
+  options: Opt[];
+}
+
+/** Product + values worked out once, so filtering 5000 items stays cheap. */
+interface CatalogRow {
+  p: any;
+  make: MakeType;
+  price: number; // India price (₹)
+  net: number; // net gold wt (g)
+  dia: number; // total diamond wt (ct)
+  status: ItemStatus;
+  added: number;
+  hay: string; // lower-cased search text
+}
+
 const VIEW_MODE_KEY = 'products-view-mode';
+const MAX_PICKS = 6;
+/** Facet filters that already existed in this screen (product field names). */
+const LEGACY_KEYS = [
+  'gender',
+  'metal',
+  'purity',
+  'collection',
+  'stone_type',
+] as const;
+
+const norm = (s: unknown) => (s ?? '').toString().trim().toLowerCase();
+const range = (s: string) => (s ? s.split('-').map(Number) : null);
+const tc = (s: string) =>
+  (s || '').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+const opts = (a: string[]): Opt[] => a.map((v) => ({ label: v, value: v }));
 
 @Component({
   selector: 'app-products-view-all',
@@ -69,10 +127,12 @@ const VIEW_MODE_KEY = 'products-view-mode';
     ButtonModule,
     CardModule,
     InputTextModule,
+    TextareaModule,
+    SelectModule,
+    TagModule,
     DialogModule,
     FileUploadModule,
     MessageModule,
-    SliderModule,
     PaginatorModule,
     DecimalPipe,
     Drawer,
@@ -81,22 +141,33 @@ const VIEW_MODE_KEY = 'products-view-mode';
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
 })
-export class ProductsViewAllComponent implements OnInit {
+export class ProductsViewAllComponent implements OnInit, OnDestroy {
   private _apiService = inject(ApiService);
   private _authService = inject(AuthService);
   private _messageService = inject(MessageService);
+  readonly desk = inject(DeskStateService);
 
-  // ---------- Search state ----------
+  // ---------- Static lists for the template ----------
+  readonly MARKETS = MARKETS;
+  readonly CHANNELS = CHANNELS;
+  readonly OCCASIONS = OCCASIONS;
+  readonly STAGES = STAGES;
+  readonly TEMPLATES = TEMPLATES;
+  readonly SORT_OPTIONS = SORT_OPTIONS;
+  readonly MAX_PICKS = MAX_PICKS;
+  readonly channelOpts = opts(CHANNELS);
+  readonly marketOpts = opts(MARKETS);
+  readonly occasionOpts = opts(OCCASIONS);
+
+  // ---------- Search-by-tag state (existing) ----------
   searchResult = signal<any[]>([]);
   isUploading = signal<string>('Upload');
   imageFailed = signal<Set<string>>(new Set());
 
   loggedUser = this._authService.getUserRole();
-  visible = false; // CSV dialog
-  filterOpen = signal<boolean>(false); // CSV dialog
+  visible = false; // CSV drawer
   selectedFile: File | null = null;
   lastScanned: string | null = null;
-
   sharingCode = signal<string | null>(null);
 
   searchFrom = new FormGroup({
@@ -108,51 +179,34 @@ export class ProductsViewAllComponent implements OnInit {
 
   // ---------- View mode (grid / list) ----------
   viewMode = signal<ViewMode>(this.readSavedView());
-  // show Filter
-  showFilter() {
-    this.filterOpen.set(true);
-  }
+  sort = signal<SortKey>('best');
+
   /** List cards are tall (full price breakdown), so show fewer per page. */
   get limit(): number {
     return this.viewMode() === 'list' ? 6 : 12;
   }
 
-  // ---------- Featured products ----------
-  // Price is calculated in the browser (getGrandTotal), so price sort, the price
-  // filter and pagination all run client-side on the full result set.
-  private readonly FETCH_ALL = 5000;
-  readonly maxPriceLimit = 500000;
+  // ---------- Clock (drives the 24-hr reply timer) ----------
+  now = signal(Date.now());
+  private tick?: ReturnType<typeof setInterval>;
+
+  // ---------- Current enquiry (filters + search are remembered per enquiry) ----------
+  readonly enquiries = this.desk.enquiries;
+  readonly cur = this.desk.current;
+  readonly f = computed(() => this.cur().f);
+  readonly q = computed(() => this.cur().q);
+  readonly rules = this.desk.marketRules;
+  readonly syncState = this.desk.syncState;
+
+  // ---------- Products ----------
+  // Price is calculated in the browser (getGrandTotal), so sorting, the budget
+  // filter and pagination all run client-side on the full result set. Filters
+  // apply instantly (spec §4: no Apply button), so everything is client-side.
+  private readonly FETCH_ALL = 8000;
 
   allProducts = signal<any[]>([]);
   page = signal(1);
   loading = signal(false);
-
-  tab = signal<TabKey>('price_asc');
-  category = signal<string | null>(null);
-  filters = signal<Partial<Record<FilterKey, string>>>({});
-  priceMax = signal(500000);
-
-  /** Price-filtered and sorted by grand total (incl. GST) */
-  sortedProducts = computed(() => {
-    const max = this.priceMax();
-    const dir = this.tab() === 'price_asc' ? 1 : -1;
-
-    let rows = this.allProducts().map((p) => ({
-      p,
-      price: this.getGrandTotal(p),
-    }));
-    if (max < this.maxPriceLimit) rows = rows.filter((r) => r.price <= max);
-
-    return rows.sort((a, b) => (a.price - b.price) * dir).map((r) => r.p);
-  });
-
-  total = computed(() => this.sortedProducts().length);
-
-  /** Current page slice */
-  visibleProducts = computed(() => {
-    const start = (this.page() - 1) * this.limit;
-    return this.sortedProducts().slice(start, start + this.limit);
-  });
 
   facets = signal<Facets>({
     categories: [],
@@ -164,71 +218,250 @@ export class ProductsViewAllComponent implements OnInit {
     stone_types: [],
   });
 
-  categories = computed(() =>
-    this.facets().categories.map((c) => ({ key: c, label: c })),
+  /** Sold pieces are always hidden (spec §3). */
+  readonly rows = computed<CatalogRow[]>(() =>
+    this.allProducts()
+      .filter((p) => this.statusOf(p) !== 'Sold')
+      .map((p) => {
+        const make = this.makeOf(p);
+        return {
+          p,
+          make,
+          price: this.indiaPrice(p),
+          net: +p.net_wt || 0,
+          dia: this.getTotaldiamondWeight(p.diamonds),
+          status: this.statusOf(p),
+          added: Date.parse(p.added_on ?? p.createdAt ?? '') || 0,
+          hay: [
+            p.jewel_code,
+            p.product_category,
+            p.sub_category,
+            make,
+            p.stone_type,
+            p.material,
+            p.purity,
+            p.metal,
+            p.brand,
+            p.collection,
+            p.gender,
+            ...(p.occasion_tags ?? []),
+          ]
+            .join(' ')
+            .toLowerCase(),
+        };
+      }),
   );
 
-  // ----- category search + carousel -----
-  catSearch = signal('');
-  filteredCategories = computed(() => {
-    const q = this.catSearch().trim().toLowerCase();
-    return this.categories().filter((c) => c.label.toLowerCase().includes(q));
+  /** Which optional columns exist in the data → hide filters that can't work yet. */
+  readonly has = computed(() => {
+    const r = this.rows();
+    return {
+      brand: r.some((x) => x.p.brand),
+      occasion: r.some((x) => x.p.occasion_tags?.length),
+      // only offer the availability filter when stock really is split into groups
+      status: r.some((x) => x.status !== 'In store'),
+    };
   });
 
-  @ViewChild('catScroller') catScroller?: ElementRef<HTMLElement>;
-  @ViewChild('productsSection') productsSection?: ElementRef<HTMLElement>;
+  readonly parsed = computed(() => parseQuery(this.q()));
 
-  onCatSearch(value: string) {
-    this.catSearch.set(value ?? '');
-    this.catScroller?.nativeElement.scrollTo({ left: 0 });
-  }
+  readonly results = computed(() => {
+    const f = this.f();
+    const { words, min, max } = this.parsed();
+    const b = range(f.budget),
+      g = range(f.goldWt),
+      d = range(f.diaWt);
 
-  scrollCats(dir: 1 | -1) {
-    const el = this.catScroller?.nativeElement;
-    el?.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
-  }
+    const r = this.rows().filter((x) => {
+      const p = x.p;
+      if (f.avail !== 'all' && x.status !== 'In store') return false;
+      if (f.brand && p.brand !== f.brand) return false;
+      if (f.make && x.make !== f.make) return false;
+      if (f.occasion && !(p.occasion_tags ?? []).includes(f.occasion))
+        return false;
+      if (b && (x.price < b[0] || x.price > b[1])) return false;
+      if (g && (x.net < g[0] || x.net > g[1])) return false;
+      if (d && (x.dia < d[0] || x.dia > d[1])) return false;
+      if (min != null && x.price < min) return false;
+      if (max != null && x.price > max) return false;
+      return words.every((w) => x.hay.includes(w.replace(/s$/, '')));
+    });
 
-  filterGroups = computed(() => {
-    const f = this.facets();
+    switch (this.sort()) {
+      case 'price_asc':
+        return r.sort((a, c) => a.price - c.price);
+      case 'price_desc':
+        return r.sort((a, c) => c.price - a.price);
+      case 'new':
+        return r.sort((a, c) => c.added - a.added);
+      case 'wt':
+        return r.sort((a, c) => a.net - c.net);
+      default: // best match: model shots first, then newest
+        return r.sort(
+          (a, c) =>
+            +!!c.p.model_shot_url - +!!a.p.model_shot_url || c.added - a.added,
+        );
+    }
+  });
+
+  readonly total = computed(() => this.results().length);
+
+  readonly visibleProducts = computed(() => {
+    const start = (this.page() - 1) * this.limit;
+    return this.results()
+      .slice(start, start + this.limit)
+      .map((r) => r.p);
+  });
+
+  readonly countText = computed(() => {
+    const n = this.total();
+    const { min, max } = this.parsed();
+    const bud =
+      min != null || max != null
+        ? ` · budget ₹${(min ?? 0).toLocaleString('en-IN')} – ${
+            max != null ? '₹' + max.toLocaleString('en-IN') : 'any'
+          } read from search`
+        : '';
+    return `${n} piece${n === 1 ? '' : 's'} match${n === 1 ? 'es' : ''}${bud}`;
+  });
+
+  /** Sub-categories of the chosen category, taken from the last fetch that wasn't narrowed by a sub-category. */
+  private readonly subOptions = signal<string[]>([]);
+  readonly subCategories = computed(() =>
+    this.f().category ? this.subOptions() : [],
+  );
+
+  /**
+   * Filters sent to the API, e.g.
+   *   /api/products?page=1&limit=5000&category=DIAMOND%20BRACELET
+   * Everything else (make, budget, weights, occasion, brand, availability, text)
+   * is applied in the browser on the fetched set.
+   */
+  private readonly serverParams = computed<Record<string, string | number>>(
+    () => {
+      const f = this.f();
+      const params: Record<string, string | number> = {
+        page: 1,
+        limit: this.FETCH_ALL,
+      };
+      if (f.category) params['category'] = f.category;
+      if (f.sub) params['sub_category'] = f.sub;
+      for (const k of LEGACY_KEYS) if (f[k]) params[k] = f[k];
+      return params;
+    },
+  );
+  /** Changes only when a server-side filter really changes (so typing in search never refetches). */
+  private readonly serverKey = computed(() =>
+    JSON.stringify(this.serverParams()),
+  );
+  private productsSub?: Subscription;
+
+  /** Main filter pills (spec §4). Optional ones appear once the data has the column. */
+  readonly primarySelects = computed<SelectDef[]>(() => {
+    const fa = this.facets(),
+      h = this.has();
     return [
-      { key: 'gender' as FilterKey, label: 'Gender', options: f.genders },
       {
-        key: 'sub_category' as FilterKey,
-        label: 'Sub Category',
-        options: f.sub_categories,
+        key: 'category',
+        placeholder: 'All categories',
+        options: opts(fa.categories),
       },
-      { key: 'metal' as FilterKey, label: 'Metal Type', options: f.metals },
-      { key: 'purity' as FilterKey, label: 'Purity', options: f.purities },
-      {
-        key: 'collection' as FilterKey,
-        label: 'Collection',
-        options: f.collections,
-      },
-      {
-        key: 'stone_type' as FilterKey,
-        label: 'Stone Type',
-        options: f.stone_types,
-      },
-    ].filter((g) => g.options.length);
+      { key: 'make', placeholder: 'Any make', options: opts(MAKE_TYPES) },
+      { key: 'budget', placeholder: 'Any budget', options: BUDGET_OPTIONS },
+      ...(h.occasion
+        ? [
+            {
+              key: 'occasion',
+              placeholder: 'Any occasion',
+              options: opts(OCCASIONS),
+            } as SelectDef,
+          ]
+        : []),
+      { key: 'goldWt', placeholder: 'Any gold wt', options: GOLD_WT_OPTIONS },
+      { key: 'diaWt', placeholder: 'Any diamond wt', options: DIA_WT_OPTIONS },
+      ...(h.brand
+        ? [
+            {
+              key: 'brand',
+              placeholder: 'RKJ + PFJ',
+              options: opts(['RKJ', 'PFJ']),
+            } as SelectDef,
+          ]
+        : []),
+      ...(h.status
+        ? [
+            {
+              key: 'avail',
+              placeholder: 'In store only',
+              options: AVAIL_OPTIONS,
+            } as SelectDef,
+          ]
+        : []),
+    ];
+  });
+
+  /** The filters this screen already had (gender, metal, …), kept under "More filters". */
+  readonly moreSelects = computed<SelectDef[]>(() => {
+    const fa = this.facets();
+    return (
+      [
+        { key: 'gender', placeholder: 'Gender', options: opts(fa.genders) },
+        { key: 'metal', placeholder: 'Metal type', options: opts(fa.metals) },
+        { key: 'purity', placeholder: 'Purity', options: opts(fa.purities) },
+        {
+          key: 'collection',
+          placeholder: 'Collection',
+          options: opts(fa.collections),
+        },
+        {
+          key: 'stone_type',
+          placeholder: 'Stone type',
+          options: opts(fa.stone_types),
+        },
+      ] as SelectDef[]
+    ).filter((s) => s.options.length);
+  });
+
+  readonly moreActive = computed(() => LEGACY_KEYS.some((k) => !!this.f()[k]));
+
+  // ---------- Shortlist + message ----------
+  tpl = signal<MsgTpl>('options');
+  /** Edited text; null = use the generated template text. */
+  draft = signal<string | null>(null);
+
+  /** Look-up for picked codes (catalogue + tag-search results). */
+  private readonly index = computed(() => {
+    const m = new Map<string, any>();
+    for (const p of [...this.allProducts(), ...this.searchResult()])
+      m.set(p.jewel_code, p);
+    return m;
+  });
+
+  readonly picked = computed(() =>
+    this.cur()
+      .picked.map((c) => this.index().get(c))
+      .filter(Boolean),
+  );
+
+  readonly generated = computed(() =>
+    this.buildMessage(this.tpl(), this.cur(), this.picked()),
+  );
+  readonly message = computed(() => this.draft() ?? this.generated());
+
+  readonly waHref = computed(() => {
+    const phone = this.waPhone();
+    return `https://wa.me/${phone}?text=${encodeURIComponent(this.message())}`;
+  });
+
+  readonly priceNote = computed(() => {
+    const e = this.cur();
+    const r = this.rules()[e.market];
+    return r.mult
+      ? `${e.market}: price = C. No. × ${r.mult}. Up to 45% off is the maximum. Open at full price. ${r.extras} on top.`
+      : 'India: price comes from the CRM app. Up to 15% off on diamond + stone value only (not gold). More needs a senior.';
   });
 
   // ---------- Static UI data ----------
-  heroPoints = [
-    {
-      icon: 'pi pi-bolt',
-      title: 'Faster Search',
-      sub: 'Find products in seconds',
-    },
-    {
-      icon: 'pi pi-heart',
-      title: 'Customer Focused',
-      sub: 'Right product. Right customer.',
-    },
-  ];
-  tabs: { key: TabKey; label: string }[] = [
-    { key: 'price_asc', label: 'Price: Low to High' },
-    { key: 'price_desc', label: 'Price: High to Low' },
-  ];
   quickActions = [
     {
       icon: 'pi pi-image',
@@ -250,9 +483,101 @@ export class ProductsViewAllComponent implements OnInit {
     },
   ];
 
+  constructor() {
+    // First load + every server-side filter change (category, sub-category, gender, metal, purity, collection, stone type).
+    effect(() => {
+      this.serverKey();
+      untracked(() => this.loadProducts());
+    });
+    // New text / filters / enquiry → back to page 1.
+    effect(() => {
+      this.results();
+      this.page.set(1);
+    });
+    // A new generated message replaces any hand edits (pick change, template change, enquiry change).
+    effect(() => {
+      this.generated();
+      this.draft.set(null);
+    });
+  }
+
   ngOnInit() {
     this.loadFacets();
-    this.loadProducts();
+    this.tick = setInterval(() => this.now.set(Date.now()), 60_000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.tick);
+    this.productsSub?.unsubscribe();
+  }
+
+  // =====================================================================
+  // Enquiries (left pane)
+  // =====================================================================
+  newEnquiry() {
+    this.desk.add();
+    this.tpl.set('options');
+  }
+
+  selectEnquiry(id: string) {
+    this.desk.select(id);
+    this.tpl.set('options');
+  }
+
+  removeEnquiry(id: string, ev?: Event) {
+    ev?.stopPropagation();
+    const e = this.enquiries().find((x) => x.id === id);
+    if (
+      !window.confirm(`Delete the enquiry for ${e?.name || 'this customer'}?`)
+    )
+      return;
+    this.desk.remove(id);
+    this.tpl.set('options');
+  }
+
+  patchEnquiry(patch: Partial<Enquiry>) {
+    const c = this.cur();
+    const next = { ...patch };
+    const need = patch.need ?? c.need;
+    const occ = patch.occasion ?? c.occasion;
+    // Capturing what they want = "requirement understood"
+    if (c.stage < 1 && (need || occ)) next.stage = 1;
+    this.desk.patchCurrent(next);
+  }
+
+  status(e: Enquiry) {
+    return enquiryStatus(e, this.now());
+  }
+
+  ago(ts: number): string {
+    const m = Math.max(1, Math.round((this.now() - ts) / 6e4));
+    return m < 60 ? `${m} min ago` : `${Math.round(m / 60)} hr ago`;
+  }
+
+  // =====================================================================
+  // Filters + search (centre pane)
+  // =====================================================================
+  setQuery(value: string) {
+    this.desk.patchCurrent({ q: value ?? '' });
+  }
+
+  setFilter(key: keyof DeskFilters, value: string | null) {
+    const next: any = { ...this.f(), [key]: value ?? '' };
+    if (key === 'avail' && !value) next.avail = 'store';
+    if (key === 'category') next.sub = '';
+    this.desk.patchCurrent({ f: next });
+  }
+
+  setSub(sub: string) {
+    this.desk.patchCurrent({ f: { ...this.f(), sub } });
+  }
+
+  clearAll() {
+    this.desk.patchCurrent({ q: '', f: blankFilters() });
+  }
+
+  onPage(e: PaginatorState) {
+    this.page.set((e.page ?? 0) + 1);
   }
 
   // ---------- View toggle ----------
@@ -275,7 +600,245 @@ export class ProductsViewAllComponent implements OnInit {
     this.page.set(1); // page size differs per view
   }
 
-  // ---------- Data loading ----------
+  // =====================================================================
+  // Shortlist + messages (right pane)
+  // =====================================================================
+  isPicked(code: string) {
+    return this.cur().picked.includes(code);
+  }
+
+  togglePick(code: string, ev?: Event) {
+    ev?.stopPropagation();
+    const c = this.cur();
+    if (c.picked.includes(code)) {
+      this.desk.patchCurrent({ picked: c.picked.filter((x) => x !== code) });
+      return;
+    }
+    if (c.picked.length >= MAX_PICKS) {
+      this.toast(
+        'warn',
+        'Shortlist full',
+        `Keep the best 3–4 (max ${MAX_PICKS}).`,
+      );
+      return;
+    }
+    this.desk.patchCurrent({
+      picked: [...c.picked, code],
+      stage: Math.max(c.stage, 1),
+    });
+  }
+
+  setTemplate(t: MsgTpl) {
+    this.tpl.set(t);
+  }
+
+  async copyMessage() {
+    try {
+      await navigator.clipboard.writeText(this.message());
+      this.toast('success', 'Copied', 'Message copied');
+    } catch {
+      this.toast('info', 'Copy', 'Select the text and press Ctrl+C');
+    }
+  }
+
+  openWhatsApp() {
+    if (!this.waPhone()) {
+      this.toast(
+        'warn',
+        'Number missing',
+        'Add the customer’s WhatsApp number first.',
+      );
+      return;
+    }
+    window.open(this.waHref(), '_blank', 'noopener');
+  }
+
+  markSent() {
+    const e = this.cur(),
+      t = this.tpl();
+    if ((t === 'details' || t === 'price') && !e.picked.length) {
+      this.toast(
+        'warn',
+        'Nothing to send',
+        'Add the piece the customer liked first.',
+      );
+      return;
+    }
+    this.desk.patchCurrent({
+      stage: Math.max(e.stage, STAGE_AFTER_SEND[t]),
+      sentAt: t === 'options' || t === 'nudge' ? Date.now() : e.sentAt,
+    });
+    // Spec §7: enquiry, template, Jewel Codes, time. The server adds the executive from the token.
+    this.desk.logSend({ enquiryId: e.id, template: t, codes: [...e.picked] });
+    this.toast('success', 'Logged', 'Logged as sent');
+  }
+
+  /** digits only; a bare 10-digit Indian number gets the 91 prefix */
+  private waPhone(): string {
+    const e = this.cur();
+    const d = (e.phone || '').replace(/\D/g, '');
+    return e.market === 'India' && d.length === 10 ? '91' + d : d;
+  }
+
+  // =====================================================================
+  // Message templates (spec §6) – English only, editable before sending
+  // =====================================================================
+  private buildMessage(t: MsgTpl, e: Enquiry, ps: any[]): string {
+    const C = MESSAGE_COPY;
+    const first = (e.name || '').trim().split(/\s+/)[0] || 'there';
+    const rule = this.rules()[e.market];
+    const list = ps
+      .map((p, i) => `${i + 1}. ${p.jewel_code} – ${this.itemTitle(p)}`)
+      .join('\n');
+
+    switch (t) {
+      case 'options':
+        if (!ps.length)
+          return `Hello ${first}, thank you for reaching out to ${C.brand}. Could you tell me the occasion and a rough budget you have in mind, so I can share the best options?`;
+        return (
+          `Hello ${first}, thank you for reaching out to ${C.brand}.\n\n` +
+          `Here are ${ps.length} piece${ps.length > 1 ? 's' : ''} I picked for you:\n\n${list}\n\n` +
+          `I'm sending the photos now. Do let me know which one you like, and I'll share the full details.`
+        );
+
+      case 'nudge':
+        return (
+          `Hello ${first}, hope you had a chance to look at the pieces I shared` +
+          `${ps.length ? ` (${ps.map((p) => p.jewel_code).join(', ')})` : ''}.\n\n` +
+          `Is there one you sort of like? Tell me and I can show you more in the same style.`
+        );
+
+      case 'details':
+        if (!ps.length)
+          return 'Add the piece the customer liked to the shortlist first.';
+        return (
+          ps.map((p) => this.detailBlock(p)).join('\n') + `\n${C.detailsFooter}`
+        );
+
+      case 'price':
+        if (!ps.length)
+          return 'Add the piece the customer liked to the shortlist first.';
+        return (
+          ps
+            .map(
+              (p) =>
+                `${p.jewel_code} – ${this.itemTitle(p)}: ${this.marketPrice(p, e.market)}`,
+            )
+            .join('\n') +
+          (rule.mult
+            ? `\n\nThis is the tag price. ${rule.extras} will be added.`
+            : '') +
+          `\n\nCan I call you for a few minutes to go over this? Or you are welcome to visit us at ${C.store} to see the piece in person.`
+        );
+    }
+  }
+
+  private detailBlock(p: any): string {
+    const make = this.makeOf(p);
+    const lines = [`${p.jewel_code} – ${this.itemTitle(p)}`];
+
+    const gold = [this.karat(p), p.metal].filter(Boolean).join(' ');
+    if (gold || p.net_wt) {
+      lines.push(
+        `• Gold: ${gold}${p.net_wt ? `, ${p.net_wt} g net` : ''}${
+          p.gross_wt ? ` (${p.gross_wt} g gross)` : ''
+        }${MESSAGE_COPY.goldNote}`,
+      );
+    }
+    const dia = this.getTotaldiamondWeight(p.diamonds);
+    if (dia) {
+      lines.push(
+        `• ${make === 'Polki' ? 'Polki' : 'Diamonds'}: ${dia.toFixed(2)} ct` +
+          (p.dia_quality ? `, ${p.dia_quality}` : '') +
+          (p.certificate ? `, ${p.certificate} certified` : ''),
+      );
+    }
+    const st = this.getTotalStoneWeight(p.stones);
+    if (st || p.stone_type) {
+      lines.push(
+        `• Stones: ${[
+          p.stone_type ? tc(p.stone_type) : '',
+          st ? `${st.toFixed(2)} ct` : '',
+        ]
+          .filter(Boolean)
+          .join(', ')}`,
+      );
+    }
+    return lines.join('\n') + '\n';
+  }
+
+  // =====================================================================
+  // Item helpers
+  // =====================================================================
+  /**
+   * Maps whatever your product `status` holds onto the four desk statuses.
+   * Anything unrecognised (e.g. "available", "active", "in_stock") counts as In store,
+   * so a product is never hidden just because of an unexpected status value.
+   */
+  statusOf(p: any): ItemStatus {
+    const s = norm(p.status);
+    if (/(^|[^a-z])sold($|[^a-z])/.test(s)) return 'Sold'; // "sold", "sold_out" — not "unsold"
+    if (s.includes('reserv') || s.includes('hold')) return 'Reserved';
+    if (s.includes('exhibit')) return 'At exhibition';
+    return 'In store';
+  }
+
+  statusSeverity(s: ItemStatus): TagSeverity {
+    return s === 'In store' ? 'success' : s === 'Reserved' ? 'danger' : 'warn';
+  }
+
+  /** Diamond / Polki / Gemstone / Gold — from `make_type` if present, else derived. */
+  makeOf(p: any): MakeType {
+    if (p.make_type) return p.make_type as MakeType;
+    const t = norm(
+      `${p.collection} ${p.stone_type} ${p.sub_category} ${p.product_category}`,
+    );
+    if (t.includes('polki') || t.includes('kundan')) return 'Polki';
+    if (p.diamonds?.length) return 'Diamond';
+    if (p.stones?.length) return 'Gemstone';
+    return 'Gold';
+  }
+
+  karat(p: any): string {
+    return p.material ? `${p.material}K` : (p.purity ?? '');
+  }
+
+  itemTitle(p: any): string {
+    return `${tc(this.makeOf(p))} ${tc(p.sub_category || p.product_category || '')}`.trim();
+  }
+
+  specLine(p: any): string {
+    const parts: string[] = [];
+    const gold = [this.karat(p), p.metal].filter(Boolean).join(' ');
+    if (gold || p.net_wt)
+      parts.push(`${gold}${p.net_wt ? ` ${p.net_wt} g` : ''}`.trim());
+    const dia = this.getTotaldiamondWeight(p.diamonds);
+    if (dia)
+      parts.push(
+        `${this.makeOf(p) === 'Polki' ? 'polki' : 'diamonds'} ${dia.toFixed(2)} ct`,
+      );
+    if (p.stone_type) parts.push(norm(p.stone_type));
+    return parts.join(' · ');
+  }
+
+  // ---------- Pricing (spec §5) ----------
+  /** India price = your original in-browser calculation (metal + diamonds + stones + making, + 3% GST). */
+  indiaPrice(p: any): number {
+    return this.getGrandTotal(p);
+  }
+
+  /** India: ₹ price. Middle East: C. No. × market multiplier. */
+  marketPrice(p: any, market: Market): string {
+    const r = this.rules()[market];
+    if (!r.mult)
+      return '₹' + Math.round(this.indiaPrice(p)).toLocaleString('en-IN');
+    if (!+p.c_no) return 'C. No. missing';
+    return `${r.cur} ${Math.round(+p.c_no * r.mult).toLocaleString('en-IN')}`;
+  }
+
+  // =====================================================================
+  // Data loading
+  // =====================================================================
   loadFacets() {
     this._apiService.getProductFilters().subscribe({
       next: (f: Facets) => this.facets.set(f),
@@ -283,75 +846,34 @@ export class ProductsViewAllComponent implements OnInit {
     });
   }
 
-  /** Fetches everything matching the server-side filters (category etc.) */
+  /** Fetches everything matching the server-side filters; a newer request cancels an older one. */
   loadProducts() {
+    this.productsSub?.unsubscribe();
     this.loading.set(true);
-    const params: Record<string, string | number> = {
-      page: 1,
-      limit: this.FETCH_ALL,
-    };
-    if (this.category()) params['category'] = this.category()!;
-    Object.entries(this.filters()).forEach(([k, v]) => v && (params[k] = v));
+    const params = this.serverParams();
 
-    this._apiService.getProductAll(params).subscribe({
+    this.productsSub = this._apiService.getProductAll(params).subscribe({
       next: (res: any) => {
-        this.allProducts.set(res.data ?? []);
-        this.page.set(1);
+        const data: any[] = res.data ?? [];
+        this.allProducts.set(data);
+        if (!params['sub_category']) {
+          this.subOptions.set(
+            [
+              ...new Set(data.map((p) => p.sub_category).filter(Boolean)),
+            ].sort() as string[],
+          );
+        }
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Failed',
-          detail: 'Could not load products',
-        });
+        this.toast('error', 'Failed', 'Could not load products');
       },
     });
   }
 
-  /** Re-fetch after server-side filters change */
   reload() {
     this.loadProducts();
-  }
-
-  onPage(e: PaginatorState) {
-    this.page.set((e.page ?? 0) + 1);
-  }
-
-  setTab(t: TabKey) {
-    this.tab.set(t);
-    this.page.set(1);
-  }
-
-  onPriceChange(value: number) {
-    this.priceMax.set(value);
-    this.page.set(1);
-  }
-
-  setCategory(c: string | null) {
-    this.category.set(this.category() === c ? null : c);
-    this.reload();
-    if (this.category()) {
-      this.productsSection?.nativeElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
-  toggleFilter(key: FilterKey, value: string) {
-    const next = { ...this.filters() };
-    next[key] === value ? delete next[key] : (next[key] = value);
-    this.filters.set(next);
-    this.reload();
-  }
-
-  clearFilters() {
-    this.filters.set({});
-    this.category.set(null);
-    this.priceMax.set(this.maxPriceLimit);
-    this.reload();
   }
 
   // ---------- Search by tag ----------
@@ -367,11 +889,7 @@ export class ProductsViewAllComponent implements OnInit {
     this._apiService.findProduct({ jewel_code: term }).subscribe({
       next: (res: any) => {
         if (!res || res.length === 0) {
-          this._messageService.add({
-            severity: 'error',
-            summary: 'Not Found',
-            detail: `No product found for ${term}`,
-          });
+          this.toast('error', 'Not Found', `No product found for ${term}`);
           this.searchResult.set([]);
         } else {
           this.searchResult.set(Array.isArray(res) ? res : [res]);
@@ -440,11 +958,7 @@ export class ProductsViewAllComponent implements OnInit {
   onFileChange(event: any) {
     const file = event.files[0];
     if (!file || !file.name.endsWith('.csv')) {
-      this._messageService.add({
-        severity: 'error',
-        summary: 'Invalid File',
-        detail: 'CSV only',
-      });
+      this.toast('error', 'Invalid File', 'CSV only');
       return;
     }
     this.selectedFile = file;
@@ -459,11 +973,11 @@ export class ProductsViewAllComponent implements OnInit {
 
     this._apiService.uploadCsvFile(formData).subscribe({
       next: (res: any) => {
-        this._messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Total ${res.count} product imported successfully`,
-        });
+        this.toast(
+          'success',
+          'Success',
+          `Total ${res.count} product imported successfully`,
+        );
         this.isUploading.set('Upload');
         this.visible = false;
         this.selectedFile = null;
@@ -471,53 +985,18 @@ export class ProductsViewAllComponent implements OnInit {
         this.reload(); // show newly imported products
       },
       error: (err) => {
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Failed',
-          detail: `Import failed: ${err.error?.message || 'Check CSV format'}`,
-        });
+        this.toast(
+          'error',
+          'Failed',
+          `Import failed: ${err.error?.message || 'Check CSV format'}`,
+        );
         this.isUploading.set('Upload');
       },
     });
   }
 
-  //render categories images to list of categories
-  // ---------- Category images (public/category-img) ----------
-  private readonly CATEGORY_IMG_DIR = 'category-img';
-  private readonly CATEGORY_IMG_EXT = 'png';
-
-  // Only needed for files that don't follow the naming rule
-  private readonly CATEGORY_IMG_OVERRIDES: Record<string, string> = {
-    'DIAMOND BANGLE': 'diamondbangle.png',
-    'DIAMOND BRACELET': 'diamondbracelet.png',
-    'DIAMOND EARRING': 'diamondearring.png',
-    'DIAMOND MANGALSUTRA': 'diamondmangalsutra.png',
-    'DIAMOND NECKLACE': 'diamondnecklace.png',
-    'DIAMOND NECKLACE EARRING': 'diamondnecklaceearring.png',
-    'DIAMOND NOSE PIN': 'diamondnosepin.png',
-    'DIAMOND PENDANT': 'diamondpendant.png',
-    'DIAMOND RING': 'diamondring.png',
-    'GOLD BANGLE 2': 'goldbangle2.png',
-    'GOLD BANGLE 4': 'goldbangle4.png',
-    'GOLD BRACELET': 'goldbracelet.png',
-    'GOLD CHAIN': 'goldchain.png',
-    'GOLD EARRING': 'goldearring.png',
-    'GOLD EARRING OF PS': 'goldearringofps.png',
-    'GOLD HAR NECKLACE': 'goldharnecklace.png',
-    'GOLD HAR NECKLACE EARRINGS': 'goldharnecklaceearrings.png',
-    'GOLD KANTHI NECKLACE': 'goldkanthinecklace.png',
-    'GOLD KANTHI NECKLACE EARRING': 'goldkanthinecklaceearring.png',
-    'GOLD MANGALSUTRA': 'goldmangalsutra.png',
-    'GOLD PENDANT': 'goldpendant.png',
-    'GOLD PENDANT OF SET': 'goldpendantofset.png',
-    'GOLD RING': 'goldring.png',
-  };
-  categoryImage(name: string): string {
-    const override = this.CATEGORY_IMG_OVERRIDES[name];
-    if (override) return `${this.CATEGORY_IMG_DIR}/${override}`;
-
-    const slug = name.trim().toLowerCase().replace(/\s+/g, '-');
-    return `${this.CATEGORY_IMG_DIR}/${slug}.${this.CATEGORY_IMG_EXT}`;
+  private toast(severity: string, summary: string, detail: string) {
+    this._messageService.add({ severity, summary, detail });
   }
 
   // ---------- Share as PDF (WhatsApp) ----------
@@ -547,21 +1026,17 @@ export class ProductsViewAllComponent implements OnInit {
           `https://wa.me/?text=${encodeURIComponent(text)}`,
           '_blank',
         );
-        this._messageService.add({
-          severity: 'info',
-          summary: 'PDF downloaded',
-          detail: 'Attach the downloaded PDF in WhatsApp.',
-        });
+        this.toast(
+          'info',
+          'PDF downloaded',
+          'Attach the downloaded PDF in WhatsApp.',
+        );
       }
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
         // AbortError = user closed the share sheet
         console.error('Share error:', err);
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Failed',
-          detail: 'Could not create the PDF',
-        });
+        this.toast('error', 'Failed', 'Could not create the PDF');
       }
     } finally {
       this.sharingCode.set(null);

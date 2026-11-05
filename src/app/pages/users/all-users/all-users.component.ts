@@ -126,6 +126,32 @@ export class AllUsersComponent implements OnInit {
     this.change_password = true;
   }
 
+  onStatusToggle(user: any, isActive: boolean) {
+    const previousStatus = user.status;
+    const newStatus = isActive ? 'active' : 'inactive';
+    user.status = newStatus;
+
+    this.loginService.updateUserStatus(user._id, newStatus).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'User status updated',
+        });
+      },
+      error: (error) => {
+        user.status = previousStatus;
+        this.allUsers.update((users) => [...users]);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Could not update user status',
+        });
+        console.error('Status update error:', error);
+      },
+    });
+  }
+
   updatePassword(userId: string) {
     if (this.changePasswordForm.invalid) return;
 
