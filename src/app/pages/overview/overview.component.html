@@ -1,33 +1,38 @@
 <p-toast />
 
 <!-- ============ Welcome banner ============ -->
-<p-card styleClass="!bg-linear-to-r from-orange-50 to-blue-100">
+<p-card
+  styleClass="!bg-linear-to-r from-blue-100 to-emerald-100 dark:from-blue-950 dark:to-emerald-800"
+>
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div class="flex items-center gap-4">
-      <span
-        class="grid place-items-center size-14 rounded-full bg-blue-200 text-blue-900"
-      >
-        <i class="pi pi-heart !text-2xl"></i>
+      <span class="grid place-items-center size-14 rounded-full shrink-0">
+        <img
+          src="data:image/png;base64,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"
+          alt="waving-hand-emoji"
+        />
       </span>
       <div>
-        <h1 class="text-2xl font-bold text-blue-900">
+        <h1 class="text-2xl font-bold text-zinc-700 dark:text-blue-200">
           Welcome, {{ userName }}
         </h1>
-        <p class="text-sm text-zinc-700 text">
+        <p class="text-sm text-zinc-500 dark:text-zinc-300">
           Here's what's happening at your jewellery store today.
         </p>
       </div>
     </div>
 
     <div
-      class="flex items-center gap-3 bg-white rounded-xl px-4 py-3 self-start md:self-auto"
+      class="flex items-center gap-3 bg-white rounded-xl px-4 py-3 self-start md:self-auto dark:bg-zinc-950 dark:text-zinc-200"
     >
-      <i class="pi pi-calendar !text-3xl text-blue-900"></i>
+      <i class="pi pi-calendar !text-3xl text-zinc-900 dark:text-blue-200"></i>
       <div>
-        <div class="font-semibold text-blue-900">
+        <div class="font-semibold text-zinc-700 dark:text-blue-200">
           {{ today | date: "EEE, dd MMM yyyy" }}
         </div>
-        <div class="text-xs text-zinc-600">{{ greeting }}!</div>
+        <div class="text-xs text-zinc-500 dark:text-zinc-400">
+          {{ greeting }}!
+        </div>
       </div>
     </div>
   </div>
@@ -42,9 +47,10 @@
           class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-5 pt-4"
         >
           <h3 class="flex items-center gap-2 font-semibold">
-            <i class="pi pi-users text-blue-900"></i> Customer &amp; Follow-ups
+            <i class="pi pi-users text-blue-900 dark:text-blue-100"></i>
+            Customer &amp; Follow-ups
           </h3>
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-1">
             <p-button
               label="Weekly"
               size="small"
@@ -110,7 +116,8 @@
     <p-card>
       <ng-template #header>
         <h3 class="flex items-center gap-2 font-semibold px-5 pt-4">
-          <i class="pi pi-heart text-blue-900"></i> Seriousness
+          <i class="pi pi-heart text-blue-900 dark:text-blue-100"></i>
+          Seriousness
         </h3>
       </ng-template>
 
@@ -153,7 +160,7 @@
   <p-card class="block my-5">
     <ng-template #header>
       <h3 class="flex items-center gap-2 font-semibold px-5 pt-4">
-        <i class="pi pi-shopping-cart text-blue-900"></i> Orders
+        <i class="pi pi-shopping-cart dark:text-blue-100"></i> Orders
       </h3>
     </ng-template>
 
@@ -162,20 +169,18 @@
         <a
           routerLink="/orders/all-orders/"
           [queryParams]="{ status: o.label }"
-          class="flex items-center gap-3 rounded-xl px-4 py-3 hover:shadow-sm transition-shadow"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 !bg-linear-to-r from-blue-100 to-emerald-100 dark:from-blue-950 dark:to-emerald-800"
           [class]="o.bgClass"
         >
           <span
-            class="grid place-items-center size-9 rounded-full bg-white/70"
+            class="grid place-items-center size-9 rounded-full bg-white"
             [class]="o.iconClass"
           >
             <i class="pi {{ o.icon }}"></i>
           </span>
           <span class="flex-1">
-            <span class="block text-xs text-zinc-600">{{ o.label }}</span>
-            <span class="block text-xl font-bold text-zinc-900">{{
-              o.value
-            }}</span>
+            <span class="block text-xs">{{ o.label }}</span>
+            <span class="block text-xl font-bold">{{ o.value }}</span>
           </span>
           <i class="pi pi-chevron-right !text-xs text-surface-500"></i>
         </a>
@@ -184,7 +189,8 @@
 
     <div class="flex items-center justify-between mt-5 mb-2">
       <h4 class="flex items-center gap-2 text-sm font-semibold">
-        <i class="pi pi-calendar text-blue-900"></i> Recent Orders
+        <i class="pi pi-calendar text-blue-900 dark:text-blue-100"></i> Recent
+        Orders
       </h4>
       <p-button
         label="View All"
@@ -241,17 +247,17 @@
 <!-- ============ Store-wide achievement (target) ============ -->
 <p-card
   class="block my-5"
-  styleClass="!bg-linear-to-r from-orange-50 to-blue-100"
+  styleClass="!bg-linear-to-r from-blue-100 to-emerald-100 dark:from-blue-950 dark:to-emerald-800"
 >
   <div class="flex flex-col lg:flex-row lg:items-center gap-4">
     <div class="flex items-center gap-3 lg:w-1/4">
       <span
-        class="grid place-items-center size-12 rounded-full bg-blue-200 text-blue-900 dark:bg-blue-200 dark:text-blue-900 shrink-0"
+        class="grid place-items-center size-12 text-blue-900 b dark:bg-blue-900 dark:text-blue-100 shrink-0 rounded-full"
       >
         <i class="pi pi-trophy !text-xl"></i>
       </span>
       <div class="flex flex-col gap-1">
-        <span class="font-semibold text-blue-900">Store-Wide Achievement</span>
+        <span class="font-semibold">Store-Wide Achievement</span>
         <p-datepicker
           [ngModel]="selectedDate"
           (ngModelChange)="onTargetMonthChange($event)"
@@ -279,12 +285,10 @@
         <p-progressbar [value]="targetVm.percent" [showValue]="true" />
       } @else {
         <div class="text-center">
-          <div
-            class="flex items-center justify-center gap-2 font-semibold text-zinc-900"
-          >
-            <i class="pi pi-bullseye text-zinc-900"></i> No Target Found
+          <div class="flex items-center justify-center gap-2 font-semibold">
+            <i class="pi pi-bullseye"></i> No Target Found
           </div>
-          <div class="text-xs text-zinc-600">
+          <div class="text-xs">
             No performance targets were set for the store in {{ periodLabel }}.
           </div>
         </div>

@@ -29,9 +29,10 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { Drawer } from 'primeng/drawer';
 import { Tooltip } from 'primeng/tooltip';
+import { SliderModule } from 'primeng/slider';
 
 import { Subscription } from 'rxjs';
 import { jsPDF } from 'jspdf';
@@ -43,7 +44,6 @@ import { DeskStateService } from '../../../services/desk-state.service';
 import { environment } from '../../../../environments/environment';
 import {
   AVAIL_OPTIONS,
-  BUDGET_OPTIONS,
   CHANNELS,
   DeskFilters,
   DIA_WT_OPTIONS,
@@ -60,6 +60,7 @@ import {
   MsgTpl,
   OCCASIONS,
   Opt,
+  parseQuery,
   SORT_OPTIONS,
   STAGE_AFTER_SEND,
   STAGES,
@@ -96,6 +97,7 @@ interface CatalogRow {
   cNo: number; // C. No.
   status: ItemStatus;
   added: number;
+  hay: string; // lower-cased search text
 }
 
 const VIEW_MODE_KEY = 'products-view-mode';
@@ -130,6 +132,7 @@ const opts = (a: string[]): Opt[] => a.map((v) => ({ label: v, value: v }));
     DecimalPipe,
     Drawer,
     Tooltip,
+    SliderModule,
   ],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
@@ -178,49 +181,25 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   cNoMin = signal<number | null>(null);
   cNoMax = signal<number | null>(null);
 
-  /** List rows are tall (100px image), so show fewer per page. */
+  /** Price range filter; null = no price filter. */
+  priceRange = signal<[number, number] | null>(null);
+
+  /** List cards are tall (full price breakdown), so show fewer per page. */
   get limit(): number {
-    return this.viewMode() === 'list' ? 6 : 12;
+    return this.viewMode() === 'list' ? 12 : 50;
   }
 
   // ---------- Clock (drives the 24-hr reply timer) ----------
   now = signal(Date.now());
   private tick?: ReturnType<typeof setInterval>;
 
-  // ---------- Current enquiry (filters are remembered per enquiry) ----------
+  // ---------- Current enquiry (filters + search are remembered per enquiry) ----------
   readonly enquiries = this.desk.enquiries;
   readonly cur = this.desk.current;
   readonly f = computed(() => this.cur().f);
+  readonly q = computed(() => this.cur().q);
   readonly rules = this.desk.marketRules;
   readonly syncState = this.desk.syncState;
-  private _confirm = inject(ConfirmationService);
-
-  // ---------- Enquiry search (left pane) ----------
-  readonly enquirySearch = signal('');
-
-  /** Filters the enquiry list as the user types: name, phone, channel, market, request. */
-  readonly filteredEnquiries = computed(() => {
-    const q = norm(this.enquirySearch());
-    const list = this.enquiries();
-    if (!q) return list;
-    return list.filter((e) =>
-      norm(
-        [e.name || 'new customer', e.phone, e.channel, e.market, e.need].join(
-          ' ',
-        ),
-      ).includes(q),
-    );
-  });
-
-  // ---------- New enquiry (held locally until Save is pressed) ----------
-  readonly newDraft = signal<Partial<Enquiry> | null>(null);
-
-  /** The customer form edits the draft while one is open, otherwise the current enquiry. */
-  readonly form = computed<Partial<Enquiry>>(
-    () => this.newDraft() ?? this.cur(),
-  );
-
-  readonly canSave = computed(() => !!(this.newDraft()?.name ?? '').trim());
 
   // ---------- Products ----------
   // Price is calculated in the browser (getGrandTotal), so sorting, the budget
@@ -246,16 +225,35 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   readonly rows = computed<CatalogRow[]>(() =>
     this.allProducts()
       .filter((p) => this.statusOf(p) !== 'Sold')
-      .map((p) => ({
-        p,
-        make: this.makeOf(p),
-        price: this.indiaPrice(p),
-        net: +p.net_wt || 0,
-        dia: this.diamondWt(p),
-        cNo: +p.c_no || 0,
-        status: this.statusOf(p),
-        added: Date.parse(p.added_on ?? p.createdAt ?? '') || 0,
-      })),
+      .map((p) => {
+        const make = this.makeOf(p);
+        return {
+          p,
+          make,
+          price: this.indiaPrice(p),
+          net: +p.net_wt || 0,
+          dia: this.diamondWt(p),
+          cNo: +p.c_no || 0,
+          status: this.statusOf(p),
+          added: Date.parse(p.added_on ?? p.createdAt ?? '') || 0,
+          hay: [
+            p.jewel_code,
+            p.product_category,
+            p.sub_category,
+            make,
+            p.stone_type,
+            p.material,
+            p.purity,
+            p.metal,
+            p.brand,
+            p.collection,
+            p.gender,
+            ...(p.occasion_tags ?? []),
+          ]
+            .join(' ')
+            .toLowerCase(),
+        };
+      }),
   );
 
   /** Which optional columns exist in the data → hide filters that can't work yet. */
@@ -269,23 +267,51 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     };
   });
 
+  readonly parsed = computed(() => parseQuery(this.q()));
+
+  /** Slider limits taken from the loaded products (rounded to ₹1,000). */
+  readonly priceBounds = computed(() => {
+    const prices = this.rows().map((r) => r.price);
+    if (!prices.length) return { min: 0, max: 0 };
+    const lo = prices.reduce((a, b) => Math.min(a, b), Infinity);
+    const hi = prices.reduce((a, b) => Math.max(a, b), 0);
+    return {
+      min: Math.floor(lo / 1000) * 1000,
+      max: Math.ceil(hi / 1000) * 1000,
+    };
+  });
+
+  /** What the slider shows: the chosen range, or the full span. */
+  readonly priceValue = computed<[number, number]>(
+    () => this.priceRange() ?? [this.priceBounds().min, this.priceBounds().max],
+  );
+
+  onPriceRange(v: number[]) {
+    const { min, max } = this.priceBounds();
+    // Handles at both ends = no filter
+    this.priceRange.set(v[0] <= min && v[1] >= max ? null : [v[0], v[1]]);
+  }
+
   readonly results = computed(() => {
     const f = this.f();
-    const b = range(f.budget),
-      g = range(f.goldWt),
+    const { words, min, max } = this.parsed();
+    const g = range(f.goldWt),
       d = range(f.diaWt);
     const cMin = this.cNoMin(),
       cMax = this.cNoMax();
+    const pr = this.priceRange();
 
     const r = this.rows().filter((x) => {
       if (f.avail !== 'all' && x.status !== 'In store') return false;
       if (f.make && x.make !== f.make) return false;
-      if (b && (x.price < b[0] || x.price > b[1])) return false;
+      if (pr && (x.price < pr[0] || x.price > pr[1])) return false;
       if (g && (x.net < g[0] || x.net > g[1])) return false;
       if (d && (x.dia < d[0] || x.dia > d[1])) return false;
       if (cMin != null && x.cNo < cMin) return false;
       if (cMax != null && x.cNo > cMax) return false;
-      return true;
+      if (min != null && x.price < min) return false;
+      if (max != null && x.price > max) return false;
+      return words.every((w) => x.hay.includes(w.replace(/s$/, '')));
     });
 
     switch (this.sort()) {
@@ -316,7 +342,14 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   readonly countText = computed(() => {
     const n = this.total();
-    return `${n} piece${n === 1 ? '' : 's'} match${n === 1 ? 'es' : ''}`;
+    const { min, max } = this.parsed();
+    const bud =
+      min != null || max != null
+        ? ` · budget ₹${(min ?? 0).toLocaleString('en-IN')} – ${
+            max != null ? '₹' + max.toLocaleString('en-IN') : 'any'
+          } read from search`
+        : '';
+    return `${n} piece${n === 1 ? '' : 's'} match${n === 1 ? 'es' : ''}${bud}`;
   });
 
   /** Sub-categories of the chosen category, taken from the last fetch that wasn't narrowed by a sub-category. */
@@ -329,7 +362,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   /**
    * Filters sent to the API, e.g.
    *   /api/products?page=1&limit=5000&category=DIAMOND%20BRACELET
-   * Everything else (make, price, weights, C. No.) is applied in the
+   * Everything else (make, price, weights, C. No., text) is applied in the
    * browser on the fetched set.
    */
   private readonly serverParams = computed<Record<string, string | number>>(
@@ -345,7 +378,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       return params;
     },
   );
-  /** Changes only when a server-side filter really changes. */
+  /** Changes only when a server-side filter really changes (so typing in search never refetches). */
   private readonly serverKey = computed(() =>
     JSON.stringify(this.serverParams()),
   );
@@ -370,7 +403,6 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
         placeholder: 'All sub-categories',
         options: opts(this.subCategories()),
       },
-      { key: 'budget', placeholder: 'Any price', options: BUDGET_OPTIONS },
       { key: 'goldWt', placeholder: 'Any net wt', options: GOLD_WT_OPTIONS },
       { key: 'diaWt', placeholder: 'Any diamond wt', options: DIA_WT_OPTIONS },
       { key: 'make', placeholder: 'Any make', options: opts(MAKE_TYPES) },
@@ -461,7 +493,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       this.serverKey();
       untracked(() => this.loadProducts());
     });
-    // New filters / enquiry → back to page 1.
+    // New text / filters / enquiry → back to page 1.
     effect(() => {
       this.results();
       this.page.set(1);
@@ -486,40 +518,12 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   // =====================================================================
   // Enquiries (left pane)
   // =====================================================================
-
-  /** Opens an empty form. Nothing is stored until the user presses Save. */
   newEnquiry() {
-    this.newDraft.set(this.blankDraft());
-    this.enquirySearch.set('');
+    this.desk.add();
     this.tpl.set('options');
-  }
-
-  /** Stores the new enquiry and makes it the current one. */
-  saveEnquiry() {
-    const d = this.newDraft();
-    if (!d) return;
-    const name = (d.name ?? '').trim();
-    if (!name) {
-      this.toast('warn', 'Name missing', 'Enter the customer’s name first.');
-      return;
-    }
-    this.desk.add(); // creates the enquiry and selects it
-    this.desk.patchCurrent({
-      ...d,
-      name,
-      ...(d.need || d.occasion ? { stage: 1 } : {}),
-    } as Partial<Enquiry>);
-    this.newDraft.set(null);
-    this.tpl.set('options');
-    this.toast('success', 'Saved', `Enquiry for ${name} saved`);
-  }
-
-  cancelNew() {
-    this.newDraft.set(null);
   }
 
   selectEnquiry(id: string) {
-    this.newDraft.set(null);
     this.desk.select(id);
     this.tpl.set('options');
   }
@@ -527,36 +531,15 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   removeEnquiry(id: string, ev?: Event) {
     ev?.stopPropagation();
     const e = this.enquiries().find((x) => x.id === id);
-
-    this._confirm.confirm({
-      target: ev?.target as EventTarget,
-      message: `Delete the enquiry for ${e?.name || 'this customer'}?`,
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: {
-        label: 'Delete',
-        severity: 'danger',
-        size: 'small',
-      },
-      rejectButtonProps: {
-        label: 'Cancel',
-        severity: 'secondary',
-        outlined: true,
-        size: 'small',
-      },
-      accept: () => {
-        this.newDraft.set(null);
-        this.desk.remove(id);
-        this.tpl.set('options');
-      },
-    });
+    if (
+      !window.confirm(`Delete the enquiry for ${e?.name || 'this customer'}?`)
+    )
+      return;
+    this.desk.remove(id);
+    this.tpl.set('options');
   }
 
   patchEnquiry(patch: Partial<Enquiry>) {
-    // New enquiry: edit the local draft only; Save writes it.
-    if (this.newDraft()) {
-      this.newDraft.update((d) => ({ ...d, ...patch }));
-      return;
-    }
     const c = this.cur();
     const next = { ...patch };
     const need = patch.need ?? c.need;
@@ -575,20 +558,13 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     return m < 60 ? `${m} min ago` : `${Math.round(m / 60)} hr ago`;
   }
 
-  private blankDraft(): Partial<Enquiry> {
-    return {
-      name: '',
-      phone: '',
-      channel: CHANNELS[0] as Enquiry['channel'],
-      market: MARKETS[0] as Enquiry['market'],
-      need: '',
-      occasion: '' as Enquiry['occasion'],
-    };
+  // =====================================================================
+  // Filters + search (centre pane)
+  // =====================================================================
+  setQuery(value: string) {
+    this.desk.patchCurrent({ q: value ?? '' });
   }
 
-  // =====================================================================
-  // Filters (centre pane)
-  // =====================================================================
   setFilter(key: keyof DeskFilters, value: string | null) {
     const next: any = { ...this.f(), [key]: value ?? '' };
     if (key === 'avail' && !value) next.avail = 'store';
@@ -601,10 +577,10 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   }
 
   clearAll() {
-    // q: '' also wipes any search text saved on older enquiries
     this.desk.patchCurrent({ q: '', f: blankFilters() });
     this.cNoMin.set(null);
     this.cNoMax.set(null);
+    this.priceRange.set(null);
   }
 
   onPage(e: PaginatorState) {
@@ -640,14 +616,6 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   togglePick(code: string, ev?: Event) {
     ev?.stopPropagation();
-    if (this.newDraft()) {
-      this.toast(
-        'warn',
-        'Save the enquiry first',
-        'Press Save enquiry, then add pieces to its shortlist.',
-      );
-      return;
-    }
     const c = this.cur();
     if (c.picked.includes(code)) {
       this.desk.patchCurrent({ picked: c.picked.filter((x) => x !== code) });
@@ -692,19 +660,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     window.open(this.waHref(), '_blank', 'noopener');
   }
 
-  /**
-   * Logs the send against the current customer and updates their status
-   * in the enquiry list straight away.
-   */
   markSent() {
-    if (this.newDraft()) {
-      this.toast(
-        'warn',
-        'Save the enquiry first',
-        'Press Save enquiry before marking a message as sent.',
-      );
-      return;
-    }
     const e = this.cur(),
       t = this.tpl();
     if ((t === 'details' || t === 'price') && !e.picked.length) {
@@ -715,23 +671,13 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       );
       return;
     }
-
-    // Refresh the clock first so the status is worked out from "now",
-    // not from a tick up to a minute old.
-    const sentAt = Date.now();
-    this.now.set(sentAt);
-
     this.desk.patchCurrent({
       stage: Math.max(e.stage, STAGE_AFTER_SEND[t]),
-      sentAt, // every message restarts this customer's reply timer
+      sentAt: t === 'options' || t === 'nudge' ? Date.now() : e.sentAt,
     });
     // Spec §7: enquiry, template, Jewel Codes, time. The server adds the executive from the token.
     this.desk.logSend({ enquiryId: e.id, template: t, codes: [...e.picked] });
-    this.toast(
-      'success',
-      'Logged',
-      `Logged as sent to ${e.name || 'customer'}`,
-    );
+    this.toast('success', 'Logged', 'Logged as sent');
   }
 
   /** digits only; a bare 10-digit Indian number gets the 91 prefix */
@@ -1065,6 +1011,11 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       this.getTotalStoneAmount(item.stones) +
       this.getMakingChargeAmount(item)
     );
+  }
+
+  /** 3% GST on the subtotal */
+  getGst(item: any): number {
+    return this.getGrandTotal(item) - this.getSubtotal(item);
   }
 
   getGrandTotal(item: any): number {

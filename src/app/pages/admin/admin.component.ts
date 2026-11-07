@@ -36,6 +36,8 @@ import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component'
 import { Tooltip } from 'primeng/tooltip';
 import { ChatWidgetComponent } from '../chat-widget/chat-widget.component';
 
+const SIDEBAR_KEY = 'sidebar-open';
+
 @Component({
   selector: 'app-admin',
   imports: [
@@ -68,6 +70,10 @@ export class AdminComponent implements OnInit {
   @ViewChild('drawerRef') drawerRef!: Drawer;
 
   isDark = signal<boolean>(false);
+
+  /** Sidebar visibility; remembered across reloads. Defaults to open. */
+  sidebarOpen = signal<boolean>(this.readSidebar());
+
   menuStates: Record<string, boolean> = {};
   //showchatwindow
   chatDrawer: boolean = false;
@@ -100,10 +106,32 @@ export class AdminComponent implements OnInit {
       document.documentElement.classList.toggle('my-app-dark', dark);
       localStorage.setItem('theme', dark ? 'dark' : 'light');
     });
+
+    // Remember the sidebar state across reloads
+    effect(() => {
+      const open = this.sidebarOpen();
+      try {
+        localStorage.setItem(SIDEBAR_KEY, open ? 'open' : 'closed');
+      } catch {
+        /* storage unavailable – ignore */
+      }
+    });
   }
 
   ngOnInit() {
     // ✅ Nothing user-related here anymore
+  }
+
+  private readSidebar(): boolean {
+    try {
+      return localStorage.getItem(SIDEBAR_KEY) !== 'closed';
+    } catch {
+      return true;
+    }
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen.update((v) => !v);
   }
 
   toggleMenu(menu: string) {

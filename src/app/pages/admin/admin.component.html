@@ -27,6 +27,25 @@
             loading="lazy"
           />
         </a>
+
+        <!-- Show / hide the sidebar (desktop). State is saved in localStorage. -->
+        <p-button
+          class="hidden md:inline-flex"
+          [icon]="
+            sidebarOpen()
+              ? 'pi pi-angle-double-left'
+              : 'pi pi-angle-double-right'
+          "
+          (onClick)="toggleSidebar()"
+          severity="contrast"
+          [text]="true"
+          [rounded]="true"
+          [ariaLabel]="sidebarOpen() ? 'Hide sidebar' : 'Show sidebar'"
+          [attr.aria-expanded]="sidebarOpen()"
+          aria-controls="app-sidebar"
+          [pTooltip]="sidebarOpen() ? 'Hide sidebar' : 'Show sidebar'"
+          tooltipPosition="bottom"
+        />
       </div>
       <div class="flex items-center lg:order-2">
         <div class="flex justify-between items-center gap-1 md:gap-4">
@@ -77,11 +96,14 @@
   <!-- Sidebar -->
 
   <aside
-    class="fixed top-0 left-0 z-40 w-full md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-zinc-200 md:translate-x-0 dark:bg-zinc-950 dark:border-zinc-700"
+    id="app-sidebar"
+    class="fixed top-0 left-0 z-40 w-full md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-zinc-200 dark:bg-zinc-950 dark:border-zinc-700"
     aria-label="Sidenav"
     [ngClass]="{
       'translate-x-0': drawerNavigation,
       '-translate-x-full': !drawerNavigation,
+      'md:translate-x-0': sidebarOpen(),
+      'md:-translate-x-full': !sidebarOpen(),
     }"
   >
     <div class="py-5 px-3 h-full bg-white dark:bg-zinc-950 overflow-y-auto">
@@ -285,7 +307,8 @@
   </aside>
 
   <main
-    class="p-4 md:ml-64 min-h-screen pt-20 max-sm:pb-20 bg-zinc-200 dark:bg-zinc-950"
+    class="p-4 min-h-screen pt-20 max-sm:pb-20 bg-zinc-200 dark:bg-zinc-950 transition-[margin]"
+    [ngClass]="sidebarOpen() ? 'md:ml-64' : 'md:ml-0'"
   >
     <router-outlet></router-outlet>
 
