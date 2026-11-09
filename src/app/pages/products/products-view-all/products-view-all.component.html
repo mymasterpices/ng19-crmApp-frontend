@@ -1,6 +1,6 @@
 <!--
   CRM Catalog Desk — three panes:
-  left = enquiry · centre = catalogue · right = shortlist + message.
+  left = enquiry · centre = catalogue (filters live in the table header) · right = shortlist + message.
   ≥1180px: 3 columns · 760–1179px: shortlist drops below · <760px: single column.
 -->
 <div
@@ -35,6 +35,8 @@
           }
         </span>
       </div>
+
+      <!-- Add new enquiry -->
       <p-button
         label="New"
         icon="pi pi-plus"
@@ -154,6 +156,17 @@
           (ngModelChange)="patchEnquiry({ occasion: $event ?? '' })"
         />
       </label>
+
+      <p-button
+        label="Save customer"
+        icon="pi pi-save"
+        size="small"
+        severity="contrast"
+        styleClass="w-full"
+        [loading]="customerSaving()"
+        [disabled]="customerSaving()"
+        (onClick)="saveCustomer()"
+      />
     </div>
 
     <div>
@@ -251,103 +264,24 @@
       }
     }
 
-    <!-- Free-text search + filters -->
-    <div class="mt-4 space-y-3">
-      <div class="flex gap-2 flex-wrap">
-        <input
-          type="search"
-          pInputText
-          class="flex-1 min-w-[240px]"
-          placeholder="Type what the customer wants — e.g. diamond studs under 1 lakh"
-          aria-label="Search catalogue"
-          autocomplete="off"
-          [ngModel]="q()"
-          (ngModelChange)="setQuery($event)"
-        />
-        <p-button
-          label="Clear all"
-          severity="secondary"
-          [outlined]="true"
-          (onClick)="clearAll()"
-        />
-      </div>
-
-      <!-- Filters: category, sub-category, price, net wt, diamond wt, make, stone type, collection, C. No. -->
-      <div class="flex flex-wrap gap-2 items-center">
-        @for (s of primarySelects(); track s.key) {
-          <p-select
-            [options]="s.options"
-            optionLabel="label"
-            optionValue="value"
-            [placeholder]="s.placeholder"
-            [showClear]="s.key !== 'avail'"
-            appendTo="body"
-            size="small"
-            [ngModel]="f()[s.key]"
-            (ngModelChange)="setFilter(s.key, $event)"
-          />
-        }
-
-        <div
-          class="flex flex-col gap-2 w-56 px-2"
-          role="group"
-          aria-label="Price range"
-        >
-          <div class="flex justify-between text-xs text-gray-500 tabular-nums">
-            <span>Price</span>
-            <span>
-              ₹{{ priceValue()[0] | number: "1.0-0" }} – ₹{{
-                priceValue()[1] | number: "1.0-0"
-              }}
-            </span>
-          </div>
-          <p-slider
-            [range]="true"
-            [min]="priceBounds().min"
-            [max]="priceBounds().max"
-            [step]="1000"
-            [disabled]="priceBounds().max <= priceBounds().min"
-            [ngModel]="priceValue()"
-            (ngModelChange)="onPriceRange($event)"
-          />
-        </div>
-
-        <div
-          class="flex items-center gap-1"
-          role="group"
-          aria-label="C. No. range"
-        >
-          <input
-            type="number"
-            pInputText
-            class="w-28 text-sm"
-            placeholder="C. No. min"
-            aria-label="C. No. minimum"
-            [ngModel]="cNoMin()"
-            (ngModelChange)="cNoMin.set($event)"
-          />
-          <span class="text-gray-400">–</span>
-          <input
-            type="number"
-            pInputText
-            class="w-28 text-sm"
-            placeholder="C. No. max"
-            aria-label="C. No. maximum"
-            [ngModel]="cNoMax()"
-            (ngModelChange)="cNoMax.set($event)"
-          />
-        </div>
-      </div>
-    </div>
-
     <!-- Results -->
-    <section class="mt-6">
+    <section class="mt-4">
       <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
         <span class="text-sm text-gray-500 tabular-nums">{{
           countText()
         }}</span>
 
         <div class="flex items-center gap-2">
+          @if (activeFilterCount() > 0) {
+            <p-button
+              [label]="'Clear filters (' + activeFilterCount() + ')'"
+              icon="pi pi-filter-slash"
+              size="small"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="clearAll()"
+            />
+          }
           <p-select
             [options]="SORT_OPTIONS"
             optionLabel="label"
@@ -364,11 +298,11 @@
             aria-label="Switch view"
           >
             <p-button
-              icon="pi pi-table"
+              icon="pi pi-th-large"
               (onClick)="setView('grid')"
               [attr.aria-pressed]="viewMode() === 'grid'"
-              ariaLabel="Table view"
-              pTooltip="Table view"
+              ariaLabel="Grid view"
+              pTooltip="Grid view"
               tooltipPosition="top"
               [severity]="viewMode() === 'grid' ? 'contrast' : 'secondary'"
               [rounded]="true"
@@ -379,7 +313,7 @@
               (onClick)="setView('list')"
               [attr.aria-pressed]="viewMode() === 'list'"
               ariaLabel="List view"
-              pTooltip="List view"
+              pTooltip="List (table) view – filters are in the header"
               tooltipPosition="top"
               [severity]="viewMode() === 'list' ? 'contrast' : 'secondary'"
               [rounded]="true"
@@ -389,74 +323,435 @@
         </div>
       </div>
 
-      @if (loading()) {
-        <div
-          [class]="
-            viewMode() === 'grid'
-              ? 'grid grid-cols-2 lg:grid-cols-3 gap-4'
-              : 'flex flex-col gap-4'
-          "
-        >
-          @for (s of [1, 2, 3]; track s) {
-            <div
-              class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
-            ></div>
-          }
-        </div>
-      } @else if (visibleProducts().length === 0) {
-        <div
-          class="py-10 px-4 text-center text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl"
-        >
-          Nothing matches. Remove a filter or widen the budget.
-          <div class="mt-3">
-            <p-button
-              label="Clear all filters"
-              size="small"
-              severity="secondary"
-              (onClick)="clearAll()"
-            />
+      @if (viewMode() === "grid") {
+        <p class="text-xs text-gray-500 mb-3">
+          <i class="pi pi-info-circle text-[11px]"></i>
+          Filters are in the table header. Switch to list view to change them;
+          active filters still apply here.
+        </p>
+
+        @if (loading()) {
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (s of [1, 2, 3]; track s) {
+              <div
+                class="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
+              ></div>
+            }
           </div>
-        </div>
-      } @else {
-        @if (viewMode() === "grid") {
-          <!-- ============ TABLE VIEW (product information) ============ -->
+        } @else if (visibleProducts().length === 0) {
           <div
-            class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-x-auto"
+            class="py-10 px-4 text-center text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl"
           >
-            <table
-              class="w-full text-left text-xs md:text-sm border-collapse min-w-[1750px]"
-            >
-              <thead>
-                <tr
-                  class="bg-gray-900 dark:bg-emerald-600 text-white font-semibold whitespace-nowrap"
-                >
-                  <th
-                    class="p-2 sticky left-0 z-10 bg-gray-900 dark:bg-emerald-600"
-                  >
-                    Product
-                  </th>
-                  <th class="p-2">Category</th>
-                  <th class="p-2">Sub-category</th>
-                  <th class="p-2 text-center">Purity</th>
-                  <th class="p-2 text-right">Gross Wt (g)</th>
-                  <th class="p-2 text-right">Net Wt (g)</th>
-                  <th class="p-2 text-right">Diamond Wt (ct)</th>
-                  <th class="p-2 text-right">Polki Wt (ct)</th>
-                  <th class="p-2 text-right">Stone Wt (ct)</th>
-                  <th class="p-2">Make</th>
-                  <th class="p-2">Vendor</th>
-                  <th class="p-2 text-right">Metal Amt (₹)</th>
-                  <th class="p-2 text-right">Making Amt (₹)</th>
-                  <th class="p-2 text-right">Stone Amt (₹)</th>
-                  <th class="p-2 text-right">Diamond Amt (₹)</th>
-                  <th class="p-2 text-right">GST 3% (₹)</th>
-                  <th class="p-2 text-right">Total incl. GST (₹)</th>
-                  <th class="p-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody
-                class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-200"
+            Nothing matches. Remove a filter or widen the budget.
+            <div class="mt-3">
+              <p-button
+                label="Clear all filters"
+                size="small"
+                severity="secondary"
+                (onClick)="clearAll()"
+              />
+            </div>
+          </div>
+        } @else {
+          <!-- ============ GRID VIEW (photo cards) ============ -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (p of visibleProducts(); track p.jewel_code) {
+              <article
+                class="rounded-xl bg-white dark:bg-gray-900 border p-2 shadow-sm flex flex-col"
+                [class]="
+                  isPicked(p.jewel_code)
+                    ? 'border-emerald-600 ring-2 ring-emerald-100 dark:ring-emerald-900'
+                    : 'border-gray-200 dark:border-gray-700'
+                "
               >
+                <a
+                  [routerLink]="['/view-details', p.jewel_code]"
+                  class="relative block rounded-lg overflow-hidden bg-orange-50 aspect-square"
+                  [attr.aria-label]="'Open ' + p.jewel_code"
+                >
+                  @if (!imageFailed().has(p.jewel_code)) {
+                    <img
+                      [src]="imageUrl(p.jewel_code, p.product_image_url)"
+                      [alt]="p.sub_category"
+                      loading="lazy"
+                      (error)="onImgError(p.jewel_code)"
+                      class="w-full h-full object-cover"
+                    />
+                  } @else {
+                    <div
+                      class="w-full h-full grid place-items-center text-xs text-gray-400"
+                    >
+                      No image
+                    </div>
+                  }
+                  <span class="absolute top-2 left-2 flex gap-1 flex-wrap">
+                    @if (p.model_shot_url) {
+                      <p-tag
+                        value="Model shot"
+                        severity="secondary"
+                        styleClass="!text-[10px]"
+                      />
+                    }
+                    @if (statusOf(p) !== "In store") {
+                      <p-tag
+                        [value]="statusOf(p)"
+                        [severity]="statusSeverity(statusOf(p))"
+                        styleClass="!text-[10px]"
+                      />
+                    }
+                  </span>
+                </a>
+
+                <div class="pt-2 flex flex-col gap-0.5 flex-1">
+                  <span class="text-[11px] font-mono text-gray-500">{{
+                    p.jewel_code
+                  }}</span>
+                  <h3 class="text-sm font-semibold truncate">
+                    {{ itemTitle(p) }}
+                  </h3>
+                  <p class="text-xs text-gray-500 line-clamp-2">
+                    {{ specLine(p) }}
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between gap-1 pt-2">
+                  <span class="font-semibold tabular-nums">{{
+                    marketPrice(p, cur().market)
+                  }}</span>
+                  <div class="flex items-center gap-1 justify-center">
+                    <p-button
+                      icon="pi pi-eye"
+                      severity="contrast"
+                      size="small"
+                      [text]="true"
+                      [rounded]="true"
+                      pTooltip="View"
+                      ariaLabel="View details"
+                      [routerLink]="['/view-details', p.jewel_code]"
+                    />
+                    <p-button
+                      icon="pi pi-share-alt"
+                      size="small"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="contrast"
+                      pTooltip="Share PDF"
+                      ariaLabel="Share on WhatsApp"
+                      [loading]="sharingCode() === p.jewel_code"
+                      (onClick)="shareItem(p, $event)"
+                    />
+                    <p-button
+                      [icon]="
+                        isPicked(p.jewel_code) ? 'pi pi-check' : 'pi pi-plus'
+                      "
+                      size="small"
+                      [outlined]="!isPicked(p.jewel_code)"
+                      [disabled]="
+                        !isPicked(p.jewel_code) &&
+                        cur().picked.length >= MAX_PICKS
+                      "
+                      (onClick)="togglePick(p.jewel_code, $event)"
+                      [rounded]="true"
+                      severity="contrast"
+                    />
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      } @else {
+        <!-- ============ LIST VIEW (table, filters in header) ============ -->
+        <div
+          class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 overflow-x-auto"
+        >
+          <table
+            class="w-full text-left text-xs md:text-sm border-collapse min-w-[2400px]"
+          >
+            <thead>
+              <!-- Row 1: column titles -->
+              <tr
+                class="bg-gray-900 dark:bg-emerald-600 text-white font-semibold whitespace-nowrap"
+              >
+                <th
+                  class="p-2 sticky left-0 z-20 bg-gray-900 dark:bg-emerald-600"
+                >
+                  Product
+                </th>
+                <th class="p-2">Category</th>
+                <th class="p-2">Sub-category</th>
+                <th class="p-2 text-center">Purity</th>
+                <th class="p-2 text-right">Gross Wt (g)</th>
+                <th class="p-2 text-right">Net Wt (g)</th>
+                <th class="p-2 text-right">Diamond Wt (ct)</th>
+                <th class="p-2 text-right">Polki Wt (ct)</th>
+                <th class="p-2 text-right">Stone Wt (ct)</th>
+                <th class="p-2">Make</th>
+                <th class="p-2">Stone Type</th>
+                <th class="p-2">Collection</th>
+                <th class="p-2">Vendor</th>
+                <th class="p-2 text-right">C. No.</th>
+                <th class="p-2 text-right">Metal Amt (₹)</th>
+                <th class="p-2 text-right">Making Amt (₹)</th>
+                <th class="p-2 text-right">Stone Amt (₹)</th>
+                <th class="p-2 text-right">Diamond Amt (₹)</th>
+                <th class="p-2 text-right">GST 3% (₹)</th>
+                <th class="p-2 text-right">Total incl. GST (₹)</th>
+                <th class="p-2 text-center">Actions</th>
+              </tr>
+
+              <!-- Row 2: filters -->
+              <tr
+                class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-normal align-top border-b border-gray-200 dark:border-gray-700"
+              >
+                <!-- Product: availability -->
+                <th
+                  class="p-2 sticky left-0 z-20 bg-gray-50 dark:bg-gray-800 font-normal"
+                >
+                  @if (has().status) {
+                    <p-select
+                      [options]="availOpts"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="In store only"
+                      appendTo="body"
+                      size="small"
+                      styleClass="w-full min-w-[130px]"
+                      ariaLabel="Availability filter"
+                      [ngModel]="f().avail"
+                      (ngModelChange)="setFilter('avail', $event)"
+                    />
+                  }
+                </th>
+
+                <!-- Category -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="categoryOpts()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="All"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[140px]"
+                    ariaLabel="Category filter"
+                    [ngModel]="f().category"
+                    (ngModelChange)="setFilter('category', $event)"
+                  />
+                </th>
+
+                <!-- Sub-category -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="subOpts()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="All"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[140px]"
+                    ariaLabel="Sub-category filter"
+                    [ngModel]="f().sub"
+                    (ngModelChange)="setFilter('sub', $event)"
+                  />
+                </th>
+
+                <!-- Purity (no filter) -->
+                <th class="p-2"></th>
+                <!-- Gross wt (no filter) -->
+                <th class="p-2"></th>
+
+                <!-- Net wt -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="goldWtOpts"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Any"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[120px]"
+                    ariaLabel="Net weight filter"
+                    [ngModel]="f().goldWt"
+                    (ngModelChange)="setFilter('goldWt', $event)"
+                  />
+                </th>
+
+                <!-- Diamond wt -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="diaWtOpts"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Any"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[120px]"
+                    ariaLabel="Diamond weight filter"
+                    [ngModel]="f().diaWt"
+                    (ngModelChange)="setFilter('diaWt', $event)"
+                  />
+                </th>
+
+                <!-- Polki wt, Stone wt (no filter) -->
+                <th class="p-2"></th>
+                <th class="p-2"></th>
+
+                <!-- Make -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="makeOpts"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Any"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[110px]"
+                    ariaLabel="Make filter"
+                    [ngModel]="f().make"
+                    (ngModelChange)="setFilter('make', $event)"
+                  />
+                </th>
+
+                <!-- Stone type -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="stoneTypeOpts()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Any"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[130px]"
+                    ariaLabel="Stone type filter"
+                    [ngModel]="f().stone_type"
+                    (ngModelChange)="setFilter('stone_type', $event)"
+                  />
+                </th>
+
+                <!-- Collection -->
+                <th class="p-2 font-normal">
+                  <p-select
+                    [options]="collectionOpts()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Any"
+                    [showClear]="true"
+                    appendTo="body"
+                    size="small"
+                    styleClass="w-full min-w-[130px]"
+                    ariaLabel="Collection filter"
+                    [ngModel]="f().collection"
+                    (ngModelChange)="setFilter('collection', $event)"
+                  />
+                </th>
+
+                <!-- Vendor (no filter) -->
+                <th class="p-2"></th>
+
+                <!-- C. No. range -->
+                <th class="p-2 font-normal">
+                  <div
+                    class="flex flex-col gap-1 items-end"
+                    role="group"
+                    aria-label="C. No. range"
+                  >
+                    <input
+                      type="number"
+                      pInputText
+                      class="w-24 !text-xs !py-1"
+                      placeholder="Min"
+                      aria-label="C. No. minimum"
+                      [ngModel]="cNoMin()"
+                      (ngModelChange)="cNoMin.set($event)"
+                    />
+                    <input
+                      type="number"
+                      pInputText
+                      class="w-24 !text-xs !py-1"
+                      placeholder="Max"
+                      aria-label="C. No. maximum"
+                      [ngModel]="cNoMax()"
+                      (ngModelChange)="cNoMax.set($event)"
+                    />
+                  </div>
+                </th>
+
+                <!-- Metal, Making, Stone, Diamond, GST (no filter) -->
+                <th class="p-2"></th>
+                <th class="p-2"></th>
+                <th class="p-2"></th>
+                <th class="p-2"></th>
+                <th class="p-2"></th>
+
+                <!-- Total: price range -->
+                <th class="p-2 font-normal">
+                  <div
+                    class="flex flex-col gap-2 w-44 ml-auto px-1"
+                    role="group"
+                    aria-label="Price range"
+                  >
+                    <div
+                      class="flex justify-between text-[11px] text-gray-500 tabular-nums"
+                    >
+                      <span>₹{{ priceValue()[0] | number: "1.0-0" }}</span>
+                      <span>₹{{ priceValue()[1] | number: "1.0-0" }}</span>
+                    </div>
+                    <p-slider
+                      [range]="true"
+                      [min]="priceBounds().min"
+                      [max]="priceBounds().max"
+                      [step]="1000"
+                      [disabled]="priceBounds().max <= priceBounds().min"
+                      [ngModel]="priceValue()"
+                      (ngModelChange)="onPriceRange($event)"
+                    />
+                  </div>
+                </th>
+
+                <!-- Actions: clear all -->
+                <th class="p-2 text-center font-normal">
+                  <p-button
+                    icon="pi pi-filter-slash"
+                    size="small"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="secondary"
+                    pTooltip="Clear all filters"
+                    ariaLabel="Clear all filters"
+                    [disabled]="activeFilterCount() === 0"
+                    (onClick)="clearAll()"
+                  />
+                </th>
+              </tr>
+            </thead>
+
+            <tbody
+              class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-200"
+            >
+              @if (loading()) {
+                @for (s of [1, 2, 3]; track s) {
+                  <tr>
+                    <td colspan="21" class="p-2">
+                      <div
+                        class="h-20 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse"
+                      ></div>
+                    </td>
+                  </tr>
+                }
+              } @else if (visibleProducts().length === 0) {
+                <tr>
+                  <td colspan="21" class="py-10 px-4 text-center text-gray-500">
+                    Nothing matches. Remove a filter or widen the budget.
+                  </td>
+                </tr>
+              } @else {
                 @for (p of visibleProducts(); track p.jewel_code) {
                   <tr
                     class="hover:bg-gray-50 dark:hover:bg-gray-800 whitespace-nowrap"
@@ -531,7 +826,16 @@
                       {{ fmtNum(getTotalStoneWeight(p.stones)) }}
                     </td>
                     <td class="p-2">{{ makeOf(p) }}</td>
+                    <td class="p-2">
+                      {{ p.stone_type ? (p.stone_type | titlecase) : "-" }}
+                    </td>
+                    <td class="p-2">
+                      {{ p.collection ? (p.collection | titlecase) : "-" }}
+                    </td>
                     <td class="p-2">{{ vendorOf(p) || "-" }}</td>
+                    <td class="p-2 text-right tabular-nums">
+                      {{ fmtNum(+p.c_no, 0) }}
+                    </td>
                     <td class="p-2 text-right tabular-nums">
                       {{ fmtNum(+p.metal_amt) }}
                     </td>
@@ -593,20 +897,13 @@
                     </td>
                   </tr>
                 }
-              </tbody>
-            </table>
-          </div>
-        } @else {
-          <!-- ============ LIST VIEW (price-breakdown cards) ============ -->
-          <div class="flex flex-col">
-            @for (p of visibleProducts(); track p.jewel_code) {
-              <ng-container
-                *ngTemplateOutlet="priceCard; context: { $implicit: p }"
-              />
-            }
-          </div>
-        }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
 
+      @if (!loading() && total() > 0) {
         <p-paginator
           [first]="(page() - 1) * limit"
           [rows]="limit"
@@ -818,7 +1115,7 @@
 </div>
 
 <!-- ================= REUSABLE PRICE-BREAKDOWN CARD ================= -->
-<!-- Used by: tag-number search results AND list view -->
+<!-- Used by: tag-number search results -->
 <ng-template #priceCard let-item>
   <p-card
     styleClass="mb-4 bg-white shadow-sm"
@@ -1044,6 +1341,9 @@
     </div>
   </p-card>
 </ng-template>
+
+<!-- Delete-enquiry confirmation (PrimeNG) -->
+<p-confirmdialog />
 
 <!-- CSV import drawer (existing) -->
 <p-drawer

@@ -29,7 +29,8 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Drawer } from 'primeng/drawer';
 import { Tooltip } from 'primeng/tooltip';
 import { SliderModule } from 'primeng/slider';
@@ -60,7 +61,6 @@ import {
   MsgTpl,
   OCCASIONS,
   Opt,
-  parseQuery,
   SORT_OPTIONS,
   STAGE_AFTER_SEND,
   STAGES,
@@ -81,12 +81,6 @@ interface Facets {
   stone_types: string[];
 }
 
-interface SelectDef {
-  key: keyof DeskFilters;
-  placeholder: string;
-  options: Opt[];
-}
-
 /** Product + values worked out once, so filtering 5000 items stays cheap. */
 interface CatalogRow {
   p: any;
@@ -97,7 +91,6 @@ interface CatalogRow {
   cNo: number; // C. No.
   status: ItemStatus;
   added: number;
-  hay: string; // lower-cased search text
 }
 
 const VIEW_MODE_KEY = 'products-view-mode';
@@ -133,7 +126,10 @@ const opts = (a: string[]): Opt[] => a.map((v) => ({ label: v, value: v }));
     Drawer,
     Tooltip,
     SliderModule,
+    ConfirmDialogModule, // <p-confirmdialog /> in the template
   ],
+  // ConfirmationService must be provided here (same level as <p-confirmdialog />)
+  providers: [ConfirmationService],
   templateUrl: './products-view-all.component.html',
   styleUrl: './products-view-all.component.css',
 })
@@ -141,6 +137,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   private _apiService = inject(ApiService);
   private _authService = inject(AuthService);
   private _messageService = inject(MessageService);
+  private _confirm = inject(ConfirmationService);
   readonly desk = inject(DeskStateService);
 
   // ---------- Static lists for the template ----------
@@ -155,6 +152,12 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   readonly marketOpts = opts(MARKETS);
   readonly occasionOpts = opts(OCCASIONS);
 
+  // Static header-filter option lists
+  readonly goldWtOpts = GOLD_WT_OPTIONS;
+  readonly diaWtOpts = DIA_WT_OPTIONS;
+  readonly makeOpts = opts(MAKE_TYPES);
+  readonly availOpts = AVAIL_OPTIONS;
+
   // ---------- Search-by-tag state (existing) ----------
   searchResult = signal<any[]>([]);
   isUploading = signal<string>('Upload');
@@ -165,6 +168,9 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   lastScanned: string | null = null;
   sharingCode = signal<string | null>(null);
+
+  /** True while the "Save customer" request is running. */
+  customerSaving = signal(false);
 
   searchFrom = new FormGroup({
     jewel_code: new FormControl('', [Validators.required]),
@@ -184,27 +190,25 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   /** Price range filter; null = no price filter. */
   priceRange = signal<[number, number] | null>(null);
 
-  /** List cards are tall (full price breakdown), so show fewer per page. */
+  /** Grid = photo cards (12 per page); List = compact table (50 per page). */
   get limit(): number {
-    return this.viewMode() === 'list' ? 12 : 50;
+    return this.viewMode() === 'list' ? 50 : 12;
   }
 
   // ---------- Clock (drives the 24-hr reply timer) ----------
   now = signal(Date.now());
   private tick?: ReturnType<typeof setInterval>;
 
-  // ---------- Current enquiry (filters + search are remembered per enquiry) ----------
+  // ---------- Current enquiry (filters are remembered per enquiry) ----------
   readonly enquiries = this.desk.enquiries;
   readonly cur = this.desk.current;
   readonly f = computed(() => this.cur().f);
-  readonly q = computed(() => this.cur().q);
   readonly rules = this.desk.marketRules;
   readonly syncState = this.desk.syncState;
 
   // ---------- Products ----------
-  // Price is calculated in the browser (getGrandTotal), so sorting, the budget
-  // filter and pagination all run client-side on the full result set. Filters
-  // apply instantly (spec §4: no Apply button), so everything is client-side.
+  // Price is calculated in the browser (getGrandTotal), so sorting, the price
+  // filter and pagination all run client-side on the full result set.
   private readonly FETCH_ALL = 8000;
 
   allProducts = signal<any[]>([]);
@@ -225,35 +229,16 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   readonly rows = computed<CatalogRow[]>(() =>
     this.allProducts()
       .filter((p) => this.statusOf(p) !== 'Sold')
-      .map((p) => {
-        const make = this.makeOf(p);
-        return {
-          p,
-          make,
-          price: this.indiaPrice(p),
-          net: +p.net_wt || 0,
-          dia: this.diamondWt(p),
-          cNo: +p.c_no || 0,
-          status: this.statusOf(p),
-          added: Date.parse(p.added_on ?? p.createdAt ?? '') || 0,
-          hay: [
-            p.jewel_code,
-            p.product_category,
-            p.sub_category,
-            make,
-            p.stone_type,
-            p.material,
-            p.purity,
-            p.metal,
-            p.brand,
-            p.collection,
-            p.gender,
-            ...(p.occasion_tags ?? []),
-          ]
-            .join(' ')
-            .toLowerCase(),
-        };
-      }),
+      .map((p) => ({
+        p,
+        make: this.makeOf(p),
+        price: this.indiaPrice(p),
+        net: +p.net_wt || 0,
+        dia: this.diamondWt(p),
+        cNo: +p.c_no || 0,
+        status: this.statusOf(p),
+        added: Date.parse(p.added_on ?? p.createdAt ?? '') || 0,
+      })),
   );
 
   /** Which optional columns exist in the data → hide filters that can't work yet. */
@@ -266,8 +251,6 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       status: r.some((x) => x.status !== 'In store'),
     };
   });
-
-  readonly parsed = computed(() => parseQuery(this.q()));
 
   /** Slider limits taken from the loaded products (rounded to ₹1,000). */
   readonly priceBounds = computed(() => {
@@ -294,7 +277,6 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   readonly results = computed(() => {
     const f = this.f();
-    const { words, min, max } = this.parsed();
     const g = range(f.goldWt),
       d = range(f.diaWt);
     const cMin = this.cNoMin(),
@@ -309,9 +291,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       if (d && (x.dia < d[0] || x.dia > d[1])) return false;
       if (cMin != null && x.cNo < cMin) return false;
       if (cMax != null && x.cNo > cMax) return false;
-      if (min != null && x.price < min) return false;
-      if (max != null && x.price > max) return false;
-      return words.every((w) => x.hay.includes(w.replace(/s$/, '')));
+      return true;
     });
 
     switch (this.sort()) {
@@ -342,14 +322,23 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   readonly countText = computed(() => {
     const n = this.total();
-    const { min, max } = this.parsed();
-    const bud =
-      min != null || max != null
-        ? ` · budget ₹${(min ?? 0).toLocaleString('en-IN')} – ${
-            max != null ? '₹' + max.toLocaleString('en-IN') : 'any'
-          } read from search`
-        : '';
-    return `${n} piece${n === 1 ? '' : 's'} match${n === 1 ? 'es' : ''}${bud}`;
+    return `${n} piece${n === 1 ? '' : 's'} match${n === 1 ? 'es' : ''}`;
+  });
+
+  /** How many header filters are currently active (drives the "Clear filters" buttons). */
+  readonly activeFilterCount = computed(() => {
+    const f = this.f();
+    let n = 0;
+    if (f.category) n++;
+    if (f.sub) n++;
+    if (f.goldWt) n++;
+    if (f.diaWt) n++;
+    if (f.make) n++;
+    if (f.stone_type) n++;
+    if (f.collection) n++;
+    if (this.priceRange()) n++;
+    if (this.cNoMin() != null || this.cNoMax() != null) n++;
+    return n;
   });
 
   /** Sub-categories of the chosen category, taken from the last fetch that wasn't narrowed by a sub-category. */
@@ -359,10 +348,16 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     this.f().category ? this.subOptions() : this.facets().sub_categories,
   );
 
+  // ---------- Header-filter option lists (depend on loaded facets) ----------
+  readonly categoryOpts = computed(() => opts(this.facets().categories));
+  readonly subOpts = computed(() => opts(this.subCategories()));
+  readonly stoneTypeOpts = computed(() => opts(this.facets().stone_types));
+  readonly collectionOpts = computed(() => opts(this.facets().collections));
+
   /**
    * Filters sent to the API, e.g.
-   *   /api/products?page=1&limit=5000&category=DIAMOND%20BRACELET
-   * Everything else (make, price, weights, C. No., text) is applied in the
+   *   /api/products?page=1&limit=8000&category=DIAMOND%20BRACELET
+   * Everything else (make, price, weights, C. No.) is applied in the
    * browser on the fetched set.
    */
   private readonly serverParams = computed<Record<string, string | number>>(
@@ -378,55 +373,11 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       return params;
     },
   );
-  /** Changes only when a server-side filter really changes (so typing in search never refetches). */
+  /** Changes only when a server-side filter really changes. */
   private readonly serverKey = computed(() =>
     JSON.stringify(this.serverParams()),
   );
   private productsSub?: Subscription;
-
-  /**
-   * Filter pills: product category, sub-category, price, net weight,
-   * diamond weight, make type, stone type, collection.
-   * (C. No. is a min/max pair rendered separately in the template.)
-   */
-  readonly primarySelects = computed<SelectDef[]>(() => {
-    const fa = this.facets(),
-      h = this.has();
-    return [
-      {
-        key: 'category',
-        placeholder: 'All categories',
-        options: opts(fa.categories),
-      },
-      {
-        key: 'sub',
-        placeholder: 'All sub-categories',
-        options: opts(this.subCategories()),
-      },
-      { key: 'goldWt', placeholder: 'Any net wt', options: GOLD_WT_OPTIONS },
-      { key: 'diaWt', placeholder: 'Any diamond wt', options: DIA_WT_OPTIONS },
-      { key: 'make', placeholder: 'Any make', options: opts(MAKE_TYPES) },
-      {
-        key: 'stone_type',
-        placeholder: 'Any stone type',
-        options: opts(fa.stone_types),
-      },
-      {
-        key: 'collection',
-        placeholder: 'Any collection',
-        options: opts(fa.collections),
-      },
-      ...(h.status
-        ? [
-            {
-              key: 'avail',
-              placeholder: 'In store only',
-              options: AVAIL_OPTIONS,
-            } as SelectDef,
-          ]
-        : []),
-    ];
-  });
 
   // ---------- Shortlist + message ----------
   tpl = signal<MsgTpl>('options');
@@ -493,7 +444,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       this.serverKey();
       untracked(() => this.loadProducts());
     });
-    // New text / filters / enquiry → back to page 1.
+    // New filters / enquiry → back to page 1.
     effect(() => {
       this.results();
       this.page.set(1);
@@ -518,6 +469,8 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   // =====================================================================
   // Enquiries (left pane)
   // =====================================================================
+
+  /** "New" button – starts a fresh enquiry. */
   newEnquiry() {
     this.desk.add();
     this.tpl.set('options');
@@ -528,15 +481,23 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     this.tpl.set('options');
   }
 
+  /** Trash button – asks first with the PrimeNG confirm dialog. */
   removeEnquiry(id: string, ev?: Event) {
     ev?.stopPropagation();
     const e = this.enquiries().find((x) => x.id === id);
-    if (
-      !window.confirm(`Delete the enquiry for ${e?.name || 'this customer'}?`)
-    )
-      return;
-    this.desk.remove(id);
-    this.tpl.set('options');
+    this._confirm.confirm({
+      header: 'Delete enquiry',
+      message: `Delete the enquiry for ${e?.name || 'this customer'}?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => {
+        this.desk.remove(id);
+        this.tpl.set('options');
+      },
+    });
   }
 
   patchEnquiry(patch: Partial<Enquiry>) {
@@ -558,13 +519,54 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     return m < 60 ? `${m} min ago` : `${Math.round(m / 60)} hr ago`;
   }
 
-  // =====================================================================
-  // Filters + search (centre pane)
-  // =====================================================================
-  setQuery(value: string) {
-    this.desk.patchCurrent({ q: value ?? '' });
+  // ---------- Save new customer ----------
+  /**
+   * Saves the customer details typed in the Customer section.
+   * Requires `addCustomer()` on ApiService (see the snippet in the chat),
+   * or rename it to the method your add-customer page already uses.
+   */
+  /** Saves the current enquiry (name, phone, channel, market…) to the server now. */
+  async saveCustomer() {
+    if (this.customerSaving()) return;
+    const e = this.cur();
+    const name = (e.name || '').trim();
+    const digits = (e.phone || '').replace(/\D/g, '');
+
+    if (!name) {
+      this.toast('warn', 'Name missing', 'Enter the customer’s name first.');
+      return;
+    }
+    if (digits.length < 10) {
+      this.toast(
+        'warn',
+        'Number missing',
+        'Enter a valid WhatsApp number (at least 10 digits).',
+      );
+      return;
+    }
+
+    this.customerSaving.set(true);
+    try {
+      this.desk.patchCurrent({ name, phone: e.phone.trim() }); // marks it for sync
+      await this.desk.flushAll(); // push now instead of waiting for the debounce
+
+      if (this.syncState() === 'offline') {
+        this.toast(
+          'info',
+          'Saved on this device',
+          `${name} will sync when you are back online.`,
+        );
+      } else {
+        this.toast('success', 'Saved', `${name} saved to enquiries`);
+      }
+    } finally {
+      this.customerSaving.set(false);
+    }
   }
 
+  // =====================================================================
+  // Filters (table header)
+  // =====================================================================
   setFilter(key: keyof DeskFilters, value: string | null) {
     const next: any = { ...this.f(), [key]: value ?? '' };
     if (key === 'avail' && !value) next.avail = 'store';
@@ -577,7 +579,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   }
 
   clearAll() {
-    this.desk.patchCurrent({ q: '', f: blankFilters() });
+    this.desk.patchCurrent({ f: blankFilters() });
     this.cNoMin.set(null);
     this.cNoMax.set(null);
     this.priceRange.set(null);
@@ -590,9 +592,10 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   // ---------- View toggle ----------
   private readSavedView(): ViewMode {
     try {
-      return localStorage.getItem(VIEW_MODE_KEY) === 'list' ? 'list' : 'grid';
+      // List (table with header filters) is the default view
+      return localStorage.getItem(VIEW_MODE_KEY) === 'grid' ? 'grid' : 'list';
     } catch {
-      return 'grid';
+      return 'list';
     }
   }
 
@@ -831,7 +834,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
     return parts.join(' · ');
   }
 
-  // ---------- Product grid columns ----------
+  // ---------- Product table columns ----------
   private sumOf(rows: any[], key: string): number {
     return rows.reduce((t, r) => t + (+r?.[key] || 0), 0);
   }
