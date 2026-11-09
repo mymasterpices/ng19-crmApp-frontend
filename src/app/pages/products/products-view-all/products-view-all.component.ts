@@ -169,6 +169,9 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   lastScanned: string | null = null;
   sharingCode = signal<string | null>(null);
 
+  /** User role */
+  userRole = this._authService.getUserRole();
+
   /** True while the "Save customer" request is running. */
   customerSaving = signal(false);
 
