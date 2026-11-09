@@ -195,7 +195,7 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   /** Grid = photo cards (12 per page); List = compact table (50 per page). */
   get limit(): number {
-    return this.viewMode() === 'list' ? 50 : 12;
+    return this.viewMode() === 'list' ? 12 : 20;
   }
 
   // ---------- Clock (drives the 24-hr reply timer) ----------
