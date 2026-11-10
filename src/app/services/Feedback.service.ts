@@ -10,7 +10,7 @@ export interface FeedbackPayload {
   name?: string | null;
   address?: string | null;
   dob?: string | null; // ISO string
-  anniversary?: string | null; // ISO string
+  wedding?: string | null; // ISO string
   pan?: string | null;
   rating?: number | null;
   remarks?: string | null;

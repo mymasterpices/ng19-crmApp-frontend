@@ -91,7 +91,7 @@ export class FeedbackComponent implements OnInit {
     name: ['', [Validators.required]],
     address: [''],
     dob: this.fb.control<Date | null>(null),
-    anniversary: this.fb.control<Date | null>(null),
+    wedding: this.fb.control<Date | null>(null),
     pan: ['', [panValidator]],
     rating: this.fb.control<number | null>(null),
     remarks: [''],
@@ -189,7 +189,7 @@ export class FeedbackComponent implements OnInit {
         name: record.name ?? '',
         address: record.address ?? '',
         dob: record.dob ? new Date(record.dob) : null,
-        anniversary: record.anniversary ? new Date(record.anniversary) : null,
+        wedding: record.wedding ? new Date(record.wedding) : null,
         pan: record.pan ?? '',
         rating: record.rating ?? null,
         remarks: record.remarks ?? '',
@@ -260,7 +260,7 @@ export class FeedbackComponent implements OnInit {
     const {
       country: _country,
       dob,
-      anniversary,
+      wedding,
       ...rest
     } = this.form.getRawValue();
 
@@ -269,7 +269,7 @@ export class FeedbackComponent implements OnInit {
       countryCode: this.selectedCountry.dial, // e.g. '+91'
       countryIso: this.selectedCountry.iso, // e.g. 'IN'
       dob: dob ? dob.toISOString() : null,
-      anniversary: anniversary ? anniversary.toISOString() : null,
+      wedding: wedding ? wedding.toISOString() : null,
     };
 
     const current = this.existing();
