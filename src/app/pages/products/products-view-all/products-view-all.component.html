@@ -46,8 +46,45 @@
       />
     </div>
 
+    <!-- Customer search (name, WhatsApp no., request, channel, market) -->
+    <div class="space-y-1">
+      <div class="relative">
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"
+        ></i>
+        <input
+          type="text"
+          pInputText
+          class="w-full !pl-8 !pr-8 !text-sm"
+          placeholder="Search customer or number"
+          aria-label="Search enquiries by customer name or number"
+          autocomplete="off"
+          [ngModel]="enquirySearch()"
+          (ngModelChange)="enquirySearch.set($event)"
+          (keydown.escape)="clearEnquirySearch()"
+        />
+        @if (enquirySearch()) {
+          <button
+            type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 grid place-items-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Clear customer search"
+            (click)="clearEnquirySearch()"
+          >
+            <i class="pi pi-times text-[11px]"></i>
+          </button>
+        }
+      </div>
+      @if (enquirySearch().trim()) {
+        <p class="text-[11px] text-gray-500 tabular-nums" role="status">
+          {{ filteredEnquiries().length }} of {{ enquiries().length }} enquir{{
+            enquiries().length === 1 ? "y" : "ies"
+          }}
+        </p>
+      }
+    </div>
+
     <div class="flex flex-col gap-1.5 max-h-56 overflow-y-auto">
-      @for (e of enquiries(); track e.id) {
+      @for (e of filteredEnquiries(); track e.id) {
         <div
           class="rounded-lg border grid grid-cols-[1fr_auto] items-center"
           [class]="
@@ -83,6 +120,25 @@
               pTooltip="Delete enquiry"
               (onClick)="removeEnquiry(e.id, $event)"
             />
+          }
+        </div>
+      } @empty {
+        <div
+          class="py-4 px-3 text-center text-xs text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg"
+        >
+          @if (enquirySearch().trim()) {
+            No customer matches “{{ enquirySearch().trim() }}”.
+            <div class="mt-2">
+              <p-button
+                label="Clear search"
+                size="small"
+                severity="secondary"
+                [text]="true"
+                (onClick)="clearEnquirySearch()"
+              />
+            </div>
+          } @else {
+            No enquiries yet.
           }
         </div>
       }

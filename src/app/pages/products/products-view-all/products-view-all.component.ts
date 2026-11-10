@@ -209,6 +209,48 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   readonly rules = this.desk.marketRules;
   readonly syncState = this.desk.syncState;
 
+  // ---------- Enquiry search (left pane) ----------
+  /** Text typed in the "Search customer or number" box. */
+  enquirySearch = signal('');
+
+  /**
+   * Enquiries matching the search box. Looks at name, WhatsApp number,
+   * what they asked for, channel and market. Every word typed must match
+   * (so "priya whatsapp" finds Priya who came via WhatsApp).
+   * Phone numbers are compared on digits only, so "98765 43210",
+   * "+91 98765-43210" and "9876543210" all find the same customer.
+   */
+  readonly filteredEnquiries = computed<Enquiry[]>(() => {
+    const all = this.enquiries();
+    const q = norm(this.enquirySearch());
+    if (!q) return all;
+
+    const words = q.split(/\s+/).filter(Boolean);
+    return all.filter((e) => {
+      const text = norm(
+        [
+          e.name || 'new customer',
+          e.need,
+          e.channel,
+          e.market,
+          e.occasion,
+        ].join(' '),
+      );
+      const phoneDigits = (e.phone || '').replace(/\D/g, '');
+
+      return words.every((w) => {
+        if (text.includes(w)) return true;
+        // digits-only comparison for phone numbers (ignore spaces, dashes, +)
+        const wDigits = w.replace(/\D/g, '');
+        return wDigits.length > 0 && phoneDigits.includes(wDigits);
+      });
+    });
+  });
+
+  clearEnquirySearch() {
+    this.enquirySearch.set('');
+  }
+
   // ---------- Products ----------
   // Price is calculated in the browser (getGrandTotal), so sorting, the price
   // filter and pagination all run client-side on the full result set.
@@ -475,6 +517,8 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
 
   /** "New" button – starts a fresh enquiry. */
   newEnquiry() {
+    // A new, unnamed enquiry would be hidden by an active search, so clear it first.
+    this.clearEnquirySearch();
     this.desk.add();
     this.tpl.set('options');
   }
