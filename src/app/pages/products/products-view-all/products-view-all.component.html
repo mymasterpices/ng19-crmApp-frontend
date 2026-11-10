@@ -1004,24 +1004,35 @@
       <div class="flex flex-col gap-1.5">
         @for (p of picked(); track p.jewel_code) {
           <div
-            class="grid grid-cols-[44px_1fr_auto] gap-2 items-center border border-gray-200 dark:border-gray-700 rounded-lg p-1.5"
+            class="grid grid-cols-[1fr_auto] gap-1 items-center border border-gray-200 dark:border-gray-700 rounded-lg p-1.5 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <div class="w-11 h-11 rounded-md overflow-hidden bg-orange-50">
-              @if (!imageFailed().has(p.jewel_code)) {
-                <img
-                  [src]="imageUrl(p.jewel_code, p.product_image_url)"
-                  [alt]="p.jewel_code"
-                  (error)="onImgError(p.jewel_code)"
-                  class="w-full h-full object-cover"
-                />
-              }
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs font-mono">{{ p.jewel_code }}</div>
-              <div class="text-xs text-gray-500 truncate">
-                {{ itemTitle(p) }} · {{ marketPrice(p, cur().market) }}
+            <!-- Clickable area: photo + code + title → product detail page -->
+            <a
+              [routerLink]="['/view-details', p.jewel_code]"
+              class="grid grid-cols-[44px_1fr] gap-2 items-center min-w-0 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-600"
+              [attr.aria-label]="'Open details for ' + p.jewel_code"
+            >
+              <div class="w-11 h-11 rounded-md overflow-hidden bg-orange-50">
+                @if (!imageFailed().has(p.jewel_code)) {
+                  <img
+                    [src]="imageUrl(p.jewel_code, p.product_image_url)"
+                    [alt]="p.jewel_code"
+                    (error)="onImgError(p.jewel_code)"
+                    class="w-full h-full object-cover"
+                  />
+                }
               </div>
-            </div>
+              <div class="min-w-0">
+                <div
+                  class="text-xs font-mono font-semibold text-emerald-700 dark:text-emerald-400 hover:underline"
+                >
+                  {{ p.jewel_code }}
+                </div>
+                <div class="text-xs text-gray-500 truncate">
+                  {{ itemTitle(p) }} · {{ marketPrice(p, cur().market) }}
+                </div>
+              </div>
+            </a>
             <p-button
               icon="pi pi-times"
               [text]="true"
