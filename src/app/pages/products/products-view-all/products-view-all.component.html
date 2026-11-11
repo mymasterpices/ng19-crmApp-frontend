@@ -1100,11 +1100,12 @@
             (onClick)="copyMessage()"
           />
           <p-button
-            label="Open WhatsApp chat"
+            label="Send On WhatsApp"
             icon="pi pi-whatsapp"
             size="small"
-            severity="secondary"
-            (onClick)="openWhatsApp()"
+            severity="primary"
+            [loading]="sendingPhotos()"
+            (onClick)="sendWithPhotos()"
           />
           <p-button
             label="Mark as sent"

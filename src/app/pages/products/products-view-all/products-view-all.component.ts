@@ -169,6 +169,9 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   lastScanned: string | null = null;
   sharingCode = signal<string | null>(null);
 
+  /** True while the shortlist photos are being prepared for the share sheet. */
+  sendingPhotos = signal(false);
+
   /** User role */
   userRole = this._authService.getUserRole();
 
@@ -567,11 +570,6 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
   }
 
   // ---------- Save new customer ----------
-  /**
-   * Saves the customer details typed in the Customer section.
-   * Requires `addCustomer()` on ApiService (see the snippet in the chat),
-   * or rename it to the method your add-customer page already uses.
-   */
   /** Saves the current enquiry (name, phone, channel, market…) to the server now. */
   async saveCustomer() {
     if (this.customerSaving()) return;
@@ -708,6 +706,102 @@ export class ProductsViewAllComponent implements OnInit, OnDestroy {
       return;
     }
     window.open(this.waHref(), '_blank', 'noopener');
+  }
+
+  // ---------- Send shortlist photos + message ----------
+  /** Model shot first (spec: "send its model shot"), else the normal product photo. */
+  private photoUrl(p: any): string {
+    return p.model_shot_url || this.imageUrl(p.jewel_code, p.product_image_url);
+  }
+
+  /** Downloads one product photo as a File named after its Jewel Code. Null on CORS/404. */
+  private async fetchImageFile(p: any): Promise<File | null> {
+    try {
+      const res = await fetch(this.photoUrl(p));
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      const ext = blob.type.includes('png') ? 'png' : 'jpg';
+      return new File([blob], `${p.jewel_code}.${ext}`, {
+        type: blob.type || 'image/jpeg',
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Opens the device share sheet with the shortlist photos + the message text,
+   * so the executive can pick WhatsApp and the customer's chat.
+   * Browsers without file sharing (most desktops): downloads the photos and
+   * opens the customer's WhatsApp chat with the text.
+   */
+  async sendWithPhotos() {
+    if (this.sendingPhotos()) return;
+    const ps = this.picked();
+    if (!ps.length) {
+      this.toast('warn', 'No pieces', 'Add pieces to the shortlist first.');
+      return;
+    }
+
+    this.sendingPhotos.set(true);
+    try {
+      const files = (
+        await Promise.all(ps.map((p) => this.fetchImageFile(p)))
+      ).filter((f): f is File => !!f);
+
+      if (!files.length) {
+        this.toast('error', 'Failed', 'Could not load the photos');
+        return;
+      }
+      if (files.length < ps.length) {
+        this.toast(
+          'warn',
+          'Some photos missing',
+          `${ps.length - files.length} photo(s) could not be loaded.`,
+        );
+      }
+
+      const data = { files, text: this.message() };
+      if (navigator.canShare?.(data)) {
+        // Backup: if WhatsApp drops the text, the executive can paste it as the caption
+        try {
+          await navigator.clipboard.writeText(this.message());
+        } catch {
+          /* clipboard blocked – ignore */
+        }
+        this.toast(
+          'info',
+          'Message copied',
+          'If the text is missing, paste it as the caption.',
+        );
+        await navigator.share(data); // user picks WhatsApp, then the contact
+        return;
+      }
+
+      // Fallback: download the photos, then open the chat with the text.
+      for (const f of files) {
+        const url = URL.createObjectURL(f);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = f.name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      this.openWhatsApp();
+      this.toast(
+        'info',
+        'Photos downloaded',
+        'Drag the photos into the WhatsApp chat.',
+      );
+    } catch (err: any) {
+      // AbortError = user closed the share sheet
+      if (err?.name !== 'AbortError') {
+        console.error('Send with photos error:', err);
+        this.toast('error', 'Failed', 'Could not share the photos');
+      }
+    } finally {
+      this.sendingPhotos.set(false);
+    }
   }
 
   markSent() {
