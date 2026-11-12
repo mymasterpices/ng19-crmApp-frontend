@@ -35,6 +35,7 @@ import { KarigarDashboardComponent } from './pages/karigar/karigar-dashboard/kar
 import { ImageSearchComponent } from './pages/image-search/image-search.component';
 import { ManageTargetComponent } from './pages/manage-target/manage-target.component';
 import { FeedbackComponent } from './pages/feedback/feedback.component';
+import { EnquiriesComponent } from './pages/enquiries/enquiries.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -62,6 +63,7 @@ export const routes: Routes = [
       { path: 'view-customer/:id', component: ViewCustomerComponent },
       { path: 'search/:customer_name', component: SearchComponent },
       { path: 'products/view-all', component: ProductsViewAllComponent },
+      { path: 'enquiries', component: EnquiriesComponent },
       { path: 'view-details/:jewel_code', component: ViewDetailsComponent },
       { path: 'videos/view-all', component: ViewAllComponent },
       { path: 'videos/shared-links', component: SharedLinksComponent },

@@ -1,0 +1,411 @@
+<!--
+  Enquiries — all active customers, their status, stage and the tag numbers shared.
+  Layout: header + stats · filter bar · status chips · list (cards on mobile, rows on md+)
+-->
+<div class="space-y-4">
+  <!-- ================= HEADER ================= -->
+  <div class="flex items-start justify-between gap-3 flex-wrap">
+    <div>
+      <h1 class="text-xl font-semibold leading-tight">Enquiries</h1>
+      <span
+        class="text-xs"
+        role="status"
+        [class]="syncState() === 'offline' ? 'text-amber-700' : 'text-gray-500'"
+      >
+        @switch (syncState()) {
+          @case ("saved") {
+            <i class="pi pi-check text-emerald-600 text-[10px]"></i> All changes
+            saved
+          }
+          @case ("saving") {
+            <i class="pi pi-spin pi-spinner text-[10px]"></i> Saving…
+          }
+          @default {
+            <i class="pi pi-exclamation-triangle text-[10px]"></i> Offline –
+            saved on this device, will sync
+          }
+        }
+      </span>
+    </div>
+    <p-button
+      label="New enquiry"
+      icon="pi pi-plus"
+      size="small"
+      severity="contrast"
+      (onClick)="newEnquiry()"
+    />
+  </div>
+
+  <!-- ================= STATS ================= -->
+  <div class="grid grid-cols-3 gap-3">
+    @for (
+      s of [
+        {
+          label: "Active customers",
+          value: totals().customers,
+          icon: "pi pi-users",
+        },
+        {
+          label: "Pieces shortlisted",
+          value: totals().pieces,
+          icon: "pi pi-gift",
+        },
+        { label: "Messages sent", value: totals().shared, icon: "pi pi-send" },
+      ];
+      track s.label
+    ) {
+      <div
+        class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3 flex items-center gap-3"
+      >
+        <span
+          class="w-9 h-9 grid place-items-center rounded-lg bg-emerald-50 text-emerald-700 shrink-0"
+        >
+          <i [class]="s.icon"></i>
+        </span>
+        <div class="min-w-0">
+          <div class="text-xl font-semibold tabular-nums leading-none">
+            {{ s.value }}
+          </div>
+          <div class="text-[11px] text-gray-500 truncate mt-1">
+            {{ s.label }}
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ================= FILTER BAR ================= -->
+  <div
+    class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3 space-y-3"
+  >
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="relative flex-1 min-w-[220px]">
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"
+        ></i>
+        <input
+          type="text"
+          pInputText
+          class="w-full !pl-8 !pr-8 !text-sm"
+          placeholder="Search name, number, request or tag no."
+          aria-label="Search enquiries"
+          autocomplete="off"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          (keydown.escape)="search.set('')"
+        />
+        @if (search()) {
+          <button
+            type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 grid place-items-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Clear search"
+            (click)="search.set('')"
+          >
+            <i class="pi pi-times text-[11px]"></i>
+          </button>
+        }
+      </div>
+
+      <p-select
+        [options]="stageOpts"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Any stage"
+        [showClear]="true"
+        appendTo="body"
+        size="small"
+        ariaLabel="Stage filter"
+        [ngModel]="stageFilter()"
+        (ngModelChange)="stageFilter.set($event ?? null)"
+      />
+      <p-select
+        [options]="sortOpts"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        size="small"
+        ariaLabel="Sort"
+        [ngModel]="sort()"
+        (ngModelChange)="sort.set($event)"
+      />
+      <label
+        class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300"
+      >
+        <p-checkbox
+          [binary]="true"
+          [ngModel]="showClosed()"
+          (ngModelChange)="showClosed.set($event)"
+          inputId="showClosed"
+        />
+        Show closed
+      </label>
+      @if (activeFilters() > 0) {
+        <p-button
+          [label]="'Clear (' + activeFilters() + ')'"
+          icon="pi pi-filter-slash"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="clearFilters()"
+        />
+      }
+    </div>
+
+    <!-- Status chips (customer status, with counts) -->
+    <div
+      class="flex flex-wrap gap-2"
+      role="group"
+      aria-label="Filter by status"
+    >
+      <button
+        type="button"
+        class="px-3 py-1 rounded-full text-xs font-semibold border"
+        [attr.aria-pressed]="!statusFilter()"
+        [class]="
+          !statusFilter()
+            ? 'bg-gray-900 text-white border-gray-900 dark:bg-emerald-600 dark:border-emerald-600'
+            : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
+        "
+        (click)="statusFilter.set(null)"
+      >
+        All ({{ totals().customers }})
+      </button>
+      @for (s of statusCounts(); track s.label) {
+        <button
+          type="button"
+          class="px-3 py-1 rounded-full text-xs font-semibold border"
+          [attr.aria-pressed]="statusFilter() === s.label"
+          [class]="
+            statusFilter() === s.label
+              ? 'bg-gray-900 text-white border-gray-900 dark:bg-emerald-600 dark:border-emerald-600'
+              : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
+          "
+          (click)="
+            statusFilter.set(statusFilter() === s.label ? null : s.label)
+          "
+        >
+          {{ s.label }} ({{ s.n }})
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="text-xs text-gray-500 tabular-nums" role="status">
+    Showing {{ rangeText() }} of {{ list().length }} customer{{
+      list().length === 1 ? "" : "s"
+    }}
+    @if (list().length !== totals().customers) {
+      (filtered from {{ totals().customers }})
+    }
+  </p>
+
+  <!-- ================= LIST ================= -->
+  <!-- Column header (md+ only) -->
+  <div
+    class="hidden md:grid grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.5fr)_110px_auto] gap-3 px-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500"
+  >
+    <span>Customer</span>
+    <span>Looking for</span>
+    <span>Stage &amp; status</span>
+    <span>Tag nos. shared</span>
+    <span>Last activity</span>
+    <span class="text-right">Actions</span>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    @for (e of paged(); track e.id) {
+      <article
+        class="rounded-xl bg-white dark:bg-gray-900 border p-3 md:px-4 grid grid-cols-1 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.5fr)_110px_auto] gap-3 items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+        [class]="
+          e.id === currentId()
+            ? 'border-emerald-600 ring-1 ring-emerald-100 dark:ring-emerald-900'
+            : 'border-gray-200 dark:border-gray-700'
+        "
+        tabindex="0"
+        [attr.aria-label]="'Open enquiry for ' + (e.name || 'new customer')"
+        (click)="open(e)"
+        (keydown.enter)="open(e)"
+      >
+        <!-- Customer -->
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <b class="text-sm truncate">{{ e.name || "New customer" }}</b>
+            @if (e.id === currentId()) {
+              <p-tag
+                value="Current"
+                severity="success"
+                styleClass="!text-[10px]"
+              />
+            }
+          </div>
+          <div class="text-xs text-gray-500 truncate">
+            {{ e.phone || "No number" }}
+          </div>
+          <div class="text-xs text-gray-500 truncate">
+            {{ e.channel }} · {{ e.market }}
+          </div>
+        </div>
+
+        <!-- Looking for -->
+        <div class="min-w-0 text-xs">
+          <div class="text-gray-700 dark:text-gray-200 line-clamp-2">
+            {{ e.need || "Not captured yet" }}
+          </div>
+          @if (e.occasion) {
+            <span class="text-gray-500">Occasion: {{ e.occasion }}</span>
+          }
+        </div>
+
+        <!-- Stage + status -->
+        <div class="min-w-0 space-y-1.5">
+          <p-tag
+            [value]="status(e).label"
+            [severity]="status(e).severity"
+            styleClass="!text-[11px]"
+          />
+          <div class="text-xs text-gray-500 truncate">{{ stageTitle(e) }}</div>
+          <p-progressbar
+            [value]="progress(e)"
+            [showValue]="false"
+            styleClass="!h-1"
+          />
+        </div>
+
+        <!-- Shared tag numbers -->
+        <div class="min-w-0">
+          @if (e.picked.length) {
+            <div class="flex flex-wrap gap-1">
+              @for (code of e.picked; track code) {
+                <a
+                  [routerLink]="['/view-details', code]"
+                  (click)="$event.stopPropagation()"
+                  class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-gray-800 text-emerald-700 dark:text-emerald-400 font-mono text-[11px] font-semibold hover:underline"
+                  >{{ code }}</a
+                >
+              }
+            </div>
+            <div
+              class="text-[11px] mt-1"
+              [class]="e.sentAt ? 'text-gray-500' : 'text-amber-700'"
+            >
+              {{
+                e.sentAt
+                  ? "Sent " + ago(e.sentAt)
+                  : "Shortlisted – not sent yet"
+              }}
+            </div>
+          } @else {
+            <span class="text-xs text-gray-400">No pieces yet</span>
+          }
+        </div>
+
+        <!-- Last activity -->
+        <div class="text-xs text-gray-500 tabular-nums">
+          <span class="md:hidden font-semibold">Last activity: </span>
+          {{ ago(e.sentAt ?? e.createdAt) }}
+          <div class="text-[11px]">Started {{ ago(e.createdAt) }}</div>
+        </div>
+
+        <!-- Actions -->
+        <div
+          class="flex items-center justify-end gap-1"
+          (click)="$event.stopPropagation()"
+        >
+          @if (whatsAppHref(e); as href) {
+            <a
+              [href]="href"
+              target="_blank"
+              rel="noopener"
+              aria-label="Open WhatsApp chat"
+            >
+              <p-button
+                icon="pi pi-whatsapp"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                severity="contrast"
+                pTooltip="WhatsApp chat"
+                tabindex="-1"
+              />
+            </a>
+          }
+          @if (e.picked.length) {
+            <p-button
+              icon="pi pi-copy"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              severity="contrast"
+              pTooltip="Copy tag numbers"
+              ariaLabel="Copy tag numbers"
+              (onClick)="copyTags(e, $event)"
+            />
+          }
+          <p-button
+            icon="pi pi-arrow-right"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            severity="contrast"
+            pTooltip="Open in catalogue"
+            ariaLabel="Open enquiry"
+            (onClick)="open(e)"
+          />
+          @if (userRole == "superadmin") {
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              severity="secondary"
+              pTooltip="Delete enquiry"
+              [ariaLabel]="'Delete enquiry for ' + (e.name || 'new customer')"
+              (onClick)="remove(e, $event)"
+            />
+          }
+        </div>
+      </article>
+    } @empty {
+      <div
+        class="py-10 px-4 text-center text-sm text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl"
+      >
+        @if (activeFilters() > 0) {
+          No enquiries match these filters.
+          <div class="mt-3">
+            <p-button
+              label="Clear filters"
+              size="small"
+              severity="secondary"
+              (onClick)="clearFilters()"
+            />
+          </div>
+        } @else {
+          No active enquiries yet.
+          <div class="mt-3">
+            <p-button
+              label="New enquiry"
+              icon="pi pi-plus"
+              size="small"
+              (onClick)="newEnquiry()"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  @if (list().length > rowsOptions[0]) {
+    <p-paginator
+      [first]="first()"
+      [rows]="rows()"
+      [totalRecords]="list().length"
+      [rowsPerPageOptions]="rowsOptions"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{first} – {last} of {totalRecords}"
+      (onPageChange)="onPage($event)"
+    />
+  }
+</div>
+
+<p-confirmdialog />

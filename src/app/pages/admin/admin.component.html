@@ -1,6 +1,6 @@
-<div class="antialiased bg-zinc-50 dark:bg-zinc-950">
+<div class="antialiased bg-zinc-50 dark:bg-slate-900">
   <nav
-    class="bg-white border-b border-zinc-200 px-1 md:px-4 py-2.5 dark:bg-zinc-950 dark:border-zinc-700 fixed left-0 right-0 top-0 z-50"
+    class="border-b px-1 md:px-4 py-2.5 dark:border-zinc-700 fixed left-0 right-0 top-0 z-50 backdrop-blur-sm bg-opacity-30 dark:bg-opacity-30 border-zinc-300"
   >
     <div class="flex flex-wrap justify-between items-center">
       <div class="flex justify-start items-center">
@@ -8,7 +8,6 @@
           [icon]="drawerNavigation ? 'pi pi-times' : 'pi pi-bars'"
           class="md:hidden"
           (click)="drawerNavigation = !drawerNavigation"
-          severity="contrast"
           [text]="true"
         ></p-button>
 
@@ -97,7 +96,7 @@
 
   <aside
     id="app-sidebar"
-    class="fixed top-0 left-0 z-40 w-full md:w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-zinc-200 dark:bg-zinc-950 dark:border-zinc-700"
+    class="fixed top-0 left-0 z-40 w-full md:w-64 h-screen pt-14 transition-transform bg-white border-r border-zinc-200 dark:bg-slate-900 dark:border-zinc-700 bg-cover bg-no-repeat bg-right"
     aria-label="Sidenav"
     [ngClass]="{
       'translate-x-0': drawerNavigation,
@@ -106,7 +105,9 @@
       'md:-translate-x-full': !sidebarOpen(),
     }"
   >
-    <div class="py-5 px-3 h-full bg-white dark:bg-zinc-950 overflow-y-auto">
+    <div
+      class="py-5 px-3 h-full overflow-y-auto backdrop:blur-sm bg-opacity-30 dark:bg-opacity-30"
+    >
       <ul class="space-y-1 pb-14 mb-6">
         @if (userRole === "karigar") {
           <li>
@@ -181,6 +182,18 @@
             >
               <span class="flex-1 text-left">
                 <i class="pi pi-box px-2"></i> Products
+              </span>
+            </a>
+          </li>
+          <li>
+            <a
+              (click)="drawerNavigation = false; toggleMenu('enquiries')"
+              routerLink="/enquiries"
+              routerLinkActive="bg-zinc-200 !text-zinc-900"
+              class="flex items-center p-2 text-base dark:text-zinc-300 rounded-md dark:hover:text-zinc-900 hover:bg-zinc-200 hover:!text-zinc-900 dark:hover:bg-zinc-200 group w-full"
+            >
+              <span class="flex-1 text-left">
+                <i class="pi pi-pen-to-square px-2"></i> Enquiries
               </span>
             </a>
           </li>
@@ -273,7 +286,7 @@
       </ul>
     </div>
     <div
-      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-zinc-950 z-20 border-t border-zinc-200 dark:border-zinc-700"
+      class="absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-slate-900 z-20 border-t border-zinc-200 dark:border-zinc-700"
     >
       <div class="flex justify-between gap-4 items-center">
         <div class="flex justify-start gap-3">
@@ -307,7 +320,7 @@
   </aside>
 
   <main
-    class="p-4 min-h-screen pt-20 max-sm:pb-20 bg-zinc-200 dark:bg-zinc-950 transition-[margin]"
+    class="p-4 min-h-screen pt-20 max-sm:pb-20 bg-zinc-200 dark:bg-slate-900 transition-[margin]"
     [ngClass]="sidebarOpen() ? 'md:ml-64' : 'md:ml-0'"
   >
     <router-outlet></router-outlet>

@@ -8,6 +8,8 @@ export type MakeType = 'Diamond' | 'Polki' | 'Gold' | 'Gemstone';
 export type ItemStatus = 'In store' | 'At exhibition' | 'Reserved' | 'Sold';
 export type SortKey = 'best' | 'price_asc' | 'price_desc' | 'new' | 'wt';
 export type TagSeverity = 'secondary' | 'success' | 'warn' | 'danger' | 'info';
+/** Record status. "Deleting" an enquiry sets it to 'inactive'; the row stays in the database. */
+export type EnquiryStatus = 'active' | 'inactive';
 
 /** crypto.randomUUID only exists on HTTPS/localhost; this also works on plain-HTTP intranet hosts. */
 export const uuid = (): string =>
@@ -72,6 +74,8 @@ export interface Enquiry {
   q: string; // free-text search, remembered per enquiry
   f: DeskFilters; // filters, remembered per enquiry
   createdAt: number;
+  /** Defaults to 'active'. Only the server changes it (DELETE → 'inactive', restore → 'active'). */
+  status?: EnquiryStatus;
 }
 
 export interface SendLog {
