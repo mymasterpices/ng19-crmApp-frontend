@@ -341,16 +341,6 @@
               (onClick)="copyTags(e, $event)"
             />
           }
-          <p-button
-            icon="pi pi-arrow-right"
-            [text]="true"
-            [rounded]="true"
-            size="small"
-            severity="contrast"
-            pTooltip="Open in catalogue"
-            ariaLabel="Open enquiry"
-            (onClick)="open(e)"
-          />
           @if (userRole == "superadmin") {
             <p-button
               icon="pi pi-trash"
