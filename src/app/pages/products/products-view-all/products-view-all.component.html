@@ -1145,42 +1145,6 @@
         class="w-full"
       />
     </div>
-
-    <section
-      class="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3"
-    >
-      <h2 class="font-semibold mb-2">Quick Actions</h2>
-      @for (a of quickActions; track a.title) {
-        <a
-          [routerLink]="a.link"
-          class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-        >
-          <span
-            class="w-10 h-10 grid place-items-center rounded-lg bg-emerald-50 text-emerald-700"
-          >
-            <i [class]="a.icon"></i>
-          </span>
-          <span class="flex-1">
-            <span class="block text-sm font-medium">{{ a.title }}</span>
-            <span class="block text-xs text-gray-500">{{ a.sub }}</span>
-          </span>
-          <i class="pi pi-angle-right text-gray-400"></i>
-        </a>
-      }
-    </section>
-
-    <a
-      class="flex items-center gap-3 rounded-xl bg-amber-50 dark:bg-gray-900 border border-amber-100 dark:border-gray-700 p-4"
-    >
-      <i class="pi pi-crown text-2xl text-amber-500"></i>
-      <span class="flex-1">
-        <span class="block text-sm font-semibold">Top Selling Products</span>
-        <span class="block text-xs text-gray-500"
-          >View what your customers love</span
-        >
-      </span>
-      <i class="pi pi-angle-right text-gray-400"></i>
-    </a>
   </aside>
 </div>
 
