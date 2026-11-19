@@ -51,13 +51,14 @@
         <div class="flex justify-between items-center gap-1 md:gap-4">
           @if (userRole === "superadmin") {
             <p-button
-              icon="pi pi-comments"
+              icon="pi pi-sparkles"
               text="true"
-              pTooltip="Assistant"
+              pTooltip="AI Assistant"
               tooltipPosition="top"
               (onClick)="chatDrawer = true"
               severity="contrast"
               [rounded]="true"
+              class="bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full"
             />
           }
 
@@ -328,11 +329,15 @@
 
     <!-- show chat widget -->
     @if (userRole === "superadmin") {
-      <p-drawer [(visible)]="chatDrawer" position="full">
+      <p-drawer
+        [(visible)]="chatDrawer"
+        position="right"
+        styleClass="!w-full md:!w-80 lg:!w-[30rem]"
+      >
         <ng-template #header>
           <div class="flex items-center gap-2">
-            <p-avatar image="./chat.png" shape="circle" />
-            <span class="font-bold">Store assistant</span>
+            <i class="pi pi-sparkles"></i>
+            <span class="font-semibold">AI assistant</span>
           </div>
         </ng-template>
         <!-- Chat widget component -->
